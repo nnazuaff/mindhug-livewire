@@ -4,6 +4,12 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-baloo: 'Baloo 2', cursive;
+
+    --color-soft-brown: #d7c6b8;
+    --color-softBrown: #d7c6b8;
+    --color-dark-brown: #8b6f5c;
+    --color-darkBrown: #8b6f5c;
 }
