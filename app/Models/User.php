@@ -10,8 +10,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable([
+    'full_name',
+    'username',
+    'email',
+    'phone',
+    'role',
+    'trial_started_at',
+    'is_trial_active',
+    'birth_date',
+    'password',
+    'last_login_at',
+])]
+#[Hidden(['password'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -25,8 +36,11 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'trial_started_at' => 'datetime',
+            'is_trial_active' => 'boolean',
+            'birth_date' => 'date',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
     }
 }
