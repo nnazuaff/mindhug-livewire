@@ -7,7 +7,7 @@
     <title>{{ $title ?? 'MindHug - Peluk Emosi, Tenangkan Hati' }}</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('logo/favicon.png') }}" />
+    <link rel="icon" href="{{ asset('favicon.png') }}" />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
