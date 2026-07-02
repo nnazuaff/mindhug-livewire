@@ -25,6 +25,8 @@
                             class="text-sm text-[#4a3728] hover:text-[#a47551] transition duration-200">Curhat</a></li>
                     <li><a href="{{ url('/shop') }}"
                             class="text-sm text-[#4a3728] hover:text-[#a47551] transition duration-200">Shop</a></li>
+                    <li><a href="{{ url('/kontak') }}"
+                            class="text-sm text-[#4a3728] hover:text-[#a47551] transition duration-200">Kontak</a></li>
                 </ul>
             </div>
 
