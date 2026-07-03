@@ -36,7 +36,11 @@ class Cart extends Component
             return;
         }
 
-        $products = Product::whereIn('id', array_keys($cart))->get()->keyBy('id');
+        $productIds = array_map('intval', array_keys($cart));
+        $products = Product::query()
+            ->get()
+            ->filter(fn ($product) => in_array($product->id, $productIds, true))
+            ->keyBy('id');
 
         $this->cartItems = collect($cart)
             ->map(function ($quantity, $productId) use ($products) {

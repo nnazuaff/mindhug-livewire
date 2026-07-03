@@ -44,7 +44,7 @@ class Index extends Component
     public function loadCart(): void
     {
         if ($this->directProductId !== null) {
-            $product = Product::find($this->directProductId);
+            $product = Product::query()->find($this->directProductId);
 
             if (! $product) {
                 $this->cartItems = [];
@@ -71,7 +71,12 @@ class Index extends Component
             return;
         }
 
-        $products = Product::whereIn('id', array_keys($cart))->get()->keyBy('id');
+        $productIds = array_map('intval', array_keys($cart));
+        $products = Product::query()
+            ->get()
+            ->filter(fn ($product) => in_array($product->id, $productIds, true))
+            ->keyBy('id');
+
         $this->cartItems = collect($cart)
             ->map(function ($quantity, $productId) use ($products) {
                 $product = $products->get((int) $productId);
@@ -140,9 +145,11 @@ class Index extends Component
             return;
         }
 
-        $this->paymentMethods = PaymentMethod::where('is_active', true)
-            ->orderBy('sort_order', 'asc')
+        $this->paymentMethods = PaymentMethod::query()
             ->get()
+            ->filter(fn ($method) => (bool) $method->is_active)
+            ->sortBy('sort_order')
+            ->values()
             ->map(fn ($method) => [
                 'id' => $method->id,
                 'code' => $method->code,

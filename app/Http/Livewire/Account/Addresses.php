@@ -3,7 +3,6 @@
 namespace App\Http\Livewire\Account;
 
 use App\Models\User;
-use App\Models\UserAddress;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -193,7 +192,7 @@ class Addresses extends Component
         }
 
         if ($this->address_is_primary) {
-            UserAddress::where('user_id', $this->user->id)->update(['is_primary' => false]);
+            $this->user->addresses()->update(['is_primary' => false]);
         }
 
         $this->user->addresses()->create([
@@ -213,13 +212,13 @@ class Addresses extends Component
 
     public function setPrimaryAddress(int $addressId): void
     {
-        $address = UserAddress::where('user_id', $this->user->id)->find($addressId);
+        $address = $this->user->addresses()->whereKey($addressId)->first();
 
         if (! $address) {
             return;
         }
 
-        UserAddress::where('user_id', $this->user->id)->update(['is_primary' => false]);
+        $this->user->addresses()->update(['is_primary' => false]);
         $address->update(['is_primary' => true]);
 
         $this->loadAddresses();
@@ -228,7 +227,7 @@ class Addresses extends Component
 
     public function deleteAddress(int $addressId): void
     {
-        $address = UserAddress::where('user_id', $this->user->id)->find($addressId);
+        $address = $this->user->addresses()->whereKey($addressId)->first();
 
         if (! $address) {
             return;

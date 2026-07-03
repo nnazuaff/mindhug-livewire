@@ -17,6 +17,16 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    // server: {
+    //     host: '0.0.0.0', // Mengizinkan akses dari luar
+    //     watch: {
+    //         ignored: ['**/storage/framework/views/**'],
+    //     },
+    //     hmr: {
+    //         host: 'lawlessly-unpanoplied-enid.ngrok-free.dev', // URL Ngrok Tuan tanpa https://
+    //         protocol: 'wss', // Wajib wss (WebSocket Secure) karena Ngrok pake HTTPS
+    //     },
+    // },
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],

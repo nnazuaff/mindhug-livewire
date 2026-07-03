@@ -56,7 +56,8 @@ class CurhatForm extends Component
     public function render()
     {
         $user         = Auth::user();
-        $conversation = Conversation::where('user_id', $user->id)
+        $conversation = Conversation::query()
+            ->where('user_id', $user->id)
             ->where('status', 'open')
             ->with(['messages' => fn ($q) => $q->orderBy('created_at')])
             ->first();

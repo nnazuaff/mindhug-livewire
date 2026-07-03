@@ -5,7 +5,6 @@ namespace App\Http\Livewire\Account;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class Security extends Component
@@ -56,7 +55,7 @@ class Security extends Component
         }
 
         Auth::logout();
-        $this->user->delete();
+        User::query()->whereKey($this->user->getKey())->delete();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 

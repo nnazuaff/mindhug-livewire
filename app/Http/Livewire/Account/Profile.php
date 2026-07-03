@@ -65,13 +65,13 @@ class Profile extends Component
     {
         $this->validate();
 
-        $this->user->update([
+        $this->user->fill([
             'full_name' => $this->full_name,
             'username' => $this->username,
             'email' => $this->email,
             'phone' => $this->phone,
             'birth_date' => $this->birth_date,
-        ]);
+        ])->save();
 
         $this->updated_at = $this->user->updated_at?->format('d M Y H:i');
 
