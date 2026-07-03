@@ -30,7 +30,7 @@
         <div class="flex items-center justify-between gap-3">
 
             {{-- ── Logo ── --}}
-            <a href="{{ url('/') }}" wire:navigate class="flex items-center gap-2.5 group flex-shrink-0 select-none">
+            <a href="{{ url('/') }}" wire:navigate class="flex items-center gap-2.5 group shrink-0 select-none">
                 <span
                     class="h-9 w-9 flex items-center justify-center rounded-xl bg-[#a47551]/12 ring-1 ring-[#a47551]/20 group-hover:bg-[#a47551]/20 group-hover:ring-[#a47551]/35 transition-all duration-300">
                     <img src="{{ asset('favicon.png') }}" alt="MindHug" class="h-5.5 w-5.5 rounded-md" />
@@ -55,7 +55,7 @@
             </nav>
 
             {{-- ── Desktop CTA ── --}}
-            <div class="hidden md:flex items-center gap-1.5 flex-shrink-0">
+            <div class="hidden md:flex items-center gap-1.5 shrink-0">
                 @auth
                     {{-- Cart --}}
                     <a href="{{ url('/transactions/cart') }}" aria-label="Keranjang"
@@ -150,16 +150,91 @@
                 @endauth
             </div>
 
-            {{-- ── Mobile Hamburger ── --}}
-            <button @click="menu = true" aria-label="Buka menu"
-                class="md:hidden p-2 rounded-xl text-[#5a4035] hover:bg-[#f5e9df] hover:text-[#a47551] transition-all duration-200 active:scale-95">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="12" x2="16" y2="12" />
-                    <line x1="3" y1="18" x2="11" y2="18" />
-                </svg>
-            </button>
+            {{-- ── Mobile Actions ── --}}
+            <div class="md:hidden flex items-center gap-1.5">
+                @auth
+                    <a href="{{ url('/transactions/cart') }}" aria-label="Keranjang" wire:navigate
+                        class="relative p-2 rounded-xl text-[#5a4035] hover:bg-[#f5e9df] hover:text-[#a47551] transition-all duration-200">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 6h15l-1.5 9h-12z" />
+                            <path d="M6 6 4 3H1" />
+                            <circle cx="9" cy="20" r="1" />
+                            <circle cx="18" cy="20" r="1" />
+                        </svg>
+                        @if ($cartCount > 0)
+                            <span
+                                class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </a>
+
+                    <div class="relative" x-data @click.away="userDropdown = false">
+                        <button @click="userDropdown = !userDropdown" type="button" aria-label="Menu profil"
+                            class="p-2 rounded-xl text-[#5a4035] hover:bg-[#f5e9df] hover:text-[#a47551] transition-all duration-200">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21a8 8 0 1 0-16 0" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </button>
+
+                        <div x-show="userDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                            class="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-[#ede4da] bg-white/95 backdrop-blur-md shadow-xl shadow-[#a47551]/10 overflow-hidden z-[120]">
+                            <a href="{{ route('account.profile') }}" wire:navigate
+                                class="flex items-center gap-3 px-4 py-3 text-sm text-[#2b2b2b] hover:bg-[#fdf5ef] transition-colors duration-150">
+                                <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M20 21a8 8 0 1 0-16 0" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                Akun Saya
+                            </a>
+                            <a href="{{ url('/transactions/orders') }}" wire:navigate
+                                class="flex items-center gap-3 px-4 py-3 text-sm text-[#2b2b2b] hover:bg-[#fdf5ef] transition-colors duration-150">
+                                <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M9 12h6M9 16h6M9 8h6" />
+                                    <path d="M6 21h12a2 2 0 0 0 2-2V7l-5-4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z" />
+                                </svg>
+                                Pesanan Saya
+                            </a>
+                            <div class="h-px bg-[#ede4da] mx-2"></div>
+                            <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 transition-colors duration-150 text-left">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                        <polyline points="16 17 21 12 16 7" />
+                                        <line x1="21" y1="12" x2="9" y2="12" />
+                                    </svg>
+                                    Log Out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endauth
+
+                <button @click="menu = true" aria-label="Buka menu"
+                    class="p-2 rounded-xl text-[#5a4035] hover:bg-[#f5e9df] hover:text-[#a47551] transition-all duration-200 active:scale-95">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="16" y2="12" />
+                        <line x1="3" y1="18" x2="11" y2="18" />
+                    </svg>
+                </button>
+            </div>
 
         </div>
     </div>
@@ -168,7 +243,7 @@
          MOBILE FULL-SCREEN OVERLAY + SLIDE PANEL
          (fixed → escapes sticky stacking context)
     ════════════════════════════════════════════ --}}
-    <div x-show="menu" x-cloak class="fixed inset-0 z-[99] flex"
+    <div x-show="menu" x-cloak class="fixed inset-0 z-[99] flex md:hidden"
         x-transition:enter="transition duration-300 ease-out" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition duration-200 ease-in"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
@@ -208,7 +283,7 @@
                         class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-200 group
                           {{ $active ? 'bg-[#f5e9df] text-[#a47551]' : 'text-[#3d2b1c] hover:bg-[#f5e9df]/60 hover:text-[#a47551]' }}">
                         <span
-                            class="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0 transition-all duration-200
+                            class="flex h-9 w-9 items-center justify-center rounded-xl shrink-0 transition-all duration-200
                                  {{ $active ? 'bg-[#a47551] text-white' : 'bg-[#f0e5db] text-[#a47551] group-hover:bg-[#a47551] group-hover:text-white' }}">
                             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -226,20 +301,25 @@
             {{-- Panel footer --}}
             <div class="px-3 py-5 border-t border-[#ede0d4] bg-[#fdf8f4] space-y-2">
                 @auth
-                    <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-[#ede0d4]">
-                        <div class="h-9 w-9 rounded-full bg-[#a47551]/15 flex items-center justify-center flex-shrink-0">
-                            <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21a8 8 0 1 0-16 0" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
+                    <a href="/account/profile">
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-[#ede0d4]">
+                            <div class="h-9 w-9 rounded-full bg-[#a47551]/15 flex items-center justify-center shrink-0">
+                                <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M20 21a8 8 0 1 0-16 0" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                            </div>
+
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs text-[#888]">Masuk sebagai</p>
+                                <p class="text-sm font-semibold text-[#2b1d12] truncate">
+                                    {{ auth()->user()->full_name ?? auth()->user()->name }}</p>
+                            </div>
+
                         </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-xs text-[#888]">Masuk sebagai</p>
-                            <p class="text-sm font-semibold text-[#2b1d12] truncate">
-                                {{ auth()->user()->full_name ?? auth()->user()->name }}</p>
-                        </div>
-                    </div>
+                    </a>
                     <form method="POST" action="{{ route('logout') }}" class="m-0">
                         @csrf
                         <button type="submit"
