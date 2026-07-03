@@ -4,8 +4,8 @@
             <div>
                 <p class="text-sm uppercase tracking-[0.32em] text-[#8b6f5c]/70">Keamanan Akun</p>
                 <h1 class="mt-2 text-3xl font-semibold text-[#1f1f1f]">Jaga akun tetap aman</h1>
-                <p class="mt-3 max-w-2xl text-sm leading-7 text-[#6a5a4f]">Ubah password dan kelola penghapusan akun
-                    dengan aman di sini.</p>
+                {{-- <p class="mt-3 max-w-2xl text-sm leading-7 text-[#6a5a4f]">Ubah password dan kelola penghapusan akun
+                    dengan aman di sini.</p> --}}
             </div>
         </div>
 

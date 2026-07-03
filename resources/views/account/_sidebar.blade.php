@@ -10,8 +10,7 @@
     <div>
         <p class="text-xs uppercase tracking-[0.32em] text-[#8b6f5c]/70">Akun</p>
         <h2 class="mt-3 text-2xl font-semibold text-[#1f1f1f]">Pengaturan</h2>
-        <p class="mt-3 text-sm leading-6 text-[#6a5a4f]">Kelola profil, keamanan, dan alamat kamu dengan halaman terpisah
-            yang ringan.</p>
+
     </div>
 
     <nav class="grid gap-2">

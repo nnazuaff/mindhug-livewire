@@ -15,8 +15,8 @@
                 <div>
 
                     <h1 class="mt-3 text-3xl font-semibold text-[#1f1f1f]">{{ $user->full_name }}</h1>
-                    <p class="mt-2 max-w-xl text-sm leading-7 text-[#6a5a4f]">Perbarui data profil dasar dengan
-                        halaman yang ringan dan fokus.</p>
+                    {{-- <p class="mt-2 max-w-xl text-sm leading-7 text-[#6a5a4f]">Perbarui data profil dasar dengan
+                        halaman yang ringan dan fokus.</p> --}}
                 </div>
             </div>
             <span

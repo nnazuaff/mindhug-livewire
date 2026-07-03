@@ -4,8 +4,8 @@
             <div>
                 <p class="text-sm uppercase tracking-[0.32em] text-[#8b6f5c]/70">Alamat</p>
                 <h1 class="mt-2 text-3xl font-semibold text-[#1f1f1f]">Kelola alamat pengiriman</h1>
-                <p class="mt-3 max-w-2xl text-sm leading-7 text-[#6a5a4f]">Simpan alamat rumah atau kantor untuk checkout
-                    yang lebih cepat.</p>
+                {{-- <p class="mt-3 max-w-2xl text-sm leading-7 text-[#6a5a4f]">Simpan alamat rumah atau kantor untuk checkout
+                    yang lebih cepat.</p> --}}
             </div>
         </div>
 
