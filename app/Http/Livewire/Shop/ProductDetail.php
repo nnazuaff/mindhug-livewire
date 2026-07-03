@@ -14,10 +14,12 @@ class ProductDetail extends Component
 
     public $successMessage = '';
 
-    public function addToCart($redirect = null)
+    public function addToCart(): void
     {
         if (! Auth::check()) {
-            return redirect()->route('login');
+            redirect()->route('login');
+
+            return;
         }
 
         $cart = session()->get('cart', []);
@@ -25,12 +27,21 @@ class ProductDetail extends Component
         session()->put('cart', $cart);
 
         $this->dispatch('cart-updated', array_sum($cart));
+        $this->successMessage = 'Produk berhasil ditambahkan ke keranjang.';
+    }
 
-        if ($redirect === 'checkout') {
-            return redirect()->route('checkout');
+    public function buyNow(): void
+    {
+        if (! Auth::check()) {
+            redirect()->route('login');
+
+            return;
         }
 
-        $this->successMessage = 'Produk berhasil ditambahkan ke keranjang.';
+        redirect()->route('checkout', [
+            'product' => $this->product->id,
+            'quantity' => $this->quantity,
+        ]);
     }
 
     public function render()

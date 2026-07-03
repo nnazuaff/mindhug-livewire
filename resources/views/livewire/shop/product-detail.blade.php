@@ -28,11 +28,11 @@
 
                 @if ($product->stock > 0)
                     <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <button wire:click="addToCart('shop')"
+                        <button wire:click="addToCart"
                             class="rounded-lg bg-[#a47551] px-4 py-3 text-white hover:bg-[#8f6243] transition">
                             Masukkan Keranjang
                         </button>
-                        <button wire:click="addToCart('checkout')"
+                        <button wire:click="buyNow"
                             class="rounded-lg border border-[#a47551]/40 px-4 py-3 text-[#2b2b2b] hover:bg-[#a47551]/10 transition">
                             Beli Sekarang
                         </button>

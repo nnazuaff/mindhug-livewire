@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::view('/account/profile', 'account.profile')->name('account.profile');
     Route::view('/account/security', 'account.security')->name('account.security');
     Route::view('/account/addresses', 'account.addresses')->name('account.addresses');
+    Route::view('/transactions/cart', 'cart')->name('cart');
     Route::view('/checkout', 'checkout.index')->name('checkout');
 });
 
