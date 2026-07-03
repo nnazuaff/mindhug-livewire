@@ -23,6 +23,10 @@ Route::middleware('auth')->group(function () {
     })->name('logout');
 
     Route::view('/curhat', 'curhat.index')->name('curhat');
+    Route::view('/account/profile', 'account.profile')->name('account.profile');
+    Route::view('/account/security', 'account.security')->name('account.security');
+    Route::view('/account/addresses', 'account.addresses')->name('account.addresses');
+    Route::view('/checkout', 'checkout.index')->name('checkout');
 });
 
 Route::get('/shop', function () {

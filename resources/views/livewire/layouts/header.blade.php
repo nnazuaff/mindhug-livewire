@@ -102,7 +102,7 @@
                             x-transition:leave-start="opacity-100 scale-100"
                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
                             class="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-[#ede4da] bg-white/95 backdrop-blur-md shadow-xl shadow-[#a47551]/10 overflow-hidden">
-                            <a href="{{ url('/account/profile') }}"
+                            <a href="{{ route('account.profile') }}"
                                 class="flex items-center gap-3 px-4 py-3 text-sm text-[#2b2b2b] hover:bg-[#fdf5ef] transition-colors duration-150">
                                 <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
