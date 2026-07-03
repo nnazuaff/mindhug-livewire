@@ -1,4 +1,4 @@
-<x-layouts.app title="Keamanan Akun">
+<x-layouts.app title="Keamanan Akun - MindHug">
     <div class="max-w-7xl mx-auto px-4 py-10">
         <div class="grid gap-8 xl:grid-cols-[280px_1fr]">
             @include('account._sidebar')
