@@ -24,6 +24,8 @@ class ProductDetail extends Component
         $cart[$this->product->id] = ($cart[$this->product->id] ?? 0) + $this->quantity;
         session()->put('cart', $cart);
 
+        $this->dispatch('cart-updated', array_sum($cart));
+
         if ($redirect === 'checkout') {
             return redirect()->route('checkout');
         }

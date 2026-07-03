@@ -9,6 +9,10 @@ class Header extends Component
 {
     public $cartCount = 0;
 
+    protected $listeners = [
+        'cart-updated' => 'updateCartCount',
+    ];
+
     // Listener interaksi realtime dari komponen lain (misal: saat klik 'Tambah ke Keranjang')
     #[On('cart-updated')]
     public function updateCartCount($count)

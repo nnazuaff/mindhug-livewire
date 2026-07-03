@@ -14,10 +14,24 @@ class Index extends Component
 
     public $sort = '';
 
-    protected $queryString = ['q', 'sort'];
+    protected $queryString = [
+        'q' => ['except' => ''],
+        'sort' => ['except' => ''],
+    ];
 
     public function updatingQ()
     {
+        $this->resetPage();
+    }
+
+    public function updatingSort()
+    {
+        $this->resetPage();
+    }
+
+    public function clearSearch()
+    {
+        $this->reset('q');
         $this->resetPage();
     }
 

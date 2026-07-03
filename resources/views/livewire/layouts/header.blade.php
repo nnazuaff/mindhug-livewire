@@ -67,10 +67,10 @@
                             <circle cx="9" cy="20" r="1" />
                             <circle cx="18" cy="20" r="1" />
                         </svg>
-                        @if (session()->has('cart') && count(session('cart')) > 0)
+                        @if ($cartCount > 0)
                             <span
                                 class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
-                                {{ array_sum(session('cart')) }}
+                                {{ $cartCount }}
                             </span>
                         @endif
                     </a>
