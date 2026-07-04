@@ -50,3 +50,5 @@
     --color-dark-brown: #8b6f5c;
     --color-darkBrown: #8b6f5c;
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
