@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class OrderItem extends Model
 {
@@ -26,5 +27,13 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function getImageUrlAttribute(): string
+    {
+        $files = Storage::disk('public')->files('products/'.$this->product_id);
+        $image = ! empty($files) ? basename($files[0]) : 'default.png';
+
+        return asset('storage/products/'.$this->product_id.'/'.$image);
     }
 }

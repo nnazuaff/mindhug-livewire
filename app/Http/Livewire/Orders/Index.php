@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Orders;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,44 +12,46 @@ class Index extends Component
 {
     use WithPagination;
 
-    public string $statusFilter = '';
-
     public string $search = '';
 
-    protected $queryString = [
-        'statusFilter' => ['except' => ''],
-        'search' => ['except' => ''],
-    ];
+    public string $statusFilter = '';
 
-    public function updatingStatusFilter(): void
-    {
-        $this->resetPage();
-    }
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'statusFilter' => ['except' => ''],
+    ];
 
     public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
+    public function updatingStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function clearSearch(): void
+    {
+        $this->reset('search');
+        $this->resetPage();
+    }
+
+    #[On('order-updated')]
+    public function refreshOrders(): void {}
+
     public function render()
     {
         $orders = Order::query()
             ->where('user_id', Auth::id())
-            ->when($this->search, fn ($q) => $q->where('invoice_number', 'like', "%{$this->search}%"))
+            ->when($this->search, fn ($q) => $q->where('invoice_number', 'like', '%'.$this->search.'%'))
             ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->withCount('items')
             ->with(['latestTrackingEvent'])
             ->orderByDesc('created_at')
             ->paginate(10);
 
-        return view('livewire.orders.index', [
-            'orders' => $orders,
-        ]);
-    }
-
-    public function clearSearch(): void
-    {
-        $this->search = '';
+        return view('livewire.orders.index', ['orders' => $orders]);
     }
 
     public function getStatusLabel(string $status): string

@@ -1,4 +1,4 @@
-<div class="max-w-5xl mx-auto px-4 py-10">
+<div wire:poll.3s class="max-w-5xl mx-auto px-4 py-10">
     <div class="space-y-6">
         {{-- Header --}}
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">

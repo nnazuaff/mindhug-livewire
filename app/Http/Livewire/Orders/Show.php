@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Orders;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Show extends Component
@@ -15,8 +16,14 @@ class Show extends Component
         if ($order->user_id !== Auth::id()) {
             abort(403);
         }
-
         $this->order = $order->load(['items', 'trackingEvents' => fn ($q) => $q->orderByDesc('occurred_at')]);
+    }
+
+    #[On('order-updated')]
+    public function refreshOrder(): void
+    {
+        $this->order->refresh();
+        $this->order->load(['items', 'trackingEvents' => fn ($q) => $q->orderByDesc('occurred_at')]);
     }
 
     public function render()
