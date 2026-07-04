@@ -1,4 +1,4 @@
-<div class="max-w-[1100px] mx-auto px-4 py-10">
+<div class="max-w-275 mx-auto px-4 py-10">
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
             <span
@@ -49,7 +49,7 @@
             <article class="rounded-lg border border-gray-100 bg-white p-2 hover:shadow-md transition">
                 <a href="{{ route('product.detail', $product) }}" class="block h-full">
                     <div class="relative w-full pb-[100%] rounded-md overflow-hidden bg-[#f7f2ed]">
-                        <img src="{{ asset('products/' . $product->id . '/1.jpg') }}" alt="{{ $product->name }}"
+                        <img src="{{ asset("storage/products/{$product->id}/1.png") }}" alt="{{ $product->name }}"
                             class="absolute inset-0 w-full h-full object-cover" />
                     </div>
 
