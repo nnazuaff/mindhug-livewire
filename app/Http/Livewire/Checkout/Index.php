@@ -37,6 +37,13 @@ class Index extends Component
         $this->directQuantity = max(1, (int) request()->query('quantity', 1));
 
         $this->loadCart();
+
+        if (empty($this->cartItems)) {
+            $this->redirectRoute('cart');
+
+            return;
+        }
+
         $this->loadAddress();
         $this->loadPaymentMethods();
     }

@@ -125,10 +125,17 @@
                 @endif
             </div>
 
-            <a href="{{ route('checkout') }}" wire:navigate
-                class="mt-6 inline-flex w-full items-center justify-center rounded-3xl bg-[#a47551] px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-[#a47551]/20 transition hover:scale-[1.01] duration-200">
-                Lanjutkan ke Pembayaran
-            </a>
+            @if (count($cartItems) > 0)
+                <a href="{{ route('checkout') }}" wire:navigate
+                    class="mt-6 inline-flex w-full items-center justify-center rounded-3xl bg-[#a47551] px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-[#a47551]/20 transition hover:scale-[1.01] duration-200">
+                    Lanjutkan ke Pembayaran
+                </a>
+            @else
+                <button type="button" disabled
+                    class="mt-6 inline-flex w-full cursor-not-allowed items-center justify-center rounded-3xl bg-stone-300 px-5 py-4 text-sm font-semibold text-white">
+                    Keranjang Masih Kosong
+                </button>
+            @endif
         </div>
     </div>
 </div>
