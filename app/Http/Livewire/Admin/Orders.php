@@ -25,6 +25,34 @@ class Orders extends Component
         'statusFilter' => ['except' => ''],
     ];
 
+    public string $cancelReason = '';
+
+    public function cancelOrder(int $orderId): void
+    {
+        if (empty(trim($this->cancelReason))) {
+            session()->flash('error', 'Alasan pembatalan harus diisi.');
+
+            return;
+        }
+
+        $order = Order::findOrFail($orderId);
+
+        if (! in_array($order->status, ['delivered', 'cancelled'])) {
+            app(OrderService::class)->updateStatus(
+                $order,
+                'cancelled',
+                'Pesanan Dibatalkan',
+                'Alasan: '.$this->cancelReason,
+                $this->cancelReason
+            );
+
+            $this->viewingOrder->refresh();
+            $this->cancelReason = '';
+            $this->dispatch('order-updated');
+            session()->flash('success', 'Pesanan berhasil dibatalkan.');
+        }
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();

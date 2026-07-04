@@ -81,10 +81,16 @@ class OrderService
     /**
      * Update order status and add tracking event.
      */
-    public function updateStatus(Order $order, string $status, string $title, ?string $description = null): void
+    public function updateStatus(Order $order, string $status, string $title, ?string $description = null, ?string $cancellationReason = null): void
     {
-        DB::transaction(function () use ($order, $status, $title, $description) {
-            $order->update(['status' => $status]);
+        DB::transaction(function () use ($order, $status, $title, $description, $cancellationReason) {
+            $data = ['status' => $status];
+
+            if ($status === 'cancelled' && $cancellationReason) {
+                $data['cancellation_reason'] = $cancellationReason;
+            }
+
+            $order->update($data);
 
             OrderTrackingEvent::create([
                 'order_id' => $order->id,

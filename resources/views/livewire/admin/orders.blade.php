@@ -180,10 +180,27 @@
                             </button>
                         @endif
                         @if (!in_array($viewingOrder->status, ['delivered', 'cancelled']))
-                            <button wire:click="updateStatus({{ $viewingOrder->id }}, 'cancelled')"
-                                class="rounded-xl bg-rose-100 px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-200 transition">
-                                Batalkan Pesanan
-                            </button>
+                            <div class="w-full space-y-2" x-data="{ showCancelForm: false }">
+                                <button @click="showCancelForm = !showCancelForm"
+                                    class="rounded-xl bg-rose-100 dark:bg-rose-500/20 px-4 py-2 text-sm font-medium text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-500/30 transition-colors">
+                                    Batalkan Pesanan
+                                </button>
+
+                                <div x-show="showCancelForm" x-cloak class="space-y-2">
+                                    <textarea wire:model="cancelReason" rows="2" placeholder="Tulis alasan pembatalan..."
+                                        class="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200/50"></textarea>
+                                    <div class="flex gap-2">
+                                        <button wire:click="cancelOrder({{ $viewingOrder->id }})"
+                                            class="rounded-xl bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600 transition-colors">
+                                            Konfirmasi Pembatalan
+                                        </button>
+                                        <button @click="showCancelForm = false; $wire.set('cancelReason', '')"
+                                            class="rounded-xl bg-stone-100 dark:bg-stone-700 px-4 py-2 text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors">
+                                            Batal
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         @endif
                     </div>
                 </div>

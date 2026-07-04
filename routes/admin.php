@@ -13,8 +13,15 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth:admin')->group(function () {
+
+        // Dashboard - bisa diakses semua role
         Route::get('/', Dashboard::class)->name('dashboard');
-        Route::get('/orders', Orders::class)->name('orders');
+
+        // Orders - hanya dev & admin
+        Route::middleware('admin.role:dev,admin')->group(function () {
+            Route::get('/orders', Orders::class)->name('orders');
+        });
+
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     });
 

@@ -70,8 +70,10 @@
 
         <div class="flex-1 flex flex-col min-w-0">
             <header class="h-14 bg-white border-b border-stone-200 flex items-center justify-between px-4 lg:px-6">
-                <span
-                    class="text-sm font-medium text-stone-500 lg:ml-0 ml-10">{{ auth('admin')->user()->full_name ?? 'Admin' }}</span>
+                <span class="text-sm font-medium text-stone-500">
+                    {{ auth('admin')->user()->full_name ?? 'Admin' }}
+                    <span class="text-xs text-stone-400 ml-1">({{ auth('admin')->user()->role }})</span>
+                </span>
             </header>
             <main class="flex-1 p-4 lg:p-6">
                 {{ $slot }}

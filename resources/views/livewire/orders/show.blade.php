@@ -25,7 +25,9 @@
                     {{ $this->getStatusColor($order->status) }}">
                     {{ $this->getStatusLabel($order->status) }}
                 </span>
+
             </div>
+
 
             @if ($order->status === 'awaiting_payment')
                 <div class="mt-4">
@@ -40,7 +42,16 @@
                     </a>
                 </div>
             @endif
+            @if ($order->status === 'cancelled' && $order->cancellation_reason)
+                <div
+                    class="mt-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 px-4 py-3">
+                    <p class="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-1">
+                        Alasan Pembatalan</p>
+                    <p class="text-sm text-rose-700 dark:text-rose-300">{{ $order->cancellation_reason }}</p>
+                </div>
+            @endif
         </div>
+
 
         {{-- Items --}}
         <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm" x-data="{ open: true }">
