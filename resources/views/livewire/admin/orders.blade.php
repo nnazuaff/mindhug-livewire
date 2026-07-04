@@ -1,4 +1,4 @@
-<div wire:poll.2s>
+<div wire:poll.3s>
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-stone-800">Pesanan</h1>

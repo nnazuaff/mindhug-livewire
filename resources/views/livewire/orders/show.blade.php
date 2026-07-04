@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto px-4 py-10">
+<div wire:poll.3s class="max-w-4xl mx-auto px-4 py-10">
     <div class="space-y-6" wire:poll.5s>
         {{-- Back button --}}
         <a href="{{ route('orders.index') }}" wire:navigate

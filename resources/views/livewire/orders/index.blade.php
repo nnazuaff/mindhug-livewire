@@ -14,7 +14,6 @@
 
         {{-- Filters --}}
         <div class="flex flex-col sm:flex-row gap-3">
-            {{-- Search Invoice --}}
             <div class="relative flex-1 max-w-md">
                 <svg class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#aaa]" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -37,7 +36,6 @@
                 @endif
             </div>
 
-            {{-- Status Filter --}}
             <div class="w-full sm:w-56">
                 <select wire:model.live="statusFilter"
                     class="w-full rounded-2xl border border-[#c19a6b]/30 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
@@ -126,13 +124,25 @@
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             {{-- Left --}}
                             <div class="flex items-center gap-4">
-                                <div
-                                    class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f7ede0] text-[#a47551]">
-                                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M9 12h6M9 16h6M9 8h6" />
-                                        <path d="M6 21h12a2 2 0 0 0 2-2V7l-5-4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z" />
-                                    </svg>
+                                {{-- Product thumbnails --}}
+                                <div class="flex -space-x-3 shrink-0">
+                                    @php
+                                        $itemIds = $order->items->pluck('product_id')->unique()->take(3);
+                                    @endphp
+                                    @foreach ($itemIds as $productId)
+                                        @php
+                                            $files = Storage::disk('public')->files('products/' . $productId);
+                                            $img = !empty($files) ? basename($files[0]) : 'default.png';
+                                        @endphp
+                                        <img src="{{ asset('storage/products/' . $productId . '/' . $img) }}"
+                                            class="h-12 w-12 rounded-xl object-cover border-2 border-white shadow-sm ring-1 ring-stone-200/60">
+                                    @endforeach
+                                    @if ($order->items_count > 3)
+                                        <div
+                                            class="h-12 w-12 rounded-xl bg-[#f5e9df] border-2 border-white flex items-center justify-center text-xs font-semibold text-[#a47551] shadow-sm ring-1 ring-stone-200/60">
+                                            +{{ $order->items_count - 3 }}
+                                        </div>
+                                    @endif
                                 </div>
                                 <div>
                                     <p class="font-semibold text-[#2b1d12]">{{ $order->invoice_number }}</p>
@@ -146,21 +156,18 @@
                             </div>
 
                             {{-- Right --}}
-
-                            <div class="flex items-center gap-3 md:text-right">
+                            <div class="flex flex-col items-end gap-2">
                                 <span
                                     class="inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold
                                     {{ $this->getStatusColor($order->status) }}">
                                     {{ $this->getStatusLabel($order->status) }}
                                 </span>
-
-                                <div>
-
-                                    <p class="text-lg font-semibold text-[#a47551]">
-                                        Rp {{ number_format($order->total_amount, 0, ',', '.') }}
-                                    </p>
-                                </div>
-
+                                <p class="text-lg font-semibold text-[#a47551]">
+                                    Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+                                </p>
+                                @if ($order->status === 'awaiting_payment')
+                                    <span class="text-xs font-semibold text-[#a47551]">Bayar Sekarang →</span>
+                                @endif
                             </div>
                         </div>
                     </a>
