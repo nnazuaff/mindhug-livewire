@@ -103,10 +103,12 @@
                         <label class="block">
                             <span class="mb-2 block text-sm font-medium text-[#3d2b1c]">Telepon</span>
                             <input wire:model.defer="address_phone" type="tel" placeholder="0812xxxxxxx"
+                                pattern="[0-9+\s\-]+" maxlength="20"
                                 class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-[#2b1d12] outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200/70" />
                             @error('address_phone')
                                 <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                             @enderror
+                            <p class="mt-1 text-xs text-stone-400">Contoh: 08123456789 atau +628123456789</p>
                         </label>
                     </div>
 

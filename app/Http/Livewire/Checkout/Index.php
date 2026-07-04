@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class Index extends Component
@@ -50,6 +51,8 @@ class Index extends Component
 
     public function loadCart(): void
     {
+        $disk = Storage::disk('public');
+
         if ($this->directProductId !== null) {
             $product = Product::query()->find($this->directProductId);
 
@@ -59,12 +62,17 @@ class Index extends Component
                 return;
             }
 
+            // Ambil gambar pertama untuk direct buy
+            $files = $disk->files('products/'.$product->id);
+            $image = ! empty($files) ? basename($files[0]) : 'default.png';
+
             $this->cartItems = [[
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
                 'quantity' => $this->directQuantity,
                 'subtotal' => $product->price * $this->directQuantity,
+                'image' => asset('storage/products/'.$product->id.'/'.$image),
             ]];
 
             return;
@@ -85,12 +93,15 @@ class Index extends Component
             ->keyBy('id');
 
         $this->cartItems = collect($cart)
-            ->map(function ($quantity, $productId) use ($products) {
+            ->map(function ($quantity, $productId) use ($products, $disk) {
                 $product = $products->get((int) $productId);
-
                 if (! $product) {
                     return null;
                 }
+
+                // Ambil gambar pertama
+                $files = $disk->files('products/'.$product->id);
+                $image = ! empty($files) ? basename($files[0]) : 'default.png';
 
                 return [
                     'id' => $product->id,
@@ -98,6 +109,7 @@ class Index extends Component
                     'price' => $product->price,
                     'quantity' => $quantity,
                     'subtotal' => $product->price * $quantity,
+                    'image' => asset('storage/products/'.$product->id.'/'.$image),
                 ];
             })
             ->filter()
@@ -208,6 +220,49 @@ class Index extends Component
 
         $this->dispatchBrowserEvent('order-placed', ['message' => 'Pesanan berhasil dibuat.']);
         $this->loadCart();
+    }
+
+    /**
+     * Cek apakah semua syarat checkout terpenuhi
+     */
+    public function getCanCheckoutProperty(): bool
+    {
+        // Cek apakah ada alamat yang dipilih
+        if (empty($this->selectedAddress)) {
+            return false;
+        }
+
+        // Cek apakah ada metode pembayaran dipilih
+        if (! $this->selectedPayment) {
+            return false;
+        }
+
+        // Cek apakah ada item di cart
+        if (empty($this->cartItems)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Dapatkan pesan error untuk tombol checkout
+     */
+    public function getCheckoutDisabledReasonProperty(): string
+    {
+        if (empty($this->cartItems)) {
+            return 'Keranjang belanja kosong';
+        }
+
+        if (empty($this->selectedAddress)) {
+            return 'Silakan lengkapi alamat pengiriman terlebih dahulu';
+        }
+
+        if (! $this->selectedPayment) {
+            return 'Pilih metode pembayaran terlebih dahulu';
+        }
+
+        return '';
     }
 
     public function render()

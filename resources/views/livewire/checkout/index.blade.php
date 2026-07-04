@@ -94,9 +94,13 @@
                 @foreach ($cartItems as $item)
                     <div
                         class="flex items-center justify-between rounded-3xl border border-stone-200/60 bg-[#fff7ed] p-4">
-                        <div class="space-y-1">
-                            <p class="font-semibold text-[#2b1d12]">{{ $item['name'] }}</p>
-                            <p class="text-xs text-[#7a5a4f]">x{{ $item['quantity'] }}</p>
+                        <div class="flex items-center gap-3">
+                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"
+                                class="h-14 w-14 rounded-xl object-cover border border-stone-200">
+                            <div class="space-y-1">
+                                <p class="font-semibold text-[#2b1d12]">{{ $item['name'] }}</p>
+                                <p class="text-xs text-[#7a5a4f]">x{{ $item['quantity'] }}</p>
+                            </div>
                         </div>
                         <p class="font-semibold text-[#8b6f5c]">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
                         </p>
@@ -127,9 +131,19 @@
                 </div>
             </div>
 
-            <button type="button" wire:click="placeOrder" wire:loading.attr="disabled"
-                class="mt-6 w-full rounded-3xl bg-[#a47551] px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-[#a47551]/20 transition-all duration-200 hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60">
-                <span wire:loading.remove>Selesaikan Pesanan</span>
+            <button type="button" wire:click="placeOrder" wire:loading.attr="disabled" @disabled(!$this->canCheckout)
+                class="mt-6 w-full rounded-3xl px-5 py-4 text-sm font-semibold text-white shadow-lg transition-all duration-200
+               {{ $this->canCheckout
+                   ? 'bg-[#a47551] shadow-[#a47551]/20 hover:scale-[1.01]'
+                   : 'bg-stone-300 cursor-not-allowed shadow-none hover:scale-100' }}"
+                title="{{ $this->checkoutDisabledReason }}">
+                <span wire:loading.remove>
+                    @if ($this->canCheckout)
+                        Selesaikan Pesanan
+                    @else
+                        {{ $this->checkoutDisabledReason }}
+                    @endif
+                </span>
                 <span wire:loading>Memproses...</span>
             </button>
 
