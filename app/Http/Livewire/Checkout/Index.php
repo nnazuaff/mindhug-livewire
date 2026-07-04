@@ -5,7 +5,9 @@ namespace App\Http\Livewire\Checkout;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\OrderService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -193,7 +195,7 @@ class Index extends Component
         return $this->subtotal + $this->shippingCost - $this->discountAmount;
     }
 
-    public function placeOrder(): void
+    public function placeOrder()
     {
         if (empty($this->selectedAddress)) {
             $this->paymentNotice = 'Silakan lengkapi alamat pengiriman Anda terlebih dahulu untuk melanjutkan pembayaran.';
@@ -207,19 +209,44 @@ class Index extends Component
             return;
         }
 
+        if (empty($this->cartItems)) {
+            $this->paymentNotice = 'Keranjang belanja kosong.';
+
+            return;
+        }
+
         $this->paymentNotice = '';
         $this->isSubmitting = true;
 
-        sleep(1);
+        try {
+            $orderService = app(OrderService::class);
 
-        $this->isSubmitting = false;
+            $paymentMethod = collect($this->paymentMethods)
+                ->firstWhere('id', $this->selectedPayment);
 
-        if ($this->directProductId === null) {
-            session()->forget('cart');
+            $order = $orderService->createOrder(
+                userId: Auth::id(),
+                cartItems: $this->cartItems,
+                address: $this->selectedAddress,
+                shippingCost: $this->shippingCost,
+                discountAmount: $this->discountAmount,
+                paymentMethod: $paymentMethod['label'] ?? 'Unknown',
+            );
+
+            // Kosongkan cart session hanya jika dari keranjang biasa
+            if ($this->directProductId === null) {
+                session()->forget('cart');
+            }
+
+            $this->isSubmitting = false;
+
+            return redirect()->route('orders.show', $order->invoice_number);
+
+        } catch (\Exception $e) {
+            $this->isSubmitting = false;
+            $this->paymentNotice = 'Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.';
+            Log::error('Order creation failed: '.$e->getMessage());
         }
-
-        $this->dispatchBrowserEvent('order-placed', ['message' => 'Pesanan berhasil dibuat.']);
-        $this->loadCart();
     }
 
     /**

@@ -111,7 +111,7 @@
                                 </svg>
                                 Akun Saya
                             </a>
-                            <a href="{{ url('/transactions/orders') }}"
+                            <a href="{{ route('orders.index') }}" wire:navigate
                                 class="flex items-center gap-3 px-4 py-3 text-sm text-[#2b2b2b] hover:bg-[#fdf5ef] transition-colors duration-150">
                                 <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

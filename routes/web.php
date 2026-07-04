@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,14 @@ Route::middleware('auth')->group(function () {
     Route::view('/account/addresses', 'account.addresses')->name('account.addresses');
     Route::view('/transactions/cart', 'cart')->name('cart');
     Route::view('/checkout', 'checkout.index')->name('checkout');
+
+    Route::get('/transactions/orders', function () {
+        return view('orders.index');
+    })->name('orders.index');
+
+    Route::get('/transactions/orders/{order:invoice_number}', function (Order $order) {
+        return view('orders.show', compact('order'));
+    })->name('orders.show');
 });
 
 Route::get('/shop', function () {
