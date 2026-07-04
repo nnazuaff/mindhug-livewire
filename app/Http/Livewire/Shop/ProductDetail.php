@@ -27,8 +27,23 @@ class ProductDetail extends Component
             return;
         }
 
+        if ($this->product->stock < $this->quantity) {
+            $this->successMessage = ''; // clear success message
+
+            return; // atau bisa tambahin error message
+        }
+
         $cart = session()->get('cart', []);
-        $cart[$this->product->id] = ($cart[$this->product->id] ?? 0) + $this->quantity;
+        $currentQty = $cart[$this->product->id] ?? 0;
+
+        // Cek jangan sampai melebihi stok
+        if (($currentQty + $this->quantity) > $this->product->stock) {
+            $this->successMessage = 'Stok tidak mencukupi.';
+
+            return;
+        }
+
+        $cart[$this->product->id] = $currentQty + $this->quantity;
         session()->put('cart', $cart);
 
         $this->dispatch('cart-updated', array_sum($cart));

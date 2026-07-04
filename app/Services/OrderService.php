@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderTrackingEvent;
+use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
@@ -17,6 +18,23 @@ class OrderService
         return DB::transaction(function () use ($userId, $cartItems, $address, $shippingCost, $discountAmount, $paymentMethod) {
             $subtotal = array_sum(array_column($cartItems, 'subtotal'));
             $totalAmount = $subtotal + $shippingCost - $discountAmount;
+
+            // Validate stock & lock products
+            foreach ($cartItems as $item) {
+                // Use query() + find to avoid ambiguous where() overload issues
+                $product = Product::query()->lockForUpdate()->find($item['id']);
+
+                if (! $product) {
+                    throw new \Exception('Produk tidak ditemukan.');
+                }
+
+                if ($product->stock < $item['quantity']) {
+                    throw new \Exception("Stok tidak mencukupi untuk {$product->name}.");
+                }
+
+                // Kurangi stok
+                $product->decrement('stock', $item['quantity']);
+            }
 
             $shippingAddress = implode(', ', array_filter([
                 $address['recipient_name'] ?? '',
@@ -85,7 +103,7 @@ class OrderService
     {
         $prefix = 'INV-'.now()->format('Ymd').'-';
 
-        $lastOrder = Order::where('invoice_number', 'like', "{$prefix}%", 'and')
+        $lastOrder = Order::where('invoice_number', 'like', $prefix.'%', 'and')
             ->orderByDesc('invoice_number')
             ->first();
 

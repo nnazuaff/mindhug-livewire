@@ -4,7 +4,6 @@ namespace App\Http\Livewire\Checkout;
 
 use App\Models\PaymentMethod;
 use App\Models\Product;
-use App\Models\User;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -64,7 +63,6 @@ class Index extends Component
                 return;
             }
 
-            // Ambil gambar pertama untuk direct buy
             $files = $disk->files('products/'.$product->id);
             $image = ! empty($files) ? basename($files[0]) : 'default.png';
 
@@ -101,7 +99,6 @@ class Index extends Component
                     return null;
                 }
 
-                // Ambil gambar pertama
                 $files = $disk->files('products/'.$product->id);
                 $image = ! empty($files) ? basename($files[0]) : 'default.png';
 
@@ -121,7 +118,6 @@ class Index extends Component
 
     public function loadAddress(): void
     {
-        /** @var User|null $user */
         $user = Auth::user();
 
         if (! $user) {
@@ -198,7 +194,7 @@ class Index extends Component
     public function placeOrder()
     {
         if (empty($this->selectedAddress)) {
-            $this->paymentNotice = 'Silakan lengkapi alamat pengiriman Anda terlebih dahulu untuk melanjutkan pembayaran.';
+            $this->paymentNotice = 'Silakan lengkapi alamat pengiriman Anda terlebih dahulu.';
 
             return;
         }
@@ -233,10 +229,13 @@ class Index extends Component
                 paymentMethod: $paymentMethod['label'] ?? 'Unknown',
             );
 
-            // Kosongkan cart session hanya jika dari keranjang biasa
+            // Kosongkan cart
             if ($this->directProductId === null) {
                 session()->forget('cart');
             }
+
+            // Update cart count di header
+            $this->dispatch('cart-updated', 0);
 
             $this->isSubmitting = false;
 
@@ -244,27 +243,21 @@ class Index extends Component
 
         } catch (\Exception $e) {
             $this->isSubmitting = false;
-            $this->paymentNotice = 'Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.';
+            $this->paymentNotice = $e->getMessage();
             Log::error('Order creation failed: '.$e->getMessage());
         }
     }
 
-    /**
-     * Cek apakah semua syarat checkout terpenuhi
-     */
     public function getCanCheckoutProperty(): bool
     {
-        // Cek apakah ada alamat yang dipilih
         if (empty($this->selectedAddress)) {
             return false;
         }
 
-        // Cek apakah ada metode pembayaran dipilih
         if (! $this->selectedPayment) {
             return false;
         }
 
-        // Cek apakah ada item di cart
         if (empty($this->cartItems)) {
             return false;
         }
@@ -272,9 +265,6 @@ class Index extends Component
         return true;
     }
 
-    /**
-     * Dapatkan pesan error untuk tombol checkout
-     */
     public function getCheckoutDisabledReasonProperty(): string
     {
         if (empty($this->cartItems)) {
