@@ -3,16 +3,23 @@
 namespace App\Http\Livewire\Transactions;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class Cart extends Component
 {
     public array $cartItems = [];
+
     public string $promoCode = '';
+
     public int $discountPercent = 0;
+
     public int $subtotal = 0;
+
     public int $discountAmount = 0;
+
     public int $total = 0;
+
     public ?string $promoMessage = null;
 
     public function mount(): void
@@ -42,13 +49,19 @@ class Cart extends Component
             ->filter(fn ($product) => in_array($product->id, $productIds, true))
             ->keyBy('id');
 
+        $disk = Storage::disk('public');
+
         $this->cartItems = collect($cart)
-            ->map(function ($quantity, $productId) use ($products) {
+            ->map(function ($quantity, $productId) use ($products, $disk) {
                 $product = $products->get((int) $productId);
 
                 if (! $product) {
                     return null;
                 }
+
+                // Ambil gambar pertama dari folder produk
+                $files = $disk->files('products/'.$product->id);
+                $image = ! empty($files) ? basename($files[0]) : 'default.png';
 
                 return [
                     'id' => $product->id,
@@ -56,7 +69,7 @@ class Cart extends Component
                     'price' => $product->price,
                     'quantity' => $quantity,
                     'subtotal' => $product->price * $quantity,
-                    'image' => asset('products/' . $product->id . '/1.jpg'),
+                    'image' => asset('storage/products/'.$product->id.'/'.$image),
                 ];
             })
             ->filter()
