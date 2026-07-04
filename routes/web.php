@@ -37,6 +37,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/orders/{order:invoice_number}', function (Order $order) {
         return view('orders.show', compact('order'));
     })->name('orders.show');
+
+    Route::get('/transactions/orders/{order:invoice_number}/pay', function (Order $order) {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('orders.pay', compact('order'));
+    })->name('orders.pay');
 });
 
 Route::get('/shop', function () {

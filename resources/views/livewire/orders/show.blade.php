@@ -26,7 +26,21 @@
                     {{ $this->getStatusLabel($order->status) }}
                 </span>
             </div>
+            @if ($order->status === 'awaiting_payment')
+                <div class="mt-4">
+                    <a href="{{ route('orders.pay', $order->invoice_number) }}" wire:navigate
+                        class="inline-flex items-center gap-2 rounded-2xl bg-[#a47551] px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#8f6243] transition-colors">
+                        <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg>
+                        Bayar Sekarang
+                    </a>
+                </div>
+            @endif
         </div>
+
 
         {{-- Items --}}
         <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
@@ -75,7 +89,8 @@
                                     <p class="text-xs text-[#6a5a4f] mt-0.5">{{ $event->description }}</p>
                                 @endif
                                 <p class="text-xs text-[#aaa] mt-1">
-                                    {{ $event->occurred_at->format('d M Y, H:i') }} WIB</p>
+                                    {{ $event->occurred_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
+                                </p>
                             </div>
                         </div>
                     @endforeach
@@ -120,9 +135,18 @@
                             <circle cx="12" cy="10" r="3" />
                         </svg>
                     </div>
-                    <div>
-                        <p class="font-semibold text-[#2b1d12] text-sm">{{ $order->payment_method ?? 'Standar' }}</p>
-                        <p class="text-sm text-[#6a5a4f] mt-1 leading-relaxed">{{ $order->shipping_address }}</p>
+                    <div class="space-y-1">
+                        <p class="font-semibold text-[#2b1d12] text-sm">
+                            Dikirim ke:
+                        </p>
+                        <p class="text-sm text-[#6a5a4f] leading-relaxed">
+                            {{ $order->shipping_address }}
+                        </p>
+                        @if ($order->payment_method)
+                            <p class="text-xs text-[#aaa] mt-2">
+                                Metode bayar: {{ $order->payment_method }}
+                            </p>
+                        @endif
                     </div>
                 </div>
             </div>

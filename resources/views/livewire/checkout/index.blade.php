@@ -222,7 +222,7 @@
                    : 'bg-stone-200 text-stone-400 cursor-not-allowed' }}"
                 title="{{ $this->checkoutDisabledReason }}">
                 <span wire:loading.remove>
-                    {{ $this->canCheckout ? 'Selesaikan Pesanan' : $this->checkoutDisabledReason }}
+                    {{ $this->canCheckout ? 'Buka Halaman Pembayaran' : $this->checkoutDisabledReason }}
                 </span>
                 <span wire:loading class="flex items-center justify-center gap-2">
                     <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">

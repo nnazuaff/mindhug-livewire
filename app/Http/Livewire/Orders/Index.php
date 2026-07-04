@@ -13,11 +13,19 @@ class Index extends Component
 
     public string $statusFilter = '';
 
+    public string $search = '';
+
     protected $queryString = [
         'statusFilter' => ['except' => ''],
+        'search' => ['except' => ''],
     ];
 
     public function updatingStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
@@ -26,6 +34,7 @@ class Index extends Component
     {
         $orders = Order::query()
             ->where('user_id', Auth::id())
+            ->when($this->search, fn ($q) => $q->where('invoice_number', 'like', "%{$this->search}%"))
             ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->withCount('items')
             ->with(['latestTrackingEvent'])
@@ -35,6 +44,11 @@ class Index extends Component
         return view('livewire.orders.index', [
             'orders' => $orders,
         ]);
+    }
+
+    public function clearSearch(): void
+    {
+        $this->search = '';
     }
 
     public function getStatusLabel(string $status): string
