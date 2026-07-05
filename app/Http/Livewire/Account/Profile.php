@@ -4,11 +4,15 @@ namespace App\Http\Livewire\Account;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Profile extends Component
 {
+    use WithFileUploads;
+
     public User $user;
 
     public $full_name = '';
@@ -33,6 +37,8 @@ class Profile extends Component
 
     public $updated_at;
 
+    public $avatar;
+
     protected function rules(): array
     {
         return [
@@ -41,6 +47,7 @@ class Profile extends Component
             'email' => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($this->user->id)],
             'phone' => ['required', 'string', 'min:8', 'max:30'],
             'birth_date' => ['required', 'date'],
+            'avatar' => ['nullable', 'image', 'max:2048'],  // ✅ max 2MB
         ];
     }
 
@@ -65,6 +72,15 @@ class Profile extends Component
     {
         $this->validate();
 
+        // Upload avatar
+        if ($this->avatar) {
+            if ($this->user->avatar) {
+                Storage::disk('public')->delete($this->user->avatar);
+            }
+            $this->user->avatar = $this->avatar->store('avatars', 'public');
+        }
+
+        // Simpan semua sekaligus
         $this->user->fill([
             'full_name' => $this->full_name,
             'username' => $this->username,
@@ -73,9 +89,21 @@ class Profile extends Component
             'birth_date' => $this->birth_date,
         ])->save();
 
+        $this->user->refresh();
         $this->updated_at = $this->user->updated_at?->format('d M Y H:i');
+        $this->reset('avatar');
 
         session()->flash('success', 'Profil berhasil diperbarui.');
+    }
+
+    public function removeAvatar()
+    {
+        if ($this->user->avatar) {
+            Storage::disk('public')->delete($this->user->avatar);
+            $this->user->update(['avatar' => null]);
+            $this->user->refresh();
+            session()->flash('success', 'Foto profil berhasil dihapus.');
+        }
     }
 
     public function render()

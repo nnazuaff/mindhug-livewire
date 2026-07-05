@@ -2,27 +2,59 @@
     <section class="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[0_32px_60px_rgba(34,25,17,0.08)]">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-center gap-4">
-                <div
-                    class="group relative overflow-hidden rounded-[1.75rem] border border-stone-200 bg-[#fff6f0] p-2 shadow-sm shadow-[#a47551]/10">
-                    <div
-                        class="flex h-24 w-24 items-center justify-center rounded-[1.5rem] bg-[#fff8f2] text-4xl font-semibold text-[#a47551]">
-                        {{ strtoupper(substr($user->full_name, 0, 1)) }}</div>
-                    <button type="button"
-                        class="absolute inset-x-0 bottom-0 mx-auto mb-3 hidden rounded-full border border-[#e8d2b5] bg-white/95 px-3 py-1 text-[0.72rem] font-semibold text-[#7a5d45] shadow-sm transition duration-200 group-hover:inline-flex">
-                        Ubah Foto
-                    </button>
-                </div>
-                <div>
+                {{-- Avatar --}}
+                <div class="group relative shrink-0">
+                    <div class="h-24 w-24 rounded-[1.75rem] overflow-hidden border-2 border-stone-200 bg-[#f5e9df]">
+                        <img src="{{ $this->user->avatar_url }}" alt="{{ $this->user->full_name }}"
+                            class="h-full w-full object-cover">
+                    </div>
 
-                    <h1 class="mt-3 text-3xl font-semibold text-[#1f1f1f]">{{ $user->full_name }}</h1>
-                    {{-- <p class="mt-2 max-w-xl text-sm leading-7 text-[#6a5a4f]">Perbarui data profil dasar dengan
-                        halaman yang ringan dan fokus.</p> --}}
+                    {{-- Upload overlay --}}
+                    <label for="avatar-upload"
+                        class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-[1.75rem] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <svg class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                            <circle cx="12" cy="13" r="4" />
+                        </svg>
+                    </label>
+                    <input id="avatar-upload" type="file" wire:model="avatar" accept="image/*" class="hidden">
+                </div>
+
+                <div>
+                    <h1 class="text-3xl font-semibold text-[#1f1f1f]">{{ $user->full_name }}</h1>
                 </div>
             </div>
+
             <span
-                class="inline-flex items-center rounded-2xl border border-[#f0d6bb] bg-[#fff1e3] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#7a5d45] shadow-sm shadow-[#a47551]/5">Status:
-                {{ ucfirst($role) }}</span>
+                class="inline-flex items-center rounded-2xl border border-[#f0d6bb] bg-[#fff1e3] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#7a5d45] shadow-sm shadow-[#a47551]/5">
+                Status: {{ ucfirst($role) }}
+            </span>
         </div>
+
+        {{-- Avatar loading & preview --}}
+        @if ($avatar)
+            <div class="mt-4 flex items-center gap-3">
+                <p class="text-sm text-[#6a5a4f]">Pratinjau:</p>
+                <img src="{{ $avatar->temporaryUrl() }}"
+                    class="h-16 w-16 rounded-2xl object-cover border border-stone-200">
+                <button wire:click="$set('avatar', null)"
+                    class="text-xs text-rose-500 hover:text-rose-600">Batal</button>
+            </div>
+        @endif
+
+        @error('avatar')
+            <p class="mt-2 text-xs text-rose-500">{{ $message }}</p>
+        @enderror
+
+        {{-- Hapus foto --}}
+        @if ($user->avatar)
+            <button wire:click="removeAvatar" wire:loading.attr="disabled"
+                class="mt-3 text-xs text-stone-400 hover:text-rose-500 transition-colors">
+                Hapus foto profil
+            </button>
+        @endif
     </section>
 
     @if (session()->has('success'))
@@ -86,7 +118,6 @@
                         <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                     @enderror
                 </label>
-
             </div>
 
             <div class="flex justify-end">

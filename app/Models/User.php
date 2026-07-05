@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'full_name',
@@ -16,12 +17,14 @@ use Illuminate\Notifications\Notifiable;
     'email',
     'phone',
     'role',
+    'avatar',
     'trial_started_at',
     'is_trial_active',
     'birth_date',
     'password',
     'last_login_at',
 ])]
+
 #[Hidden(['password'])]
 class User extends Authenticatable
 {
@@ -42,6 +45,16 @@ class User extends Authenticatable
             'password' => 'hashed',
             'last_login_at' => 'datetime',
         ];
+    }
+
+    // Helper
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar) {
+            return Storage::disk('public')->url($this->avatar);
+        }
+
+        return 'https://ui-avatars.com/api/?name='.urlencode($this->full_name).'&background=a47551&color=fff&size=200';
     }
 
     public function addresses()
