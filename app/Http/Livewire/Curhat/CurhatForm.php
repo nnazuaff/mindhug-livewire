@@ -10,10 +10,10 @@ use Livewire\Component;
 
 class CurhatForm extends Component
 {
-    #[Rule('required|string|min:10|max:1000', message: [
+    #[Rule('required|string|min:5|max:1000', message: [
         'required' => 'Ceritamu tidak boleh kosong.',
-        'min'      => 'Minimal 10 karakter ya — kami ingin mendengar lebih banyak.',
-        'max'      => 'Maksimal 1000 karakter per pesan.',
+        'min' => 'Minimal 5 karakter ya — kami ingin mendengar lebih banyak.',
+        'max' => 'Maksimal 1000 karakter per pesan.',
     ])]
     public string $message = '';
 
@@ -37,25 +37,25 @@ class CurhatForm extends Component
 
         Message::create([
             'conversation_id' => $conversation->id,
-            'sender_role'     => 'user',
-            'sender_id'       => $user->id,
-            'message'         => $this->message,
+            'sender_role' => 'user',
+            'sender_id' => $user->id,
+            'message' => $this->message,
         ]);
 
-        $this->message   = '';
+        $this->message = '';
         // Keep the user in the chat flow instead of switching to a full success screen.
         $this->submitted = false;
     }
 
     public function resetForm(): void
     {
-        $this->message   = '';
+        $this->message = '';
         $this->submitted = false;
     }
 
     public function render()
     {
-        $user         = Auth::user();
+        $user = Auth::user();
         $conversation = Conversation::query()
             ->where('user_id', $user->id)
             ->where('status', 'open')
@@ -64,8 +64,8 @@ class CurhatForm extends Component
 
         return view('livewire.curhat.curhat-form', [
             'conversation' => $conversation,
-            'messages'     => $conversation?->messages ?? collect(),
-            'charCount'    => $this->charCount,
+            'messages' => $conversation?->messages ?? collect(),
+            'charCount' => $this->charCount,
         ]);
     }
 }

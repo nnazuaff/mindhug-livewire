@@ -9,11 +9,13 @@ class Message extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['conversation_id', 'sender_role', 'sender_id', 'message'];
+    protected $fillable = ['conversation_id', 'sender_role', 'sender_id', 'message', 'metadata'];
 
     protected function casts(): array
     {
-        return ['created_at' => 'datetime'];
+        return ['created_at' => 'datetime',
+            'metadata' => 'array', ];
+
     }
 
     public function conversation(): BelongsTo
