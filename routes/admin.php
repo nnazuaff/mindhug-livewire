@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Livewire\Admin\Curhats;
 use App\Http\Livewire\Admin\Dashboard;
 use App\Http\Livewire\Admin\Orders;
+use App\Http\Livewire\Admin\Users;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('web')->group(function () {
@@ -20,6 +21,7 @@ Route::middleware('web')->group(function () {
 
         // Orders - hanya dev & admin
         Route::middleware('admin.role:dev,admin')->group(function () {
+            Route::get('/users', Users::class)->name('users');
             Route::get('/orders', Orders::class)->name('orders');
             Route::get('/curhats', Curhats::class)->name('curhats');
         });
