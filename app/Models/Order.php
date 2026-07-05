@@ -16,6 +16,8 @@ class Order extends Model
         'total_amount',
         'status',
         'cancellation_reason',
+        'cancel_reason',
+        'cancel_requested_at',
         'payment_method',
         'shipping_method',
         'shipping_fee',
@@ -28,6 +30,7 @@ class Order extends Model
     {
         return [
             'created_at' => 'datetime',
+            'cancel_requested_at' => 'datetime',
         ];
     }
 

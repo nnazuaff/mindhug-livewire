@@ -215,24 +215,32 @@
             </div>
 
             {{-- CTA --}}
-            <button type="button" wire:click="placeOrder" wire:loading.attr="disabled" @disabled(!$this->canCheckout)
-                class="mt-6 w-full rounded-2xl px-5 py-4 text-sm font-semibold transition-colors duration-200
-               {{ $this->canCheckout
-                   ? 'bg-[#a47551] text-white shadow-sm hover:bg-[#8f6243]'
-                   : 'bg-stone-200 text-stone-400 cursor-not-allowed' }}"
-                title="{{ $this->checkoutDisabledReason }}">
-                <span wire:loading.remove>
-                    {{ $this->canCheckout ? 'Buka Halaman Pembayaran' : $this->checkoutDisabledReason }}
-                </span>
-                <span wire:loading class="flex items-center justify-center gap-2">
-                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                            stroke-width="4" />
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                    </svg>
-                    Memproses...
-                </span>
-            </button>
+            @if ($this->canCheckout)
+                <button type="button" wire:click="placeOrder" wire:loading.attr="disabled"
+                    class="mt-6 w-full rounded-2xl px-5 py-4 text-sm font-semibold transition-colors duration-200 bg-[#a47551] text-white shadow-sm hover:bg-[#8f6243]">
+                    <span wire:loading.remove>Buka Halaman Pembayaran</span>
+                    <span wire:loading class="flex items-center justify-center gap-2">
+                        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Memproses...
+                    </span>
+                </button>
+            @else
+                <button type="button" disabled
+                    class="mt-6 w-full rounded-2xl px-5 py-4 text-sm font-semibold bg-stone-200 text-stone-400 cursor-not-allowed">
+                    {{ $this->checkoutDisabledReason }}
+                </button>
+            @endif
+
+            {{-- Payment Notice --}}
+            @if ($paymentNotice)
+                <div class="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+                    {{ $paymentNotice }}
+                </div>
+            @endif
 
             {{-- Security --}}
             <div class="mt-4 flex items-center justify-center gap-2 text-xs text-[#8b6f5c]">
@@ -243,6 +251,5 @@
                 </svg>
                 Pembayaran aman & terenkripsi
             </div>
-        </div>
     </aside>
 </div>

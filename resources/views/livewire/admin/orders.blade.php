@@ -12,6 +12,12 @@
         </div>
     @endif
 
+    @if (session()->has('error'))
+        <div class="mb-4 rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="flex flex-col sm:flex-row gap-3 mb-6">
         <div class="relative flex-1 max-w-xs">
             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari invoice..."
@@ -22,6 +28,7 @@
             <option value="">Semua Status</option>
             <option value="awaiting_payment">Menunggu Bayar</option>
             <option value="awaiting_confirmation">Menunggu Konfirmasi</option>
+            <option value="cancel_requested">Request Batal</option>
             <option value="processing">Diproses</option>
             <option value="shipped">Dikirim</option>
             <option value="delivered">Selesai</option>
@@ -47,7 +54,8 @@
                         <tr class="hover:bg-stone-50/50 transition-colors">
                             <td class="px-5 py-3 font-medium text-stone-700">{{ $order->invoice_number }}</td>
                             <td class="px-5 py-3 text-stone-600">
-                                {{ $order->user?->full_name ?? 'User #' . $order->user_id }}</td>
+                                {{ $order->user?->full_name ?? 'User #' . $order->user_id }}
+                            </td>
                             <td class="px-5 py-3 text-stone-700">Rp
                                 {{ number_format($order->total_amount, 0, ',', '.') }}</td>
                             <td class="px-5 py-3">
@@ -78,6 +86,7 @@
         {{ $orders->links() }}
     </div>
 
+    {{-- Detail Modal --}}
     @if ($viewingOrder)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" wire:click.self="closeDetail">
             <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
@@ -88,6 +97,7 @@
                         class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
                 </div>
                 <div class="p-6 space-y-5">
+                    {{-- Info --}}
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <p class="text-stone-400 text-xs">Pelanggan</p>
@@ -115,6 +125,18 @@
                         </div>
                     </div>
 
+                    {{-- Request Cancel Badge --}}
+                    @if ($viewingOrder->cancel_requested_at)
+                        <div class="rounded-xl bg-orange-50 border border-orange-200 px-4 py-3">
+                            <p class="text-xs font-medium text-orange-600 uppercase tracking-wider">User Request
+                                Pembatalan</p>
+                            <p class="text-sm text-orange-700 mt-1">{{ $viewingOrder->cancel_reason }}</p>
+                            <p class="text-xs text-orange-500 mt-1">
+                                {{ $viewingOrder->cancel_requested_at->format('d M Y, H:i') }} WIB</p>
+                        </div>
+                    @endif
+
+                    {{-- Items --}}
                     <div>
                         <p class="text-sm font-medium text-stone-700 mb-2">Produk</p>
                         <div class="space-y-2">
@@ -130,6 +152,7 @@
                         </div>
                     </div>
 
+                    {{-- Bukti Bayar --}}
                     @if ($viewingOrder->payment_proof)
                         <div>
                             <p class="text-sm font-medium text-stone-700 mb-2">Bukti Pembayaran</p>
@@ -140,6 +163,7 @@
                         </div>
                     @endif
 
+                    {{-- Tracking --}}
                     @if ($viewingOrder->trackingEvents->isNotEmpty())
                         <div>
                             <p class="text-sm font-medium text-stone-700 mb-2">Riwayat</p>
@@ -160,42 +184,57 @@
                         </div>
                     @endif
 
+                    {{-- Actions --}}
                     <div class="flex flex-wrap gap-2 pt-2 border-t border-stone-200">
+                        {{-- Konfirmasi Pembayaran (normal) --}}
                         @if ($viewingOrder->status === 'awaiting_confirmation')
                             <button wire:click="confirmPayment({{ $viewingOrder->id }})"
                                 class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 transition">
                                 Konfirmasi Pembayaran
                             </button>
                         @endif
+
+                        {{-- Konfirmasi Pembayaran (user request batal, tapi admin konfirmasi) --}}
+                        @if ($viewingOrder->status === 'cancel_requested' && $viewingOrder->payment_proof)
+                            <button wire:click="confirmPayment({{ $viewingOrder->id }})"
+                                class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 transition">
+                                Konfirmasi Pembayaran (Abaikan Request Batal)
+                            </button>
+                        @endif
+
+                        {{-- Dikirim --}}
                         @if ($viewingOrder->status === 'processing')
                             <button wire:click="updateStatus({{ $viewingOrder->id }}, 'shipped')"
                                 class="rounded-xl bg-[#a47551] px-4 py-2 text-sm font-medium text-white hover:bg-[#8f6243] transition">
                                 Tandai Dikirim
                             </button>
                         @endif
+
+                        {{-- Selesai --}}
                         @if ($viewingOrder->status === 'shipped')
                             <button wire:click="updateStatus({{ $viewingOrder->id }}, 'delivered')"
                                 class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 transition">
                                 Tandai Selesai
                             </button>
                         @endif
+
+                        {{-- Batalkan Pesanan --}}
                         @if (!in_array($viewingOrder->status, ['delivered', 'cancelled']))
                             <div class="w-full space-y-2" x-data="{ showCancelForm: false }">
                                 <button @click="showCancelForm = !showCancelForm"
-                                    class="rounded-xl bg-rose-100 dark:bg-rose-500/20 px-4 py-2 text-sm font-medium text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-500/30 transition-colors">
+                                    class="rounded-xl bg-rose-100 px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-200 transition-colors">
                                     Batalkan Pesanan
                                 </button>
-
                                 <div x-show="showCancelForm" x-cloak class="space-y-2">
                                     <textarea wire:model="cancelReason" rows="2" placeholder="Tulis alasan pembatalan..."
-                                        class="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200/50"></textarea>
+                                        class="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200/50"></textarea>
                                     <div class="flex gap-2">
                                         <button wire:click="cancelOrder({{ $viewingOrder->id }})"
                                             class="rounded-xl bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600 transition-colors">
                                             Konfirmasi Pembatalan
                                         </button>
                                         <button @click="showCancelForm = false; $wire.set('cancelReason', '')"
-                                            class="rounded-xl bg-stone-100 dark:bg-stone-700 px-4 py-2 text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors">
+                                            class="rounded-xl bg-stone-100 px-4 py-2 text-sm font-medium text-stone-600 hover:bg-stone-200 transition-colors">
                                             Batal
                                         </button>
                                     </div>

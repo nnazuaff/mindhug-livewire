@@ -59,6 +59,7 @@ class Index extends Component
         return match ($status) {
             'awaiting_payment' => 'Menunggu Pembayaran',
             'awaiting_confirmation' => 'Menunggu Konfirmasi',
+            'cancel_requested' => 'Request Pembatalan',
             'processing' => 'Diproses',
             'shipped' => 'Dikirim',
             'delivered' => 'Selesai',
@@ -72,6 +73,7 @@ class Index extends Component
         return match ($status) {
             'awaiting_payment' => 'bg-amber-100 text-amber-800 border-amber-200',
             'awaiting_confirmation' => 'bg-blue-100 text-blue-800 border-blue-200',
+            'cancel_requested' => 'bg-orange-100 text-orange-800 border-orange-200',
             'processing' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
             'shipped' => 'bg-purple-100 text-purple-800 border-purple-200',
             'delivered' => 'bg-emerald-100 text-emerald-800 border-emerald-200',

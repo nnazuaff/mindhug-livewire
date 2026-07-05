@@ -76,14 +76,14 @@
         @endif
 
         {{-- Result count --}}
-        @if (!$orders->isEmpty())
+        {{-- @if (!$orders->isEmpty())
             <p class="text-sm text-[#6a5a4f]">
                 Menampilkan <span class="font-semibold text-[#2b1d12]">{{ $orders->total() }}</span> pesanan
                 @if ($search || $statusFilter)
                     dari hasil filter
                 @endif
             </p>
-        @endif
+        @endif --}}
 
         {{-- Order List --}}
         @if ($orders->isEmpty())
@@ -165,9 +165,7 @@
                                 <p class="text-lg font-semibold text-[#a47551]">
                                     Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                 </p>
-                                @if ($order->status === 'awaiting_payment')
-                                    <span class="text-xs font-semibold text-[#a47551]">Bayar Sekarang →</span>
-                                @endif
+
                             </div>
                         </div>
                     </a>

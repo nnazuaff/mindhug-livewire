@@ -11,6 +11,37 @@ class Show extends Component
 {
     public Order $order;
 
+    public string $cancelReason = '';
+
+    public function requestCancel(int $orderId): void
+    {
+        $order = Order::findOrFail($orderId);
+
+        if ($order->user_id !== Auth::id()) {
+            return;
+        }
+
+        if (empty(trim($this->cancelReason))) {
+            return;
+        }
+
+        $order->update([
+            'cancel_reason' => $this->cancelReason,
+            'cancel_requested_at' => now(),
+            'status' => 'cancel_requested',
+        ]);
+
+        $order->trackingEvents()->create([
+            'occurred_at' => now(),
+            'title' => 'Request Pembatalan',
+            'description' => 'User mengajukan pembatalan: '.$this->cancelReason,
+        ]);
+
+        $this->cancelReason = '';
+        $this->order->refresh();
+        $this->order->load(['items', 'trackingEvents' => fn ($q) => $q->orderByDesc('occurred_at')]);
+    }
+
     public function mount(Order $order): void
     {
         if ($order->user_id !== Auth::id()) {
@@ -36,6 +67,7 @@ class Show extends Component
         return match ($status) {
             'awaiting_payment' => 'Menunggu Pembayaran',
             'awaiting_confirmation' => 'Menunggu Konfirmasi',
+            'cancel_requested' => 'Request Pembatalan',
             'processing' => 'Diproses',
             'shipped' => 'Dikirim',
             'delivered' => 'Selesai',
@@ -49,6 +81,7 @@ class Show extends Component
         return match ($status) {
             'awaiting_payment' => 'bg-amber-100 text-amber-800 border-amber-200',
             'awaiting_confirmation' => 'bg-blue-100 text-blue-800 border-blue-200',
+            'cancel_requested' => 'bg-orange-100 text-orange-800 border-orange-200',
             'processing' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
             'shipped' => 'bg-purple-100 text-purple-800 border-purple-200',
             'delivered' => 'bg-emerald-100 text-emerald-800 border-emerald-200',

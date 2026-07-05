@@ -144,6 +144,7 @@ class Orders extends Component
         return match ($status) {
             'awaiting_payment' => 'Menunggu Bayar',
             'awaiting_confirmation' => 'Menunggu Konfirmasi',
+            'cancel_requested' => 'Request Batal',
             'processing' => 'Diproses',
             'shipped' => 'Dikirim',
             'delivered' => 'Selesai',
@@ -157,6 +158,7 @@ class Orders extends Component
         return match ($status) {
             'awaiting_payment' => 'bg-amber-100 text-amber-700',
             'awaiting_confirmation' => 'bg-blue-100 text-blue-700',
+            'cancel_requested' => 'bg-orange-100 text-orange-700',
             'processing' => 'bg-indigo-100 text-indigo-700',
             'shipped' => 'bg-purple-100 text-purple-700',
             'delivered' => 'bg-emerald-100 text-emerald-700',

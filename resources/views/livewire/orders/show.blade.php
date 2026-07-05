@@ -11,6 +11,7 @@
         </a>
 
         {{-- Header --}}
+        {{-- Header --}}
         <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
@@ -20,34 +21,67 @@
                         {{ $order->created_at->format('d M Y, H:i') }} WIB
                     </p>
                 </div>
-                <span
-                    class="inline-flex items-center rounded-full border px-4 py-2 text-sm font-semibold
-                    {{ $this->getStatusColor($order->status) }}">
-                    {{ $this->getStatusLabel($order->status) }}
-                </span>
+                <div class="flex items-center gap-3">
+                    <span
+                        class="inline-flex items-center rounded-full border px-4 py-2 text-sm font-semibold
+                {{ $this->getStatusColor($order->status) }}">
+                        {{ $this->getStatusLabel($order->status) }}
+                    </span>
 
+                    {{-- Tombol Bayar --}}
+                    @if ($order->status === 'awaiting_payment')
+                        <a href="{{ route('orders.pay', $order->invoice_number) }}" wire:navigate
+                            class="inline-flex items-center gap-2 rounded-2xl bg-[#a47551] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#8f6243] transition-colors whitespace-nowrap">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                <line x1="2" y1="10" x2="22" y2="10" />
+                            </svg>
+                            Bayar Sekarang
+                        </a>
+                    @endif
+
+                    {{-- Tombol Request Batal --}}
+                    @if (in_array($order->status, ['awaiting_payment', 'awaiting_confirmation', 'cancel_requested']) &&
+                            !$order->cancel_requested_at)
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open"
+                                class="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors whitespace-nowrap">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                                Batal
+                            </button>
+
+                            <div x-show="open" x-cloak @click.away="open = false"
+                                class="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl border border-stone-200 shadow-xl p-4 z-50">
+                                <textarea wire:model="cancelReason" rows="2" placeholder="Tulis alasan pembatalan..."
+                                    class="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200/50"></textarea>
+                                <div class="flex gap-2 mt-2">
+                                    <button wire:click="requestCancel({{ $order->id }})" @click="open = false"
+                                        class="flex-1 rounded-xl bg-rose-500 px-3 py-2 text-xs font-medium text-white hover:bg-rose-600 transition-colors">
+                                        Kirim
+                                    </button>
+                                    <button @click="open = false; $wire.set('cancelReason', '')"
+                                        class="rounded-xl bg-stone-100 px-3 py-2 text-xs font-medium text-stone-600 hover:bg-stone-200 transition-colors">
+                                        Batal
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
 
-
-            @if ($order->status === 'awaiting_payment')
-                <div class="mt-4">
-                    <a href="{{ route('orders.pay', $order->invoice_number) }}" wire:navigate
-                        class="inline-flex items-center gap-2 rounded-2xl bg-[#a47551] px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#8f6243] transition-colors">
-                        <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="5" width="20" height="14" rx="2" />
-                            <line x1="2" y1="10" x2="22" y2="10" />
-                        </svg>
-                        Bayar Sekarang
-                    </a>
-                </div>
-            @endif
-            @if ($order->status === 'cancelled' && $order->cancellation_reason)
-                <div
-                    class="mt-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 px-4 py-3">
-                    <p class="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-1">
-                        Alasan Pembatalan</p>
-                    <p class="text-sm text-rose-700 dark:text-rose-300">{{ $order->cancellation_reason }}</p>
+            {{-- Status Request Cancel --}}
+            @if ($order->cancel_requested_at)
+                <div class="mt-4 rounded-xl bg-orange-50 border border-orange-200 px-4 py-3">
+                    <p class="text-xs font-medium text-orange-600 uppercase tracking-wider">Request Pembatalan Dikirim
+                    </p>
+                    <p class="text-sm text-orange-700 mt-1">{{ $order->cancel_reason }}</p>
+                    <p class="text-xs text-orange-500 mt-1">Menunggu konfirmasi admin</p>
                 </div>
             @endif
         </div>
@@ -115,7 +149,7 @@
                                         <p class="text-xs text-[#6a5a4f] mt-0.5">{{ $event->description }}</p>
                                     @endif
                                     <p class="text-xs text-[#aaa] mt-1">
-                                        {{ $event->occurred_at->format('d M Y, H:i') }} WIB
+                                        {{ $event->occurred_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
                                     </p>
                                 </div>
                             </div>
@@ -130,8 +164,8 @@
             <button @click="open = !open" class="w-full flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-[#2b1d12]">Rincian Pembayaran</h2>
                 <svg class="h-5 w-5 text-stone-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9" />
                 </svg>
             </button>

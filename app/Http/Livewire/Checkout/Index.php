@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Checkout;
 
+use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Services\OrderService;
@@ -211,6 +212,17 @@ class Index extends Component
             return;
         }
 
+        // Cek apakah user masih punya order yang belum dibayar
+        $pendingOrder = Order::where('user_id', Auth::id())
+            ->whereIn('status', ['awaiting_payment', 'awaiting_confirmation'])
+            ->exists();
+
+        if ($pendingOrder) {
+            $this->paymentNotice = 'Anda masih memiliki pesanan yang belum diselesaikan. Silakan selesaikan pembayaran terlebih dahulu sebelum membuat pesanan baru.';
+
+            return;
+        }
+
         $this->paymentNotice = '';
         $this->isSubmitting = true;
 
@@ -229,14 +241,11 @@ class Index extends Component
                 paymentMethod: $paymentMethod['label'] ?? 'Unknown',
             );
 
-            // Kosongkan cart
             if ($this->directProductId === null) {
                 session()->forget('cart');
             }
 
-            // Update cart count di header
             $this->dispatch('cart-updated', 0);
-
             $this->isSubmitting = false;
 
             return redirect()->route('orders.show', $order->invoice_number);
