@@ -14,7 +14,13 @@
 
 <body class="bg-stone-50 text-stone-800 min-h-screen font-sans antialiased">
 
+    @php
+        $openChats = App\Models\Conversation::where('status', 'open')->whereNull('assigned_to')->count();
+        $pendingConfirm = App\Models\Order::where('status', 'awaiting_confirmation')->count();
+    @endphp
+
     <div class="flex min-h-screen">
+        {{-- Sidebar Desktop --}}
         <aside class="hidden lg:flex w-60 bg-white border-r border-stone-200 flex-col shrink-0">
             <div class="p-5 border-b border-stone-200">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5">
@@ -26,20 +32,72 @@
                 <p class="text-xs text-stone-400 mt-1 ml-1">Admin Panel</p>
             </div>
             <nav class="flex-1 p-4 space-y-1">
+                {{-- Dashboard --}}
                 <a href="{{ route('admin.dashboard') }}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">Dashboard</a>
+                    class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                    <span class="flex items-center gap-3">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                        </svg>
+                        Dashboard
+                    </span>
+                </a>
+
+                {{-- Pesanan --}}
                 <a href="{{ route('admin.orders') }}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.orders*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">Pesanan</a>
+                    class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.orders*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                    <span class="flex items-center gap-3">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12h6M9 16h6M9 8h6" />
+                            <path d="M6 21h12a2 2 0 0 0 2-2V7l-5-4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z" />
+                        </svg>
+                        Pesanan
+                    </span>
+                    @if ($pendingConfirm > 0)
+                        <span
+                            class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">
+                            {{ $pendingConfirm }}
+                        </span>
+                    @endif
+                </a>
+
+                {{-- Curhat --}}
+                <a href="{{ route('admin.curhats') }}"
+                    class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.curhats*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                    <span class="flex items-center gap-3">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Curhat
+                    </span>
+                    @if ($openChats > 0)
+                        <span
+                            class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">
+                            {{ $openChats }}
+                        </span>
+                    @endif
+                </a>
             </nav>
             <div class="p-4 border-t border-stone-200">
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button type="submit"
-                        class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-stone-500 hover:bg-rose-50 hover:text-rose-600">Keluar</button>
+                        class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-stone-500 hover:bg-rose-50 hover:text-rose-600 transition-colors">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        Keluar
+                    </button>
                 </form>
             </div>
         </aside>
 
+        {{-- Mobile Sidebar --}}
         <div x-data="{ open: false }" class="lg:hidden">
             <button @click="open = true"
                 class="fixed top-4 left-4 z-40 p-2 rounded-xl bg-white border border-stone-200 shadow-sm">
@@ -57,7 +115,21 @@
                         <a href="{{ route('admin.dashboard') }}"
                             class="block px-3 py-2.5 rounded-xl text-sm font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600' }}">Dashboard</a>
                         <a href="{{ route('admin.orders') }}"
-                            class="block px-3 py-2.5 rounded-xl text-sm font-medium {{ request()->routeIs('admin.orders*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600' }}">Pesanan</a>
+                            class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium {{ request()->routeIs('admin.orders*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600' }}">
+                            Pesanan
+                            @if ($pendingConfirm > 0)
+                                <span
+                                    class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">{{ $pendingConfirm }}</span>
+                            @endif
+                        </a>
+                        <a href="{{ route('admin.curhats') }}"
+                            class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium {{ request()->routeIs('admin.curhats*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600' }}">
+                            Curhat
+                            @if ($openChats > 0)
+                                <span
+                                    class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-purple-500 text-white text-[0.6rem] font-bold px-1.5">{{ $openChats }}</span>
+                            @endif
+                        </a>
                         <form method="POST" action="{{ route('admin.logout') }}" class="mt-4">
                             @csrf
                             <button type="submit"
@@ -68,6 +140,7 @@
             </div>
         </div>
 
+        {{-- Main --}}
         <div class="flex-1 flex flex-col min-w-0">
             <header class="h-14 bg-white border-b border-stone-200 flex items-center justify-between px-4 lg:px-6">
                 <span class="text-sm font-medium text-stone-500">
