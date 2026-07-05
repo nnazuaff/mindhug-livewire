@@ -4,6 +4,10 @@
             <h1 class="text-xl font-bold text-stone-800">Pengguna</h1>
             <p class="text-sm text-stone-500 mt-1">Daftar pengguna terdaftar di MindHug</p>
         </div>
+        <button onclick="Livewire.dispatch('openCreateUser')"
+            class="rounded-xl bg-[#a47551] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#8f6243] transition-colors">
+            + Tambah Pengguna
+        </button>
     </div>
 
     @if (session()->has('success'))
@@ -25,8 +29,9 @@
                 <thead>
                     <tr class="text-left text-stone-500 bg-stone-50 border-b border-stone-200">
                         <th class="px-5 py-3 font-medium">Nama</th>
-                        <th class="px-5 py-3 font-medium hidden sm:table-cell">Email</th>
                         <th class="px-5 py-3 font-medium hidden md:table-cell">Username</th>
+                        <th class="px-5 py-3 font-medium hidden sm:table-cell">Email</th>
+                        <th class="px-5 py-3 font-medium">Nomor HP</th>
                         <th class="px-5 py-3 font-medium">Orders</th>
                         <th class="px-5 py-3 font-medium hidden lg:table-cell">Terdaftar</th>
                         <th class="px-5 py-3 font-medium w-24">Aksi</th>
@@ -42,8 +47,9 @@
                                     <span class="font-medium text-stone-700">{{ $user->full_name }}</span>
                                 </div>
                             </td>
-                            <td class="px-5 py-3 text-stone-600 hidden sm:table-cell">{{ $user->email }}</td>
                             <td class="px-5 py-3 text-stone-500 hidden md:table-cell">{{ $user->username }}</td>
+                            <td class="px-5 py-3 text-stone-600 hidden sm:table-cell">{{ $user->email }}</td>
+                            <td class="px-5 py-3 text-stone-600">{{ $user->phone ?? '-' }}</td>
                             <td class="px-5 py-3 text-stone-600">{{ $user->orders_count }}</td>
                             <td class="px-5 py-3 text-stone-400 text-xs hidden lg:table-cell">
                                 {{ $user->created_at->format('d/m/Y') }}</td>
@@ -57,7 +63,8 @@
                                             <circle cx="12" cy="12" r="3" />
                                         </svg>
                                     </button>
-                                    <button wire:click="editUser({{ $user->id }})"
+                                    <button
+                                        onclick="Livewire.dispatch('openEditUser', { userId: {{ $user->id }} })"
                                         class="text-xs text-stone-400 hover:text-blue-500" title="Edit">
                                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2">
@@ -65,16 +72,32 @@
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                         </svg>
                                     </button>
-                                    <button wire:click="deleteUser({{ $user->id }})"
-                                        wire:confirm="Hapus pengguna ini?"
-                                        class="text-xs text-stone-400 hover:text-rose-500" title="Hapus">
-                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2">
-                                            <polyline points="3 6 5 6 21 6" />
-                                            <path
-                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                        </svg>
-                                    </button>
+                                    <div x-data="{ showConfirm: false }">
+                                        <button @click="showConfirm = true"
+                                            class="text-xs text-stone-400 hover:text-rose-500" title="Hapus">
+                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6" />
+                                                <path
+                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                            </svg>
+                                        </button>
+                                        <div x-show="showConfirm" x-cloak
+                                            class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40">
+                                            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center">
+                                                <p class="font-semibold text-stone-800">Hapus pengguna?</p>
+                                                <p class="text-sm text-stone-500 mt-1">Semua data pengguna akan dihapus
+                                                    permanen.</p>
+                                                <div class="flex gap-2 mt-4">
+                                                    <button @click="showConfirm = false"
+                                                        class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200">Batal</button>
+                                                    <button wire:click="deleteUser({{ $user->id }})"
+                                                        @click="showConfirm = false"
+                                                        class="flex-1 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-600">Hapus</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -87,9 +110,7 @@
         @endif
     </div>
 
-    <div class="mt-4">
-        {{ $users->links() }}
-    </div>
+    <div class="mt-4">{{ $users->links() }}</div>
 
     {{-- Detail Modal --}}
     @if ($viewingUser)
@@ -103,14 +124,13 @@
                 </div>
                 <div class="p-6 space-y-5">
                     <div class="flex items-center gap-4">
-                        <img src="{{ $viewingUser->avatar_url }}" alt="{{ $viewingUser->full_name }}"
+                        <img src="{{ $viewingUser->avatar_url }}"
                             class="h-16 w-16 rounded-2xl object-cover border-2 border-stone-200">
                         <div>
                             <p class="text-lg font-semibold text-stone-800">{{ $viewingUser->full_name }}</p>
                             <p class="text-sm text-stone-500">{{ $viewingUser->username }}</p>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <p class="text-stone-400 text-xs">Email</p>
@@ -129,7 +149,6 @@
                             <p class="font-medium text-stone-700">{{ $viewingUser->created_at->format('d M Y') }}</p>
                         </div>
                     </div>
-
                     @if ($viewingUser->addresses->isNotEmpty())
                         <div>
                             <p class="text-sm font-medium text-stone-700 mb-2">Alamat</p>
@@ -145,19 +164,19 @@
                             @endforeach
                         </div>
                     @endif
-
                     @if ($viewingUser->orders->isNotEmpty())
                         <div>
                             <p class="text-sm font-medium text-stone-700 mb-2">Pesanan Terakhir</p>
                             @foreach ($viewingUser->orders as $order)
-                                <div class="bg-stone-50 rounded-xl px-4 py-3 text-sm flex justify-between items-center">
+                                <div
+                                    class="bg-stone-50 rounded-xl px-4 py-3 text-sm flex justify-between items-center">
                                     <div>
                                         <p class="font-medium text-stone-700">{{ $order->invoice_number }}</p>
                                         <p class="text-xs text-stone-400">{{ $order->status }} -
                                             {{ $order->created_at->format('d/m/Y') }}</p>
                                     </div>
-                                    <p class="text-[#a47551]">Rp {{ number_format($order->total_amount, 0, ',', '.') }}
-                                    </p>
+                                    <p class="text-[#a47551]">Rp
+                                        {{ number_format($order->total_amount, 0, ',', '.') }}</p>
                                 </div>
                             @endforeach
                         </div>
@@ -167,53 +186,7 @@
         </div>
     @endif
 
-    {{-- Edit Modal --}}
-    @if ($editingUserId)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" wire:click.self="cancelEdit">
-            <div class="bg-white rounded-2xl w-full max-w-md shadow-xl">
-                <div class="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-stone-800">Edit Pengguna</h2>
-                    <button wire:click="cancelEdit"
-                        class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
-                </div>
-                <form wire:submit.prevent="updateUser" class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Nama Lengkap</label>
-                        <input wire:model="editFullName" type="text"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
-                        @error('editFullName')
-                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Email</label>
-                        <input wire:model="editEmail" type="email"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
-                        @error('editEmail')
-                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Username</label>
-                        <input wire:model="editUsername" type="text"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
-                        @error('editUsername')
-                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Telepon</label>
-                        <input wire:model="editPhone" type="text"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
-                    </div>
-                    <div class="flex gap-2 pt-2">
-                        <button type="button" wire:click="cancelEdit"
-                            class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200 transition-colors">Batal</button>
-                        <button type="submit"
-                            class="flex-1 rounded-xl bg-[#a47551] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#8f6243] transition-colors">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endif
+    {{-- Mount create & edit components (hidden) --}}
+    <livewire:admin.users.create />
+    <livewire:admin.users.edit />
 </div>

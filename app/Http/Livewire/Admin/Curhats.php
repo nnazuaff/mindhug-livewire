@@ -97,7 +97,7 @@ class Curhats extends Component
             return;
         }
 
-        $this->searchResults = Product::where('name', 'like', '%'.$this->productSearch.'%')
+        $this->searchResults = Product::where('name', 'like', '%'.$this->productSearch.'%', 'and')
             ->where('is_active', true)
             ->take(5)
             ->get()
