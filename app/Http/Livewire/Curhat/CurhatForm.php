@@ -62,6 +62,8 @@ class CurhatForm extends Component
             ->with(['messages' => fn ($q) => $q->orderBy('created_at')])
             ->first();
 
+        $this->dispatch('conversation-loaded');
+
         return view('livewire.curhat.curhat-form', [
             'conversation' => $conversation,
             'messages' => $conversation?->messages ?? collect(),

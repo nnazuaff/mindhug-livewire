@@ -1,11 +1,21 @@
 {{-- Curhat Interface - Fixed Height, Responsive --}}
 <div wire:poll.2s class="h-[calc(100vh-72px)] flex flex-col bg-[#fdfaf7]" x-data="{
-    scrollToBottom() {
+    lastCount: 0,
+    scroll() {
         const el = document.getElementById('chat-container');
-        if (el) { el.scrollTop = el.scrollHeight; }
+        if (el) el.scrollTop = el.scrollHeight;
+    },
+    scrollIfNew() {
+        const el = document.getElementById('chat-container');
+        if (!el) return;
+        const currentCount = el.querySelectorAll('.message-bubble').length;
+        if (currentCount > this.lastCount || this.lastCount === 0) {
+            el.scrollTop = el.scrollHeight;
+        }
+        this.lastCount = currentCount;
     }
-}" x-init="scrollToBottom()"
-    @messages-updated.window="scrollToBottom()">
+}" x-init="scroll()"
+    @conversation-loaded.window="scrollIfNew()">
 
     {{-- Header --}}
     <div class="border-b border-[#ede0d4] bg-white/80 backdrop-blur-sm shrink-0">
@@ -64,7 +74,8 @@
                     @foreach ($messages as $msg)
                         @php $isProductRec = isset($msg->metadata['type']) && $msg->metadata['type'] === 'product_recommendation'; @endphp
 
-                        <div class="flex gap-3 {{ $msg->sender_role === 'user' ? 'flex-row-reverse' : '' }}">
+                        <div
+                            class="flex gap-3 message-bubble {{ $msg->sender_role === 'user' ? 'flex-row-reverse' : '' }}">
                             <div
                                 class="w-8 h-8 rounded-full shrink-0 overflow-hidden {{ $msg->sender_role === 'user' ? 'bg-[#a47551]' : 'bg-emerald-500' }}">
                                 @if ($msg->sender_role === 'user')
@@ -87,15 +98,14 @@
                                         <p class="text-sm font-bold text-[#a47551] mt-1">Rp
                                             {{ number_format($msg->metadata['price'], 0, ',', '.') }}</p>
                                         <a href="{{ $msg->metadata['url'] }}" target="_blank"
-                                            class="mt-2 block text-center rounded-xl bg-[#a47551] text-white text-xs py-2 font-medium hover:bg-[#8f6243] transition-colors">
-                                            Lihat Produk
-                                        </a>
+                                            class="mt-2 block text-center rounded-xl bg-[#a47551] text-white text-xs py-2 font-medium hover:bg-[#8f6243] transition-colors">Lihat
+                                            Produk</a>
                                     </div>
                                 </div>
                             @else
                                 <div
                                     class="max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed
-                {{ $msg->sender_role === 'user' ? 'bg-[#a47551] text-white rounded-br-md' : 'bg-white border border-[#ede0d4] text-[#2b2b2b] rounded-bl-md shadow-sm' }}">
+                                    {{ $msg->sender_role === 'user' ? 'bg-[#a47551] text-white rounded-br-md' : 'bg-white border border-[#ede0d4] text-[#2b2b2b] rounded-bl-md shadow-sm' }}">
                                     <p>{{ $msg->message }}</p>
                                     <p
                                         class="text-[0.6rem] mt-1 {{ $msg->sender_role === 'user' ? 'text-white/50' : 'text-[#aaa]' }}">
