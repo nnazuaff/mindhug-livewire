@@ -90,6 +90,16 @@
                     </svg>
                     <span>Pengguna</span>
                 </a>
+
+                {{-- Produk --}}
+                <a href="{{ route('admin.products') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.products*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                    <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M6 7h12l1 14H5L6 7ZM9 7V5a3 3 0 0 1 6 0v2" />
+                    </svg>
+                    <span>Produk</span>
+                </a>
             </nav>
             <div class="p-4 border-t border-stone-200">
                 <form method="POST" action="{{ route('admin.logout') }}">
@@ -110,7 +120,6 @@
 
         {{-- Mobile Sidebar --}}
         <div x-data="{ open: false }" class="lg:hidden">
-            {{-- Hamburger Button --}}
             <button @click="open = true"
                 class="fixed top-3 left-3 z-40 p-2.5 rounded-xl bg-white border border-stone-200 shadow-sm hover:bg-stone-50 active:scale-95 transition-all duration-150">
                 <svg class="h-5 w-5 text-stone-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -121,26 +130,22 @@
                 </svg>
             </button>
 
-            {{-- Overlay --}}
             <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex">
                 <div @click="open = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
 
-                {{-- Panel --}}
                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-250"
                     x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
                     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0"
                     x-transition:leave-end="-translate-x-full"
                     class="relative w-72 bg-white h-full shadow-2xl flex flex-col">
 
-                    {{-- Panel Header --}}
                     <div class="p-5 border-b border-stone-200 flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#a47551]/15">
-                                <img src="{{ asset('favicon.png') }}" alt="MindHug" class="h-5 w-5 rounded">
-                            </span>
+                            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#a47551]/15"><img
+                                    src="{{ asset('favicon.png') }}" alt="MindHug" class="h-5 w-5 rounded"></span>
                             <span class="font-semibold text-stone-800">MindHug</span>
                         </div>
                         <button @click="open = false"
@@ -153,68 +158,34 @@
                         </button>
                     </div>
 
-                    {{-- Panel Nav --}}
                     <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                         <a href="{{ route('admin.dashboard') }}" @click="open = false"
-                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
-                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <rect x="3" y="3" width="7" height="7" />
-                                <rect x="14" y="3" width="7" height="7" />
-                                <rect x="3" y="14" width="7" height="7" />
-                                <rect x="14" y="14" width="7" height="7" />
-                            </svg>
-                            <span>Dashboard</span>
-                        </a>
+                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Dashboard</span></a>
                         <a href="{{ route('admin.orders') }}" @click="open = false"
-                            class="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.orders*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
-                            <span class="flex items-center gap-3">
-                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M9 12h6M9 16h6M9 8h6" />
-                                    <path d="M6 21h12a2 2 0 0 0 2-2V7l-5-4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z" />
-                                </svg>
-                                <span>Pesanan</span>
-                            </span>
+                            class="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.orders*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Pesanan</span>
                             @if ($pendingConfirm > 0)
                                 <span
                                     class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">{{ $pendingConfirm }}</span>
                             @endif
                         </a>
                         <a href="{{ route('admin.curhats') }}" @click="open = false"
-                            class="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.curhats*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
-                            <span class="flex items-center gap-3">
-                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                </svg>
-                                <span>Curhat</span>
-                            </span>
+                            class="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.curhats*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Curhat</span>
                             @if ($openChats > 0)
                                 <span
                                     class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">{{ $openChats }}</span>
                             @endif
                         </a>
                         <a href="{{ route('admin.users') }}" @click="open = false"
-                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
-                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
-                            <span>Pengguna</span>
-                        </a>
+                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Pengguna</span></a>
+                        <a href="{{ route('admin.products') }}" @click="open = false"
+                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.products*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Produk</span></a>
                     </nav>
 
-                    {{-- Panel Footer --}}
                     <div class="p-4 border-t border-stone-200">
                         <div class="flex items-center gap-3 px-3 py-2 mb-3">
                             <div
                                 class="w-8 h-8 rounded-full bg-[#a47551]/15 flex items-center justify-center text-[#a47551] text-xs font-bold">
-                                {{ strtoupper(substr(auth('admin')->user()->full_name ?? 'A', 0, 1)) }}
-                            </div>
+                                {{ strtoupper(substr(auth('admin')->user()->full_name ?? 'A', 0, 1)) }}</div>
                             <div>
                                 <p class="text-sm font-medium text-stone-700">
                                     {{ auth('admin')->user()->full_name ?? 'Admin' }}</p>
@@ -224,15 +195,7 @@
                         <form method="POST" action="{{ route('admin.logout') }}">
                             @csrf
                             <button type="submit"
-                                class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-stone-500 hover:bg-rose-50 hover:text-rose-600 transition-colors">
-                                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                    <polyline points="16 17 21 12 16 7" />
-                                    <line x1="21" y1="12" x2="9" y2="12" />
-                                </svg>
-                                <span>Keluar</span>
-                            </button>
+                                class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-stone-500 hover:bg-rose-50 hover:text-rose-600 transition-colors"><span>Keluar</span></button>
                         </form>
                     </div>
                 </div>

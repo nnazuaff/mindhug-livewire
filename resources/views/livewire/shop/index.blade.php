@@ -46,11 +46,15 @@
 
     <div class="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
         @forelse($products as $product)
+            @php
+                $files = Storage::disk('public')->files('products/' . $product->id);
+                $firstImage = !empty($files) ? basename($files[0]) : 'default.png';
+            @endphp
             <article class="rounded-lg border border-gray-100 bg-white p-2 hover:shadow-md transition">
                 <a href="{{ route('product.detail', $product) }}" class="block h-full">
                     <div class="relative w-full pb-[100%] rounded-md overflow-hidden bg-[#f7f2ed]">
-                        <img src="{{ asset("storage/products/{$product->id}/1.png") }}" alt="{{ $product->name }}"
-                            class="absolute inset-0 w-full h-full object-cover" />
+                        <img src="{{ asset('storage/products/' . $product->id . '/' . $firstImage) }}"
+                            alt="{{ $product->name }}" class="absolute inset-0 w-full h-full object-cover" />
                     </div>
 
                     <div class="pt-2 text-center">
@@ -74,7 +78,6 @@
             </div>
         @endforelse
     </div>
-
     <div class="mt-8">
         {{ $products->links() }}
     </div>
