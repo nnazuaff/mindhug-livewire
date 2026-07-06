@@ -58,9 +58,8 @@
                 <div class="flex items-center gap-2">
                     @if ($activeConversation->status === 'open' && !$activeConversation->assigned_to)
                         <button wire:click="takeConversation({{ $activeConversation->id }})"
-                            class="text-xs px-3 py-1.5 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors font-medium">
-                            Ambil Alih
-                        </button>
+                            class="text-xs px-3 py-1.5 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors font-medium">Ambil
+                            Alih</button>
                     @endif
                     @if ($activeConversation->status === 'open' && $activeConversation->assigned_to === auth('admin')->id())
                         <div x-data="{ showConfirm: false }">
@@ -69,12 +68,7 @@
                             <div x-show="showConfirm" x-cloak
                                 class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40">
                                 <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center">
-                                    <svg class="h-10 w-10 mx-auto text-rose-400 mb-3" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="1.5">
-                                        <circle cx="12" cy="12" r="10" />
-                                        <line x1="12" y1="8" x2="12" y2="12" />
-                                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                                    </svg>
+
                                     <p class="font-semibold text-stone-800">Tutup percakapan?</p>
                                     <p class="text-sm text-stone-500 mt-1">Percakapan yang ditutup tidak bisa dibalas
                                         lagi.</p>
@@ -126,23 +120,56 @@
                                         <p class="text-sm font-bold text-[#a47551] mt-1">Rp
                                             {{ number_format($msg->metadata['price'], 0, ',', '.') }}</p>
                                         <a href="{{ $msg->metadata['url'] }}" target="_blank"
-                                            class="mt-2 block text-center rounded-xl bg-[#a47551] text-white text-xs py-2 font-medium hover:bg-[#8f6243] transition-colors">
-                                            Lihat Produk
-                                        </a>
+                                            class="mt-2 block text-center rounded-xl bg-[#a47551] text-white text-xs py-2 font-medium hover:bg-[#8f6243] transition-colors">Lihat
+                                            Produk</a>
                                     </div>
                                 </div>
                             @else
                                 <div
-                                    class="rounded-2xl px-4 py-2.5 text-sm
-                                    {{ $msg->sender_role === 'admin' ? 'bg-[#a47551] text-white rounded-br-md' : 'bg-stone-100 text-stone-800 rounded-bl-md' }}">
+                                    class="rounded-2xl px-4 py-2.5 text-sm {{ $msg->sender_role === 'admin' ? 'bg-[#a47551] text-white rounded-br-md' : 'bg-stone-100 text-stone-800 rounded-bl-md' }}">
                                     @if ($msg->sender_role === 'admin')
                                         <p class="text-[0.6rem] text-white/60 mb-0.5">
                                             {{ $activeConversation->assignedAdmin->full_name ?? 'Admin' }}</p>
                                     @endif
                                     <p>{{ $msg->message }}</p>
                                     <p
-                                        class="text-[0.6rem] mt-1 {{ $msg->sender_role === 'admin' ? 'text-white/50' : 'text-stone-400' }}">
+                                        class="text-[0.6rem] mt-1 flex items-center gap-2 {{ $msg->sender_role === 'admin' ? 'text-white/50' : 'text-stone-400' }}">
                                         {{ $msg->created_at->format('d/m H:i') }}
+                                        @if (
+                                            $msg->sender_role === 'admin' &&
+                                                $msg->sender_id === auth('admin')->id() &&
+                                                $activeConversation->assigned_to === auth('admin')->id())
+                                            <div x-data="{ showConfirm: false }">
+                                                <button @click="showConfirm = true"
+                                                    class="hover:text-rose-300 transition-colors">
+                                                    <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6" />
+                                                        <path
+                                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                    </svg>
+                                                </button>
+                                                <div x-show="showConfirm" x-cloak
+                                                    class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40"
+                                                    @click.self="showConfirm = false">
+                                                    <div
+                                                        class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center">
+
+                                                        <p class="font-semibold text-stone-800">Hapus pesan?</p>
+                                                        <p class="text-sm text-stone-500 mt-1">Pesan yang dihapus tidak
+                                                            bisa dikembalikan.</p>
+                                                        <div class="flex gap-2 mt-4">
+                                                            <button @click="showConfirm = false"
+                                                                class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200 transition-colors">Batal</button>
+                                                            <button wire:click="deleteMessage({{ $msg->id }})"
+                                                                @click="showConfirm = false"
+                                                                class="flex-1 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-600 transition-colors">Hapus</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </p>
                                 </div>
                             @endif
@@ -155,20 +182,14 @@
             @if ($activeConversation->status === 'open')
                 <div class="p-4 border-t border-stone-200 space-y-3">
                     @if ($activeConversation->assigned_to === auth('admin')->id())
-                        {{-- ✅ Tombol Rekomendasi via Popup --}}
                         <button @click="$dispatch('openProductSearch')"
-                            class="text-xs px-3 py-1.5 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors font-medium">
-                            + Rekomendasi Produk
-                        </button>
-
-                        {{-- Reply Form --}}
+                            class="text-xs px-3 py-1.5 rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors font-medium">+
+                            Rekomendasi Produk</button>
                         <form wire:submit.prevent="sendReply" class="flex gap-2">
                             <input wire:model="replyMessage" type="text" placeholder="Tulis balasan..."
                                 class="flex-1 rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
                             <button type="submit"
-                                class="rounded-xl bg-[#a47551] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#8f6243] transition-colors">
-                                Kirim
-                            </button>
+                                class="rounded-xl bg-[#a47551] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#8f6243] transition-colors">Kirim</button>
                         </form>
                     @else
                         <p class="text-center text-sm text-stone-400">⚠️ Ambil alih percakapan ini untuk membalas.</p>
@@ -188,7 +209,6 @@
         @endif
     </div>
 
-    {{-- Popup Rekomendasi Produk --}}
     <livewire:curhat.product-recommendation />
 </div>
 

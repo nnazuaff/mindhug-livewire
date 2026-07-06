@@ -84,6 +84,22 @@ class Curhats extends Component
         $this->dispatch('admin-replied');
     }
 
+    public function deleteMessage(int $messageId): void
+    {
+        $message = Message::findOrFail($messageId);
+
+        if ($this->activeConversation->assigned_to !== auth('admin')->id()) {
+            return;
+        }
+        if ($message->sender_role !== 'admin' || $message->sender_id !== auth('admin')->id()) {
+            return;
+        }
+
+        $message->delete();
+        $this->loadConversation();
+        $this->dispatch('message-sent');
+    }
+
     public function updatedProductSearch(): void
     {
         $this->searchProduct();
@@ -97,11 +113,8 @@ class Curhats extends Component
             return;
         }
 
-        $this->searchResults = Product::where('name', 'like', '%'.$this->productSearch.'%', 'and')
-            ->where('is_active', true)
-            ->take(5)
-            ->get()
-            ->toArray();
+        $this->searchResults = Product::where('name', 'like', '%'.$this->productSearch.'%')
+            ->where('is_active', true)->take(5)->get()->toArray();
     }
 
     #[On('product-selected')]
@@ -117,7 +130,6 @@ class Curhats extends Component
         }
 
         $product = Product::findOrFail($productId);
-
         $files = Storage::disk('public')->files('products/'.$product->id);
         $image = ! empty($files) ? basename($files[0]) : 'default.png';
 
