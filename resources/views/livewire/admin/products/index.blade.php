@@ -131,59 +131,128 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" wire:click.self="closeDetail">
             <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
                 <div
-                    class="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-                    <h2 class="text-lg font-semibold text-stone-800">{{ $viewingProduct->name }}</h2>
+                    class="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+                    <div>
+                        <h2 class="text-lg font-semibold text-stone-800">{{ $viewingProduct->name }}</h2>
+                        <p class="text-xs text-stone-400 mt-0.5">
+                            {{ $viewingProduct->category?->name ?? 'Tanpa Kategori' }}</p>
+                    </div>
                     <button wire:click="closeDetail"
                         class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
                 </div>
-                <div class="p-6 space-y-4">
+
+                <div class="p-6 space-y-5">
+                    {{-- Gambar --}}
                     @php
                         $pFiles = Storage::disk('public')->files('products/' . $viewingProduct->id);
                     @endphp
                     @if (!empty($pFiles))
-                        <div class="grid grid-cols-4 gap-2">
-                            @foreach ($pFiles as $file)
-                                <img src="{{ asset('storage/products/' . $viewingProduct->id . '/' . basename($file)) }}"
-                                    class="rounded-xl object-cover w-full h-20 border border-stone-200">
-                            @endforeach
+                        <div>
+                            <p class="text-sm font-medium text-stone-700 mb-2">Galeri Produk</p>
+                            <div class="grid grid-cols-4 gap-2">
+                                @foreach ($pFiles as $file)
+                                    <div
+                                        class="aspect-square rounded-xl overflow-hidden border border-stone-200 bg-stone-50">
+                                        <img src="{{ asset('storage/' . $file) }}" alt="{{ $viewingProduct->name }}"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
-                    <div class="grid grid-cols-2 gap-3 text-sm">
+
+                    {{-- Info Utama --}}
+                    <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <p class="text-stone-400 text-xs">Kategori</p>
-                            <p class="font-medium text-stone-700">{{ $viewingProduct->category?->name ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-stone-400 text-xs">Harga</p>
-                            <p class="font-semibold text-[#a47551]">Rp
+                            <p class="text-stone-400 text-xs">Harga Jual</p>
+                            <p class="text-lg font-bold text-[#a47551]">Rp
                                 {{ number_format($viewingProduct->price, 0, ',', '.') }}</p>
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Stok</p>
-                            <p class="font-medium text-stone-700">{{ $viewingProduct->stock }}</p>
+                            <p class="text-lg font-bold text-stone-800">{{ number_format($viewingProduct->stock) }}</p>
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Badge</p>
-                            <p class="font-medium text-stone-700">{{ $viewingProduct->badge ?? '-' }}</p>
+                            <p class="font-medium text-stone-700">{{ $viewingProduct->badge ?: '-' }}</p>
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Status</p>
-                            <p
-                                class="font-medium {{ $viewingProduct->is_active ? 'text-emerald-600' : 'text-stone-400' }}">
-                                {{ $viewingProduct->is_active ? 'Aktif' : 'Nonaktif' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-stone-400 text-xs">Harga Shopee</p>
-                            <p class="font-medium text-stone-700">Rp
-                                {{ number_format($viewingProduct->shopee_price, 0, ',', '.') }}</p>
+                            <span
+                                class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $viewingProduct->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-stone-100 text-stone-400' }}">
+                                {{ $viewingProduct->is_active ? 'Aktif' : 'Nonaktif' }}
+                            </span>
                         </div>
                     </div>
+
+                    {{-- Deskripsi --}}
                     @if ($viewingProduct->description)
                         <div>
-                            <p class="text-stone-400 text-xs mb-1">Deskripsi</p>
-                            <p class="text-sm text-stone-600">{{ $viewingProduct->description }}</p>
+                            <p class="text-sm font-medium text-stone-700 mb-1">Deskripsi</p>
+                            <p class="text-sm text-stone-600 leading-relaxed">{{ $viewingProduct->description }}</p>
                         </div>
                     @endif
+
+                    {{-- Dropship Info --}}
+                    @php $isDropship = $viewingProduct->shopee_price > 0 || $viewingProduct->shopee_link; @endphp
+                    <div
+                        class="rounded-2xl border {{ $isDropship ? 'border-amber-200 bg-amber-50' : 'border-stone-200 bg-stone-50' }} p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span
+                                class="text-xs font-semibold uppercase tracking-wider {{ $isDropship ? 'text-amber-600' : 'text-stone-400' }}">
+                                {{ $isDropship ? '📦 Produk Dropship (Shopee)' : 'Produk Non-Dropship' }}
+                            </span>
+                        </div>
+
+                        @if ($isDropship)
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <p class="text-stone-400 text-xs">Harga Shopee</p>
+                                    <p class="font-semibold text-stone-700">Rp
+                                        {{ number_format($viewingProduct->shopee_price, 0, ',', '.') }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-stone-400 text-xs">Markup</p>
+                                    <p class="font-semibold text-stone-700">Rp
+                                        {{ number_format($viewingProduct->markup, 0, ',', '.') }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-stone-400 text-xs">Keuntungan</p>
+                                    <p class="font-semibold text-emerald-600">Rp
+                                        {{ number_format($viewingProduct->price - $viewingProduct->shopee_price, 0, ',', '.') }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-stone-400 text-xs">Margin</p>
+                                    <p class="font-semibold text-emerald-600">
+                                        {{ $viewingProduct->shopee_price > 0 ? round((($viewingProduct->price - $viewingProduct->shopee_price) / $viewingProduct->shopee_price) * 100) : 0 }}%
+                                    </p>
+                                </div>
+                                @if ($viewingProduct->shopee_link)
+                                    <div class="col-span-2">
+                                        <p class="text-stone-400 text-xs mb-1">Link Shopee</p>
+                                        <a href="{{ $viewingProduct->shopee_link }}" target="_blank" rel="noopener"
+                                            class="text-sm text-[#a47551] hover:text-[#8f6243] underline break-all">
+                                            {{ $viewingProduct->shopee_link }}
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <p class="text-sm text-stone-500">Produk ini bukan produk dropship. Harga ditentukan
+                                manual.</p>
+                        @endif
+                    </div>
+
+                    {{-- Info Tambahan --}}
+                    <div class="grid grid-cols-2 gap-3 text-xs text-stone-500 border-t border-stone-100 pt-4">
+                        <div>Dibuat: <span
+                                class="text-stone-700">{{ $viewingProduct->created_at?->format('d M Y, H:i') ?? '-' }}</span>
+                        </div>
+                        <div>Diperbarui: <span
+                                class="text-stone-700">{{ $viewingProduct->updated_at?->format('d M Y, H:i') ?? '-' }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
