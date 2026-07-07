@@ -115,7 +115,7 @@
                         <button type="button" wire:click="closeForm"
                             class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200">Batal</button>
                         <button type="submit"
-                            class="flex-1 rounded-xl bg-[#a47551] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#8f6243]">Simpan</button>
+                            class="flex-1 rounded-xl bg-[#a47551] px-4 py-2.    5 text-sm font-medium text-white hover:bg-[#8f6243]">Simpan</button>
                     </div>
                 </form>
             </div>

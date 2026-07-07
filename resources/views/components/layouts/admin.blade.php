@@ -56,10 +56,7 @@
                         </svg>
                         <span>Pesanan</span>
                     </span>
-                    @if ($pendingConfirm > 0)
-                        <span
-                            class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">{{ $pendingConfirm }}</span>
-                    @endif
+
                 </a>
 
                 {{-- Curhat --}}
@@ -72,10 +69,7 @@
                         </svg>
                         <span>Curhat</span>
                     </span>
-                    @if ($openChats > 0)
-                        <span
-                            class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">{{ $openChats }}</span>
-                    @endif
+                    <livewire:layouts.admin-curhat-badge />
                 </a>
 
                 {{-- Pengguna --}}
@@ -172,17 +166,12 @@
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Dashboard</span></a>
                         <a href="{{ route('admin.orders') }}" @click="open = false"
                             class="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.orders*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Pesanan</span>
-                            @if ($pendingConfirm > 0)
-                                <span
-                                    class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">{{ $pendingConfirm }}</span>
-                            @endif
+
                         </a>
                         <a href="{{ route('admin.curhats') }}" @click="open = false"
-                            class="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.curhats*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Curhat</span>
-                            @if ($openChats > 0)
-                                <span
-                                    class="inline-flex items-center justify-center h-5 min-w-[1.25rem] rounded-full bg-blue-500 text-white text-[0.6rem] font-bold px-1.5">{{ $openChats }}</span>
-                            @endif
+                            class="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.curhats*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                            <span>Curhat</span>
+                            <livewire:layouts.admin-curhat-badge />
                         </a>
                         <a href="{{ route('admin.users') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Pengguna</span></a>
