@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Livewire\Admin\Categories;
 use App\Http\Livewire\Admin\Curhats\Index as CurhatsIndex;
 use App\Http\Livewire\Admin\Dashboard;
 use App\Http\Livewire\Admin\Orders;
@@ -26,6 +27,7 @@ Route::middleware('web')->group(function () {
             Route::get('/orders', Orders::class)->name('orders');
             Route::get('/curhats', CurhatsIndex::class)->name('curhats');
             Route::get('/products', ProductsIndex::class)->name('products');
+            Route::get('/categories', Categories::class)->name('categories');
         });
 
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -1,4 +1,4 @@
-<div class="bg-white rounded-2xl border border-stone-200 flex flex-col overflow-hidden h-full">
+<div wire:poll.1s class="bg-white rounded-2xl border border-stone-200 flex flex-col overflow-hidden h-full">
 
     {{-- Header --}}
     <div class="p-4 border-b border-stone-100 shrink-0">
