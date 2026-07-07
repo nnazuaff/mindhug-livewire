@@ -1,11 +1,40 @@
 <div class="grid gap-8 xl:grid-cols-[1.8fr_1fr]">
     {{-- LEFT COLUMN --}}
     <div class="space-y-6">
+        {{-- Pending Order Alert --}}
+        @php
+            $pendingOrder = App\Models\Order::where('user_id', Auth::id())
+                ->whereIn('status', ['awaiting_payment', 'awaiting_confirmation'])
+                ->first();
+        @endphp
 
+        @if ($pendingOrder)
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold text-amber-700">Anda memiliki pesanan yang belum diselesaikan
+                        </p>
+                        <p class="text-xs text-amber-600 mt-0.5">{{ $pendingOrder->invoice_number }} - Rp
+                            {{ number_format($pendingOrder->total_amount, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+                <a href="{{ route('orders.show', $pendingOrder->invoice_number) }}"
+                    class="text-sm font-semibold text-[#a47551] hover:text-[#8f6243] whitespace-nowrap ml-3">
+                    Bayar →
+                </a>
+            </div>
+        @endif
         {{-- Step 1: Alamat --}}
         <section class="rounded-[1.75rem] border border-stone-200/60 bg-white p-6 sm:p-8 shadow-sm">
             <div class="flex items-start gap-4">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f5e9df] text-[#a47551]">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f5e9df] text-[#a47551]">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -157,7 +186,8 @@
     </div>
 
     {{-- RIGHT COLUMN --}}
-    <aside class="lg:sticky lg:top-28 self-start">
+    {{-- Desktop --}}
+    <aside class="hidden lg:block lg:sticky lg:top-28 self-start">
         <div class="rounded-[1.75rem] border border-stone-200/60 bg-white p-6 sm:p-7 shadow-sm">
             <div class="flex items-center gap-3 mb-6">
                 <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f5e9df] text-[#a47551]">
@@ -235,14 +265,12 @@
                 </button>
             @endif
 
-            {{-- Payment Notice --}}
             @if ($paymentNotice)
                 <div class="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
                     {{ $paymentNotice }}
                 </div>
             @endif
 
-            {{-- Security --}}
             <div class="mt-4 flex items-center justify-center gap-2 text-xs text-[#8b6f5c]">
                 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -251,5 +279,77 @@
                 </svg>
                 Pembayaran aman & terenkripsi
             </div>
+        </div>
     </aside>
+
+    {{-- MOBILE FLOATING BOTTOM BAR --}}
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-stone-200 shadow-[0_-8px_30px_rgba(0,0,0,0.1)]"
+        x-data="{ expanded: false }">
+
+        {{-- Collapsed: Total + Tombol --}}
+        <div class="px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <button @click="expanded = !expanded"
+                    class="flex items-center gap-1.5 text-sm font-semibold text-stone-800">
+                    Ringkasan Pesanan
+                    <svg class="h-4 w-4 transition-transform duration-200" :class="expanded ? 'rotate-180' : ''"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                </button>
+                <span class="text-base font-bold text-[#a47551]">Rp {{ number_format($total, 0, ',', '.') }}</span>
+            </div>
+
+            @if ($this->canCheckout)
+                <button type="button" wire:click="placeOrder" wire:loading.attr="disabled"
+                    class="w-full rounded-2xl px-5 py-3 text-sm font-semibold transition-colors duration-200 bg-[#a47551] text-white shadow-sm hover:bg-[#8f6243]">
+                    <span wire:loading.remove>Buka Halaman Pembayaran</span>
+                    <span wire:loading class="flex items-center justify-center gap-2">
+                        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                    </span>
+                </button>
+            @else
+                <button type="button" disabled
+                    class="w-full rounded-2xl px-5 py-3 text-sm font-semibold bg-stone-200 text-stone-400 cursor-not-allowed">
+                    {{ $this->checkoutDisabledReason }}
+                </button>
+            @endif
+        </div>
+
+        {{-- Expanded: Ringkasan Detail --}}
+        <div x-show="expanded" x-collapse class="px-4 pb-3 border-t border-stone-100">
+            <div class="space-y-2 pt-3 text-sm">
+                @foreach ($cartItems as $item)
+                    <div class="flex items-center justify-between">
+                        <span class="text-stone-600 truncate max-w-[70%]">{{ $item['name'] }}
+                            (x{{ $item['quantity'] }})
+                        </span>
+                        <span class="text-stone-700">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                    </div>
+                @endforeach
+                <div class="h-px bg-stone-100"></div>
+                <div class="flex justify-between text-stone-600">
+                    <span>Subtotal</span>
+                    <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between text-stone-600">
+                    <span>Ongkir</span>
+                    <span>Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
+                </div>
+                @if ($discountAmount > 0)
+                    <div class="flex justify-between text-emerald-600">
+                        <span>Diskon</span>
+                        <span>- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Spacer untuk mobile bottom bar --}}
+    <div class="lg:hidden h-28"></div>
 </div>

@@ -13,12 +13,6 @@
 </head>
 
 <body class="bg-stone-50 text-stone-800 min-h-screen font-sans antialiased">
-
-    @php
-        $openChats = App\Models\Conversation::where('status', 'open')->whereNull('assigned_to')->count();
-        $pendingConfirm = App\Models\Order::where('status', 'awaiting_confirmation')->count();
-    @endphp
-
     <div class="flex min-h-screen">
         {{-- Sidebar Desktop --}}
         <aside class="hidden lg:flex w-60 bg-white border-r border-stone-200 flex-col shrink-0">
