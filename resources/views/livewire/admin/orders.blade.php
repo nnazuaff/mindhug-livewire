@@ -1,4 +1,4 @@
-<div wire:poll.3s>
+<div wire:poll.1s>
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-stone-800">Pesanan</h1>
@@ -192,6 +192,29 @@
                                 class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 transition">
                                 Konfirmasi Pembayaran
                             </button>
+                        @endif
+                        {{-- Tolak Request Pembatalan --}}
+                        @if ($viewingOrder->status === 'cancel_requested')
+                            <div class="w-full space-y-2" x-data="{ showRejectForm: false }">
+                                <button @click="showRejectForm = !showRejectForm"
+                                    class="rounded-xl bg-amber-100 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-200 transition-colors">
+                                    Tolak Pembatalan
+                                </button>
+                                <div x-show="showRejectForm" x-cloak class="space-y-2">
+                                    <textarea wire:model="rejectReason" rows="2" placeholder="Tulis alasan penolakan..."
+                                        class="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50"></textarea>
+                                    <div class="flex gap-2">
+                                        <button wire:click="rejectCancelRequest({{ $viewingOrder->id }})"
+                                            class="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 transition-colors">
+                                            Konfirmasi Penolakan
+                                        </button>
+                                        <button @click="showRejectForm = false; $wire.set('rejectReason', '')"
+                                            class="rounded-xl bg-stone-100 px-4 py-2 text-sm font-medium text-stone-600 hover:bg-stone-200 transition-colors">
+                                            Batal
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         @endif
 
                         {{-- Konfirmasi Pembayaran (user request batal, tapi admin konfirmasi) --}}

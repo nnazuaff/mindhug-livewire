@@ -74,13 +74,23 @@
                 @endif
             </div>
 
-            @if ($order->cancel_requested_at)
+            {{-- Request Cancel Status --}}
+            @if ($order->cancel_requested_at && $order->status === 'cancel_requested')
                 <div class="mt-4 rounded-xl bg-orange-50 border border-orange-200 px-4 py-3">
-                    <p class="text-xs font-medium text-orange-600 uppercase tracking-wider">Request Pembatalan
-                        Dikirim
+                    <p class="text-xs font-medium text-orange-600 uppercase tracking-wider">Request Pembatalan Dikirim
                     </p>
                     <p class="text-sm text-orange-700 mt-1">{{ $order->cancel_reason }}</p>
                     <p class="text-xs text-orange-500 mt-1">Menunggu konfirmasi admin</p>
+                </div>
+            @endif
+
+            {{-- Cancel Rejected --}}
+            @if ($order->cancel_rejected_reason)
+                <div class="mt-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
+                    <p class="text-xs font-medium text-amber-600 uppercase tracking-wider">Pembatalan Ditolak</p>
+                    <p class="text-sm text-amber-700 mt-1">{{ $order->cancel_rejected_reason }}</p>
+                    <p class="text-xs text-amber-500 mt-1">Pesanan kembali ke status pembayaran. Silakan lanjutkan
+                        pembayaran.</p>
                 </div>
             @endif
         </div>

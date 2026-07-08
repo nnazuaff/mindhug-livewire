@@ -17,6 +17,7 @@ class Order extends Model
         'status',
         'cancellation_reason',
         'cancel_reason',
+        'cancel_rejected_reason',
         'cancel_requested_at',
         'payment_method',
         'shipping_method',

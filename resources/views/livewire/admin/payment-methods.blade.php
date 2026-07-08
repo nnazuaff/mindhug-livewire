@@ -40,10 +40,10 @@
                             <td class="px-5 py-3">
                                 @if ($method->icon)
                                     <img src="{{ Storage::url($method->icon) }}"
-                                        class="h-8 w-8 rounded-lg object-cover border border-stone-200">
+                                        class="h-10 w-10 rounded-lg object-contain border border-stone-200 bg-white p-0.5">
                                 @else
                                     <div
-                                        class="h-8 w-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-400 text-xs">
+                                        class="h-10 w-10 rounded-lg bg-stone-100 flex items-center justify-center text-stone-400 text-xs">
                                         -</div>
                                 @endif
                             </td>
@@ -160,10 +160,14 @@
                         @if ($existingIcon)
                             <div class="flex items-center gap-3 mb-2">
                                 <img src="{{ Storage::url($existingIcon) }}"
-                                    class="h-10 w-10 rounded-lg object-cover border border-stone-200">
+                                    class="h-14 w-14 rounded-xl object-contain border border-stone-200 bg-white p-1">
                                 <button type="button" wire:click="removeIcon"
                                     class="text-xs text-rose-500 hover:text-rose-600">Hapus</button>
                             </div>
+                        @endif
+                        @if ($icon)
+                            <img src="{{ $icon->temporaryUrl() }}"
+                                class="mt-2 h-20 w-20 rounded-xl object-contain border border-stone-200 bg-white p-1">
                         @endif
                         <input type="file" wire:model="icon" accept="image/*"
                             class="w-full rounded-xl border border-stone-200 px-4 py-3 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 file:mr-4 file:rounded-xl file:border-0 file:bg-[#f5e9df] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#7a5d45] hover:file:bg-[#ead8c2]">

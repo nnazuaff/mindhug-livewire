@@ -43,7 +43,6 @@
                 <h2 class="text-lg font-semibold text-[#2b1d12] mb-2">Scan QR Code</h2>
                 <p class="text-sm text-[#6a5a4f] mb-6">Scan menggunakan aplikasi e-wallet atau mobile banking kamu.</p>
 
-                {{-- Demo QR --}}
                 <div
                     class="mx-auto w-56 h-56 rounded-2xl border-2 border-dashed border-[#c19a6b]/40 bg-[#fdfaf7] flex flex-col items-center justify-center gap-3">
                     <svg class="h-16 w-16 text-[#c19a6b]/50" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -68,23 +67,28 @@
             {{-- Upload --}}
             <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-semibold text-[#2b1d12] mb-2">Upload Bukti Pembayaran</h2>
-                <p class="text-sm text-[#6a5a4f] mb-6">Setelah transfer, upload screenshot bukti pembayaran kamu.</p>
+                <p class="text-sm text-[#6a5a4f] mb-4">Format: JPG atau PNG. Maksimal 5MB.</p>
 
                 <form wire:submit.prevent="uploadProof" class="space-y-4">
                     <div>
-                        <input type="file" wire:model="paymentProof" accept="image/*"
-                            class="w-full rounded-2xl border border-[#c19a6b]/30 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 file:mr-4 file:rounded-xl file:border-0 file:bg-[#f5e9df] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#7a5d45] hover:file:bg-[#ead8c2]" />
+                        <input type="file" wire:model="paymentProof" accept="image/jpeg,image/png"
+                            class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 file:mr-4 file:rounded-xl file:border-0 file:bg-[#f5e9df] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#7a5d45] hover:file:bg-[#ead8c2]">
 
                         @error('paymentProof')
                             <p class="mt-2 text-xs text-rose-500">{{ $message }}</p>
                         @enderror
 
-                        @if ($paymentProof)
-                            <div class="mt-4">
-                                <p class="text-xs text-[#6a5a4f] mb-2">Preview:</p>
-                                <img src="{{ $paymentProof->temporaryUrl() }}" alt="Preview bukti bayar"
-                                    class="w-full max-w-xs rounded-2xl border border-stone-200">
-                            </div>
+                        @if ($paymentProof && !$errors->has('paymentProof'))
+                            @php
+                                $ext = strtolower($paymentProof->getClientOriginalExtension());
+                            @endphp
+                            @if (in_array($ext, ['jpg', 'jpeg', 'png']))
+                                <div class="mt-4">
+                                    <p class="text-xs text-[#6a5a4f] mb-2">Preview:</p>
+                                    <img src="{{ $paymentProof->temporaryUrl() }}" alt="Preview bukti bayar"
+                                        class="w-full max-w-xs rounded-2xl border border-stone-200">
+                                </div>
+                            @endif
                         @endif
                     </div>
 

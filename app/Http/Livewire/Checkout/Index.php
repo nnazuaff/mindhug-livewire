@@ -155,11 +155,10 @@ class Index extends Component
     {
         if (! Schema::hasTable('payment_methods')) {
             $this->paymentMethods = [
-                ['id' => 1, 'code' => 'bank_transfer', 'label' => 'Bank Transfer', 'subtitle' => 'Transfer antar bank'],
-                ['id' => 2, 'code' => 'ewallet', 'label' => 'E-Wallet', 'subtitle' => 'Dana / OVO / ShopeePay'],
-                ['id' => 3, 'code' => 'qris', 'label' => 'QRIS', 'subtitle' => 'Scan QR untuk bayar'],
+                ['id' => 1, 'code' => 'bank_transfer', 'label' => 'Bank Transfer', 'subtitle' => 'Transfer antar bank', 'icon' => null],
+                ['id' => 2, 'code' => 'ewallet', 'label' => 'E-Wallet', 'subtitle' => 'Dana / OVO / ShopeePay', 'icon' => null],
+                ['id' => 3, 'code' => 'qris', 'label' => 'QRIS', 'subtitle' => 'Scan QR untuk bayar', 'icon' => null],
             ];
-
             return;
         }
 
@@ -169,14 +168,14 @@ class Index extends Component
             ->sortBy('sort_order')
             ->values()
             ->map(fn ($method) => [
-                'id' => $method->id,
-                'code' => $method->code,
-                'label' => $method->name,
+                'id'       => $method->id,
+                'code'     => $method->code,
+                'label'    => $method->name,
                 'subtitle' => $method->subtitle,
+                'icon'     => $method->icon ? Storage::url($method->icon) : null,
             ])
             ->all();
     }
-
     public function getSubtotalProperty(): int
     {
         return array_sum(array_column($this->cartItems, 'subtotal'));

@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Orders;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -12,9 +13,7 @@ class Pay extends Component
     use WithFileUploads;
 
     public Order $order;
-
     public $paymentProof;
-
     public bool $uploaded = false;
 
     public function mount(Order $order): void
@@ -23,7 +22,6 @@ class Pay extends Component
             abort(403);
         }
 
-        // Hanya bisa bayar kalau status awaiting_payment
         if ($order->status !== 'awaiting_payment') {
             redirect()->route('orders.show', $order->invoice_number);
         }
@@ -34,26 +32,24 @@ class Pay extends Component
     public function uploadProof(): void
     {
         $this->validate([
-            'paymentProof' => 'required|image|max:2048', // max 2MB
+            'paymentProof' => 'required|file|mimes:jpg,png|max:5120',
         ], [
             'paymentProof.required' => 'Silakan pilih file bukti pembayaran.',
-            'paymentProof.image' => 'File harus berupa gambar (JPG, PNG).',
-            'paymentProof.max' => 'Ukuran file maksimal 2MB.',
+            'paymentProof.file'     => 'Harus berupa file.',
+            'paymentProof.mimes'    => 'Format yang didukung: JPG dan PNG.',
+            'paymentProof.max'      => 'Ukuran file maksimal 5MB.',
         ]);
 
-        // Simpan file
         $path = $this->paymentProof->store('payment-proofs', 'public');
 
-        // Update order
         $this->order->update([
             'payment_proof' => $path,
-            'status' => 'awaiting_confirmation',
+            'status'        => 'awaiting_confirmation',
         ]);
 
-        // Tracking event
         $this->order->trackingEvents()->create([
             'occurred_at' => now(),
-            'title' => 'Bukti Pembayaran Diunggah',
+            'title'       => 'Bukti Pembayaran Diunggah',
             'description' => 'Menunggu konfirmasi dari admin.',
         ]);
 
