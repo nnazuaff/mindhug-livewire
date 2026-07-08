@@ -97,6 +97,16 @@
                     </svg>
                     <span>Kategori</span>
                 </a>
+                {{-- Pembayaran --}}
+                <a href="{{ route('admin.payment-methods') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.payment-methods*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                    <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                    <span>Pembayaran</span>
+                </a>
             </nav>
             <div class="p-4 border-t border-stone-200">
                 <form method="POST" action="{{ route('admin.logout') }}">
@@ -174,6 +184,10 @@
                         <a href="{{ route('admin.categories') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.categories*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
                             <span>Kategori</span>
+                        </a>
+                        <a href="{{ route('admin.payment-methods') }}" @click="open = false"
+                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.payment-methods*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                            <span>Pembayaran</span>
                         </a>
                     </nav>
 
