@@ -56,8 +56,7 @@ class Security extends Component
 
         Auth::logout();
         User::query()->whereKey($this->user->getKey())->delete();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
+
 
         return redirect('/');
     }

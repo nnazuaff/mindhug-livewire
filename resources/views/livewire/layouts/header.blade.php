@@ -6,7 +6,7 @@
   · Desktop: pill-bar with transition-powered active state
   · Mobile: full-screen backdrop-blur overlay + right slide-out panel
 --}}
-<header x-data="{
+<header wire:poll.1s x-data="{
     scrolled: false,
     menu: false,
     userDropdown: false,
@@ -47,8 +47,7 @@
                         {{ $label }}
                         @if ($active)
                             <span
-                                class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#a47551]
-                                 transition-all duration-300"></span>
+                                class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#a47551] transition-all duration-300"></span>
                         @endif
                     </a>
                 @endforeach
@@ -69,22 +68,27 @@
                         </svg>
                         @if ($cartCount > 0)
                             <span
-                                class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
-                                {{ $cartCount }}
-                            </span>
+                                class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">{{ $cartCount }}</span>
                         @endif
                     </a>
 
-                    {{-- User Dropdown --}}
+                    {{-- User Dropdown Desktop --}}
                     <div class="relative" x-data @click.away="userDropdown = false">
                         <button @click="userDropdown = !userDropdown" type="button"
                             class="flex items-center gap-2 rounded-xl bg-[#f5e9df] hover:bg-[#edddd0] px-3 py-1.5 text-sm font-medium text-[#3d2b1c] transition-all duration-200 border border-transparent hover:border-[#e0cbb7]">
-                            <span class="h-6 w-6 rounded-full bg-[#a47551]/20 flex items-center justify-center">
-                                <svg class="h-3.5 w-3.5 text-[#a47551]" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 21a8 8 0 1 0-16 0" />
-                                    <circle cx="12" cy="7" r="4" />
-                                </svg>
+                            <span
+                                class="h-6 w-6 rounded-full bg-[#a47551]/20 flex items-center justify-center overflow-hidden">
+                                @if (auth()->user()->avatar)
+                                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->full_name }}"
+                                        class="h-full w-full object-cover">
+                                @else
+                                    <svg class="h-3.5 w-3.5 text-[#a47551]" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M20 21a8 8 0 1 0-16 0" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                @endif
                             </span>
                             <span
                                 class="max-w-[110px] truncate">{{ auth()->user()->full_name ?? auth()->user()->name }}</span>
@@ -164,20 +168,28 @@
                         </svg>
                         @if ($cartCount > 0)
                             <span
-                                class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
-                                {{ $cartCount }}
-                            </span>
+                                class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">{{ $cartCount }}</span>
                         @endif
                     </a>
 
+                    {{-- User Dropdown Mobile --}}
                     <div class="relative" x-data @click.away="userDropdown = false">
                         <button @click="userDropdown = !userDropdown" type="button" aria-label="Menu profil"
                             class="p-2 rounded-xl text-[#5a4035] hover:bg-[#f5e9df] hover:text-[#a47551] transition-all duration-200">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21a8 8 0 1 0-16 0" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
+                            <span
+                                class="h-5 w-5 rounded-full bg-[#a47551]/20 flex items-center justify-center overflow-hidden">
+                                @if (auth()->user()->avatar)
+                                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->full_name }}"
+                                        class="h-full w-full object-cover">
+                                @else
+                                    <svg class="h-3.5 w-3.5 text-[#a47551]" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M20 21a8 8 0 1 0-16 0" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                @endif
+                            </span>
                         </button>
 
                         <div x-show="userDropdown" x-cloak x-transition:enter="transition ease-out duration-150"
@@ -197,7 +209,7 @@
                                 </svg>
                                 Akun Saya
                             </a>
-                            <a href="{{ url('/transactions/orders') }}" wire:navigate
+                            <a href="{{ route('orders.index') }}" wire:navigate
                                 class="flex items-center gap-3 px-4 py-3 text-sm text-[#2b2b2b] hover:bg-[#fdf5ef] transition-colors duration-150">
                                 <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -241,17 +253,14 @@
 
     {{-- ════════════════════════════════════════════
          MOBILE FULL-SCREEN OVERLAY + SLIDE PANEL
-         (fixed → escapes sticky stacking context)
     ════════════════════════════════════════════ --}}
     <div x-show="menu" x-cloak class="fixed inset-0 z-[99] flex md:hidden"
         x-transition:enter="transition duration-300 ease-out" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition duration-200 ease-in"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
-        {{-- Blurred backdrop --}}
         <div @click="menu = false" class="absolute inset-0 bg-[#1a0f08]/55 backdrop-blur-sm"></div>
 
-        {{-- Slide-in panel from right --}}
         <div class="relative ml-auto h-full w-[82%] max-w-[320px] bg-[#fffafc] flex flex-col shadow-2xl shadow-black/20"
             x-transition:enter="transition duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]"
             x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
@@ -283,8 +292,7 @@
                         class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-200 group
                           {{ $active ? 'bg-[#f5e9df] text-[#a47551]' : 'text-[#3d2b1c] hover:bg-[#f5e9df]/60 hover:text-[#a47551]' }}">
                         <span
-                            class="flex h-9 w-9 items-center justify-center rounded-xl shrink-0 transition-all duration-200
-                                 {{ $active ? 'bg-[#a47551] text-white' : 'bg-[#f0e5db] text-[#a47551] group-hover:bg-[#a47551] group-hover:text-white' }}">
+                            class="flex h-9 w-9 items-center justify-center rounded-xl shrink-0 transition-all duration-200 {{ $active ? 'bg-[#a47551] text-white' : 'bg-[#f0e5db] text-[#a47551] group-hover:bg-[#a47551] group-hover:text-white' }}">
                             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="{{ $iconPath }}" />
@@ -301,23 +309,27 @@
             {{-- Panel footer --}}
             <div class="px-3 py-5 border-t border-[#ede0d4] bg-[#fdf8f4] space-y-2">
                 @auth
-                    <a href="/account/profile">
+                    <a href="{{ route('account.profile') }}">
                         <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-[#ede0d4]">
-                            <div class="h-9 w-9 rounded-full bg-[#a47551]/15 flex items-center justify-center shrink-0">
-                                <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M20 21a8 8 0 1 0-16 0" />
-                                    <circle cx="12" cy="7" r="4" />
-                                </svg>
+                            <div
+                                class="h-9 w-9 rounded-full bg-[#a47551]/15 flex items-center justify-center shrink-0 overflow-hidden">
+                                @if (auth()->user()->avatar)
+                                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->full_name }}"
+                                        class="h-full w-full object-cover">
+                                @else
+                                    <svg class="h-4 w-4 text-[#a47551]" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M20 21a8 8 0 1 0-16 0" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                @endif
                             </div>
-
                             <div class="min-w-0 flex-1">
                                 <p class="text-xs text-[#888]">Masuk sebagai</p>
                                 <p class="text-sm font-semibold text-[#2b1d12] truncate">
                                     {{ auth()->user()->full_name ?? auth()->user()->name }}</p>
                             </div>
-
                         </div>
                     </a>
                     <form method="POST" action="{{ route('logout') }}" class="m-0">
@@ -345,9 +357,8 @@
                         </svg>
                     </a>
                     <a href="{{ route('register') }}" wire:navigate @click="menu = false"
-                        class="flex items-center justify-center rounded-2xl border border-[#c19a6b]/50 text-[#5a4035] px-4 py-3 text-sm font-medium hover:bg-[#f5e9df] transition-colors duration-200">
-                        Daftar gratis
-                    </a>
+                        class="flex items-center justify-center rounded-2xl border border-[#c19a6b]/50 text-[#5a4035] px-4 py-3 text-sm font-medium hover:bg-[#f5e9df] transition-colors duration-200">Daftar
+                        gratis</a>
                 @endauth
             </div>
 

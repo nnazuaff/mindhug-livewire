@@ -10,7 +10,7 @@ use App\Http\Livewire\Admin\Products\Index as ProductsIndex;
 use App\Http\Livewire\Admin\Users\Index as UsersIndex;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('web')->group(function () {
+Route::middleware(['web', 'admin.session'])->group(function () {
 
     Route::middleware('guest:admin')->group(function () {
         Route::view('/login', 'admin.login')->name('login');
@@ -18,11 +18,8 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth:admin')->group(function () {
-
-        // Dashboard - bisa diakses semua role
         Route::get('/', Dashboard::class)->name('dashboard');
 
-        // Orders - hanya dev & admin
         Route::middleware('admin.role:dev,admin')->group(function () {
             Route::get('/users', UsersIndex::class)->name('users');
             Route::get('/orders', Orders::class)->name('orders');

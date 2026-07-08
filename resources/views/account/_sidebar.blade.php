@@ -1,7 +1,6 @@
 @php
     $accountUser = auth()->user();
     $role = $accountUser?->role;
-    $lastLoginAt = optional($accountUser?->last_login_at)->format('d M Y H:i');
     $isTrialActive = $accountUser?->is_trial_active;
 @endphp
 
@@ -33,11 +32,6 @@
             class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
             <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Status Akun</p>
             <p class="mt-2 font-semibold text-[#2b1d12]">{{ ucfirst($role ?: 'pelanggan') }}</p>
-        </div>
-        <div
-            class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
-            <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Terakhir login</p>
-            <p class="mt-2 font-semibold text-[#2b1d12]">{{ $lastLoginAt ?: 'Belum tersedia' }}</p>
         </div>
         <div
             class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">

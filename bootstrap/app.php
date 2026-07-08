@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin.role' => AdminRole::class,
+            'admin.session' => \App\Http\Middleware\AdminSession::class,
         ]);
     })
 

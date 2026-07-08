@@ -9,22 +9,37 @@ class Header extends Component
 {
     public $cartCount = 0;
 
-    protected $listeners = [
-        'cart-updated' => 'updateCartCount',
-    ];
+    public function mount()
+    {
+        $this->refreshCartCount();
+    }
 
-    // Listener interaksi realtime dari komponen lain (misal: saat klik 'Tambah ke Keranjang')
     #[On('cart-updated')]
     public function updateCartCount($count)
     {
-        $this->cartCount = $count;
+        $this->refreshCartCount();
     }
 
-    public function mount()
+    protected function refreshCartCount(): void
     {
-        // Mendapatkan total quantity dari session cart saat reload pertama kali
         $cart = session()->get('cart', []);
-        $this->cartCount = array_sum($cart);
+        $this->cartCount = 0;
+
+        if (empty($cart)) return;
+
+        // Hanya hitung produk yang masih ada di database
+        $validProductIds = \App\Models\Product::whereIn('id', array_keys($cart), 'and', false)->pluck('id')->toArray();
+
+        foreach ($cart as $productId => $qty) {
+            if (in_array((int) $productId, $validProductIds)) {
+                $this->cartCount += $qty;
+            } else {
+                // Hapus produk yang sudah tidak ada dari session
+                unset($cart[$productId]);
+            }
+        }
+
+        session()->put('cart', $cart);
     }
 
     public function render()

@@ -84,6 +84,8 @@
                 </div>
             @endif
 
+
+
             {{-- Cancel Rejected --}}
             @if ($order->cancel_rejected_reason)
                 <div class="mt-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
@@ -94,6 +96,38 @@
                 </div>
             @endif
         </div>
+        {{-- Bukti Pembayaran --}}
+        @if ($order->payment_proof)
+            <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
+                x-data="{ open: false }">
+                <button @click="open = true"
+                    class="inline-flex items-center gap-2 text-sm font-medium text-[#a47551] hover:text-[#8f6243] transition-colors">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    Lihat Bukti Pembayaran
+                </button>
+
+                {{-- Modal --}}
+                <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+                    @click.self="open = false">
+                    <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl">
+                        <div
+                            class="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                            <h3 class="text-lg font-semibold text-stone-800">Bukti Pembayaran</h3>
+                            <button @click="open = false"
+                                class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
+                        </div>
+                        <div class="p-6 flex justify-center">
+                            <img src="{{ Storage::url($order->payment_proof) }}" alt="Bukti Pembayaran"
+                                class="w-full max-w-md rounded-xl border border-stone-200">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Items --}}
         <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
@@ -108,140 +142,145 @@
             <div x-show="open" x-collapse x-cloak>
                 <div class="mt-4 space-y-2">
                     @foreach ($order->items as $item)
-                        <a href="{{ route('product.detail', $item->product_id) }}" wire:navigate
-                            class="flex items-center gap-3 rounded-xl border border-stone-200/60 bg-[#fff7ed] p-3 hover:shadow-sm transition">
-                            <img src="{{ $item->image_url }}" alt="{{ $item->product_name }}"
-                                class="h-14 w-14 rounded-xl object-cover border border-stone-200/60 shrink-0">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-[#2b1d12] truncate">{{ $item->product_name }}
-                                </p>
-                                <p class="text-xs text-[#7a5a4f]">{{ $item->qty }}x Rp
-                                    {{ number_format($item->unit_price, 0, ',', '.') }}</p>
-                            </div>
-                            <p class="text-sm font-semibold text-[#8b6f5c] shrink-0">Rp
-                                {{ number_format($item->line_total, 0, ',', '.') }}</p>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        {{-- Tracking --}}
-        @if ($order->trackingEvents->isNotEmpty())
-            <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
-                x-data="{ open: false }">
-                <button @click="open = !open" class="w-full flex items-center justify-between">
-                    <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12]">Lacak Pesanan</h2>
-                    <svg class="h-5 w-5 text-stone-400 transition-transform duration-200"
-                        :class="open ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                </button>
-                <div x-show="open" x-collapse x-cloak>
-                    <div class="mt-4 space-y-0">
-                        @foreach ($order->trackingEvents as $event)
-                            <div class="relative flex gap-3 sm:gap-4 pb-5 sm:pb-6 last:pb-0">
-                                @if (!$loop->last)
-                                    <div
-                                        class="absolute left-[15px] sm:left-[19px] top-10 bottom-0 w-0.5 bg-[#ede0d4]">
-                                    </div>
-                                @endif
+                        @if ($item->product_id)
+                            <a href="{{ route('product.detail', $item->product_id) }}" wire:navigate
+                                class="flex items-center gap-3 rounded-xl border border-stone-200/60 bg-[#fff7ed] p-3 hover:shadow-sm transition">
+                            @else
                                 <div
-                                    class="relative z-10 flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border-2 {{ $loop->first ? 'border-[#a47551] bg-[#a47551]/10' : 'border-[#ede0d4] bg-white' }}">
-                                    <div
-                                        class="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full {{ $loop->first ? 'bg-[#a47551]' : 'bg-[#d4c3b3]' }}">
-                                    </div>
-                                </div>
-                                <div class="pt-1 sm:pt-2 min-w-0">
-                                    <p class="font-semibold text-[#2b1d12] text-xs sm:text-sm">{{ $event->title }}
-                                    </p>
-                                    @if ($event->description)
-                                        <p class="text-[0.65rem] sm:text-xs text-[#6a5a4f] mt-0.5">
-                                            {{ $event->description }}</p>
-                                    @endif
-                                    <p class="text-[0.65rem] sm:text-xs text-[#aaa] mt-1">
-                                        {{ $event->occurred_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
-                                        WIB
-                                    </p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                                    class="flex items-center gap-3 rounded-xl border border-stone-200/60 bg-[#fff7ed] p-3">
+                        @endif
+                        <img src="{{ $item->image_url }}" alt="{{ $item->product_name }}"
+                            class="h-14 w-14 rounded-xl object-cover border border-stone-200/60 shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-[#2b1d12] truncate">{{ $item->product_name }}</p>
+                            <p class="text-xs text-[#7a5a4f]">{{ $item->qty }}x Rp
+                                {{ number_format($item->unit_price, 0, ',', '.') }}</p>
+                        </div>
+                        <p class="text-sm font-semibold text-[#8b6f5c] shrink-0">Rp
+                            {{ number_format($item->line_total, 0, ',', '.') }}</p>
+                        @if ($item->product_id)
+                            </a>
+                        @else
                 </div>
+                @endif
+                @endforeach
             </div>
-        @endif
+        </div>
+    </div>
+</div>
 
-        {{-- Rincian --}}
-        <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
-            x-data="{ open: true }">
-            <button @click="open = !open" class="w-full flex items-center justify-between">
-                <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12]">Rincian Pembayaran</h2>
-                <svg class="h-5 w-5 text-stone-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-            </button>
-            <div x-show="open" x-collapse x-cloak>
-                <div class="mt-4 space-y-2 text-sm">
-                    @php
-                        $subtotal = $order->items->sum('line_total');
-                        $shipping = $order->shipping_fee;
-                    @endphp
-                    <div class="flex justify-between">
-                        <span class="text-[#6a5a4f]">Subtotal ({{ $order->items->sum('qty') }} produk)</span>
-                        <span class="font-semibold text-[#2b1d12]">Rp
-                            {{ number_format($subtotal, 0, ',', '.') }}</span>
+{{-- Tracking --}}
+@if ($order->trackingEvents->isNotEmpty())
+    <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
+        x-data="{ open: false }">
+        <button @click="open = !open" class="w-full flex items-center justify-between">
+            <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12]">Lacak Pesanan</h2>
+            <svg class="h-5 w-5 text-stone-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        </button>
+        <div x-show="open" x-collapse x-cloak>
+            <div class="mt-4 space-y-0">
+                @foreach ($order->trackingEvents as $event)
+                    <div class="relative flex gap-3 sm:gap-4 pb-5 sm:pb-6 last:pb-0">
+                        @if (!$loop->last)
+                            <div class="absolute left-[15px] sm:left-[19px] top-10 bottom-0 w-0.5 bg-[#ede0d4]">
+                            </div>
+                        @endif
+                        <div
+                            class="relative z-10 flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border-2 {{ $loop->first ? 'border-[#a47551] bg-[#a47551]/10' : 'border-[#ede0d4] bg-white' }}">
+                            <div
+                                class="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full {{ $loop->first ? 'bg-[#a47551]' : 'bg-[#d4c3b3]' }}">
+                            </div>
+                        </div>
+                        <div class="pt-1 sm:pt-2 min-w-0">
+                            <p class="font-semibold text-[#2b1d12] text-xs sm:text-sm">{{ $event->title }}
+                            </p>
+                            @if ($event->description)
+                                <p class="text-[0.65rem] sm:text-xs text-[#6a5a4f] mt-0.5">
+                                    {{ $event->description }}</p>
+                            @endif
+                            <p class="text-[0.65rem] sm:text-xs text-[#aaa] mt-1">
+                                {{ $event->occurred_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
+                                WIB
+                            </p>
+                        </div>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-[#6a5a4f]">Ongkos Kirim</span>
-                        <span class="font-semibold text-[#2b1d12]">Rp
-                            {{ number_format($shipping, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="h-px bg-stone-200"></div>
-                    <div class="flex justify-between text-base font-semibold text-[#1f1f1f]">
-                        <span>Total</span>
-                        <span class="text-[#a47551]">Rp
-                            {{ number_format($order->total_amount, 0, ',', '.') }}</span>
-                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+@endif
+
+{{-- Rincian --}}
+<div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm" x-data="{ open: true }">
+    <button @click="open = !open" class="w-full flex items-center justify-between">
+        <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12]">Rincian Pembayaran</h2>
+        <svg class="h-5 w-5 text-stone-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+        </svg>
+    </button>
+    <div x-show="open" x-collapse x-cloak>
+        <div class="mt-4 space-y-2 text-sm">
+            @php
+                $subtotal = $order->items->sum('line_total');
+                $shipping = $order->shipping_fee;
+            @endphp
+            <div class="flex justify-between">
+                <span class="text-[#6a5a4f]">Subtotal ({{ $order->items->sum('qty') }} produk)</span>
+                <span class="font-semibold text-[#2b1d12]">Rp
+                    {{ number_format($subtotal, 0, ',', '.') }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-[#6a5a4f]">Ongkos Kirim</span>
+                <span class="font-semibold text-[#2b1d12]">Rp
+                    {{ number_format($shipping, 0, ',', '.') }}</span>
+            </div>
+            <div class="h-px bg-stone-200"></div>
+            <div class="flex justify-between text-base font-semibold text-[#1f1f1f]">
+                <span>Total</span>
+                <span class="text-[#a47551]">Rp
+                    {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Shipping Info --}}
+@if ($order->shipping_address)
+    <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
+        x-data="{ open: true }">
+        <button @click="open = !open" class="w-full flex items-center justify-between">
+            <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12]">Alamat Pengiriman</h2>
+            <svg class="h-5 w-5 text-stone-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        </button>
+        <div x-show="open" x-collapse x-cloak>
+            <div class="mt-4 flex items-start gap-3">
+                <div
+                    class="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7ede0] text-[#a47551]">
+                    <svg class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="font-semibold text-[#2b1d12] text-xs sm:text-sm">Dikirim ke:</p>
+                    <p class="text-xs sm:text-sm text-[#6a5a4f] leading-relaxed break-words">
+                        {{ $order->shipping_address }}</p>
+                    @if ($order->payment_method)
+                        <p class="text-[0.65rem] sm:text-xs text-[#aaa] mt-2">Metode bayar:
+                            {{ $order->payment_method }}</p>
+                    @endif
                 </div>
             </div>
         </div>
-
-        {{-- Shipping Info --}}
-        @if ($order->shipping_address)
-            <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
-                x-data="{ open: true }">
-                <button @click="open = !open" class="w-full flex items-center justify-between">
-                    <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12]">Alamat Pengiriman</h2>
-                    <svg class="h-5 w-5 text-stone-400 transition-transform duration-200"
-                        :class="open ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                </button>
-                <div x-show="open" x-collapse x-cloak>
-                    <div class="mt-4 flex items-start gap-3">
-                        <div
-                            class="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7ede0] text-[#a47551]">
-                            <svg class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                <circle cx="12" cy="10" r="3" />
-                            </svg>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="font-semibold text-[#2b1d12] text-xs sm:text-sm">Dikirim ke:</p>
-                            <p class="text-xs sm:text-sm text-[#6a5a4f] leading-relaxed break-words">
-                                {{ $order->shipping_address }}</p>
-                            @if ($order->payment_method)
-                                <p class="text-[0.65rem] sm:text-xs text-[#aaa] mt-2">Metode bayar:
-                                    {{ $order->payment_method }}</p>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
     </div>
+@endif
+</div>
 </div>

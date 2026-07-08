@@ -31,6 +31,17 @@ class Cart extends Component
     {
         $cart = session()->get('cart', []);
 
+        // Hapus produk yang sudah tidak ada dari session
+        if (!empty($cart)) {
+            $validProductIds = Product::whereIn('id', array_keys($cart), 'and', false)->pluck('id')->toArray();
+            foreach ($cart as $productId => $qty) {
+                if (!in_array((int) $productId, $validProductIds)) {
+                    unset($cart[$productId]);
+                }
+            }
+            session()->put('cart', $cart);
+        }
+
         if (empty($cart)) {
             $this->cartItems = [];
             $this->promoCode = '';
@@ -124,31 +135,6 @@ class Cart extends Component
 
         $this->loadCart();
         $this->dispatch('cart-updated', array_sum($cart));
-    }
-
-    public function applyPromo(): void
-    {
-        $this->promoMessage = null;
-
-        if (trim($this->promoCode) === '') {
-            $this->promoMessage = 'Masukkan kode promo terlebih dahulu.';
-            $this->discountPercent = 0;
-            $this->recalculateTotals();
-
-            return;
-        }
-
-        if (strtoupper(trim($this->promoCode)) === 'MINDHUG10') {
-            $this->discountPercent = 10;
-            $this->promoMessage = 'Kode promo berhasil diterapkan: diskon 10%.';
-            $this->recalculateTotals();
-
-            return;
-        }
-
-        $this->discountPercent = 0;
-        $this->promoMessage = 'Kode promo tidak valid. Coba lagi atau lewati saja.';
-        $this->recalculateTotals();
     }
 
     protected function recalculateTotals(): void
