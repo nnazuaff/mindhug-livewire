@@ -165,18 +165,20 @@
                                     class="text-xs text-rose-500 hover:text-rose-600">Hapus</button>
                             </div>
                         @endif
-                        @if ($icon)
-                            <img src="{{ $icon->temporaryUrl() }}"
-                                class="mt-2 h-20 w-20 rounded-xl object-contain border border-stone-200 bg-white p-1">
-                        @endif
-                        <input type="file" wire:model="icon" accept="image/*"
+                        <input type="file" wire:model="icon"
+                            accept="image/jpeg,image/png,image/svg+xml,image/webp"
                             class="w-full rounded-xl border border-stone-200 px-4 py-3 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 file:mr-4 file:rounded-xl file:border-0 file:bg-[#f5e9df] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#7a5d45] hover:file:bg-[#ead8c2]">
                         @error('icon')
                             <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
                         @enderror
-                        @if ($icon)
-                            <img src="{{ $icon->temporaryUrl() }}"
-                                class="mt-2 h-16 w-16 rounded-xl object-cover border border-stone-200">
+                        @if ($icon && !$errors->has('icon'))
+                            @php
+                                $ext = strtolower($icon->getClientOriginalExtension());
+                            @endphp
+                            @if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']))
+                                <img src="{{ $icon->temporaryUrl() }}"
+                                    class="mt-2 h-20 w-20 rounded-xl object-contain border border-stone-200 bg-white p-1">
+                            @endif
                         @endif
                     </div>
                     <div class="flex gap-2 pt-2">

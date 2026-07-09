@@ -47,6 +47,7 @@ class Index extends Component
             ->when($this->search, fn ($q) => $q->where('invoice_number', 'like', '%'.$this->search.'%'))
             ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->withCount('items')
+            ->with(['items'])
             ->with(['items', 'latestTrackingEvent'])
             ->orderByDesc('created_at')
             ->paginate(10);
