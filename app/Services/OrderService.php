@@ -10,29 +10,28 @@ use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    /**
-     * Create a new order from cart items.
-     */
     public function createOrder(int $userId, array $cartItems, array $address, int $shippingCost, int $discountAmount, ?string $paymentMethod = null): Order
     {
         return DB::transaction(function () use ($userId, $cartItems, $address, $shippingCost, $discountAmount, $paymentMethod) {
             $subtotal = array_sum(array_column($cartItems, 'subtotal'));
             $totalAmount = $subtotal + $shippingCost - $discountAmount;
 
-            // Validate stock & lock products
+            $itemIds = array_column($cartItems, 'id');
+            $validProducts = Product::whereIn('id', $itemIds)
+                ->where('is_active', true)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            // Cek apakah ada item yang tidak valid
             foreach ($cartItems as $item) {
-                // Use query() + find to avoid ambiguous where() overload issues
-                $product = Product::query()->lockForUpdate()->find($item['id']);
-
+                $product = $validProducts->get($item['id']);
                 if (! $product) {
-                    throw new \Exception('Produk tidak ditemukan.');
+                    throw new \Exception('Maaf, beberapa produk di keranjang Anda sudah tidak tersedia. Pesanan gagal diproses.');
                 }
-
                 if ($product->stock < $item['quantity']) {
                     throw new \Exception("Stok tidak mencukupi untuk {$product->name}.");
                 }
-
-                // Kurangi stok
                 $product->decrement('stock', $item['quantity']);
             }
 
@@ -78,20 +77,14 @@ class OrderService
         });
     }
 
-    /**
-     * Update order status and add tracking event.
-     */
     public function updateStatus(Order $order, string $status, string $title, ?string $description = null, ?string $cancellationReason = null): void
     {
         DB::transaction(function () use ($order, $status, $title, $description, $cancellationReason) {
             $data = ['status' => $status];
-
             if ($status === 'cancelled' && $cancellationReason) {
                 $data['cancellation_reason'] = $cancellationReason;
             }
-
             $order->update($data);
-
             OrderTrackingEvent::create([
                 'order_id' => $order->id,
                 'occurred_at' => now(),
@@ -101,18 +94,10 @@ class OrderService
         });
     }
 
-    /**
-     * Generate unique invoice number.
-     * Format: INV-YYYYMMDD-XXXXX
-     */
     private function generateInvoiceNumber(): string
     {
         $prefix = 'INV-'.now()->format('Ymd').'-';
-
-        $lastOrder = Order::where('invoice_number', 'like', $prefix.'%', 'and')
-            ->orderByDesc('invoice_number')
-            ->first();
-
+        $lastOrder = Order::where('invoice_number', 'like', $prefix.'%')->orderByDesc('invoice_number')->first();
         if ($lastOrder) {
             $lastNumber = (int) substr($lastOrder->invoice_number, -5);
             $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);

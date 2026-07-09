@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Layouts;
 
+use App\Models\Product;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -25,21 +26,19 @@ class Header extends Component
         $cart = session()->get('cart', []);
         $this->cartCount = 0;
 
-        if (empty($cart)) return;
-
-        // Hanya hitung produk yang masih ada di database
-        $validProductIds = \App\Models\Product::whereIn('id', array_keys($cart), 'and', false)->pluck('id')->toArray();
-
-        foreach ($cart as $productId => $qty) {
-            if (in_array((int) $productId, $validProductIds)) {
-                $this->cartCount += $qty;
-            } else {
-                // Hapus produk yang sudah tidak ada dari session
-                unset($cart[$productId]);
-            }
+        if (empty($cart)) {
+            return;
         }
 
-        session()->put('cart', $cart);
+        $activeIds = Product::whereIn('id', array_keys($cart))
+            ->where('is_active', true)
+            ->pluck('id')->toArray();
+
+        foreach ($cart as $productId => $qty) {
+            if (in_array((int) $productId, $activeIds)) {
+                $this->cartCount += $qty;
+            }
+        }
     }
 
     public function render()

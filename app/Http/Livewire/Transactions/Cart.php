@@ -10,6 +10,8 @@ class Cart extends Component
 {
     public array $cartItems = [];
 
+    public array $inactiveItems = [];
+
     public string $promoCode = '';
 
     public int $discountPercent = 0;
@@ -31,131 +33,135 @@ class Cart extends Component
     {
         $cart = session()->get('cart', []);
 
-        // Hapus produk yang sudah tidak ada dari session
-        if (!empty($cart)) {
-            $validProductIds = Product::whereIn('id', array_keys($cart), 'and', false)->pluck('id')->toArray();
-            foreach ($cart as $productId => $qty) {
-                if (!in_array((int) $productId, $validProductIds)) {
-                    unset($cart[$productId]);
-                }
+        // Hapus produk yang sudah dihapus dari database
+        if (! empty($cart)) {
+            $allProductIds = array_keys($cart);
+            $existingIds = Product::whereIn('id', $allProductIds)->pluck('id')->toArray();
+            $deletedIds = array_diff($allProductIds, $existingIds);
+            foreach ($deletedIds as $id) {
+                unset($cart[$id]);
             }
             session()->put('cart', $cart);
         }
 
         if (empty($cart)) {
             $this->cartItems = [];
-            $this->promoCode = '';
-            $this->discountPercent = 0;
-            $this->subtotal = 0;
-            $this->discountAmount = 0;
-            $this->total = 0;
-            $this->promoMessage = null;
+            $this->inactiveItems = [];
+            $this->resetTotals();
 
             return;
         }
 
         $productIds = array_map('intval', array_keys($cart));
-        $products = Product::query()
-            ->get()
-            ->filter(fn ($product) => in_array($product->id, $productIds, true))
-            ->keyBy('id');
-
+        $allProducts = Product::whereIn('id', $productIds)->get()->keyBy('id');
         $disk = Storage::disk('public');
 
-        $this->cartItems = collect($cart)
-            ->map(function ($quantity, $productId) use ($products, $disk) {
-                $product = $products->get((int) $productId);
+        $activeItems = [];
+        $inactiveItems = [];
 
-                if (! $product) {
-                    return null;
-                }
+        foreach ($cart as $productId => $quantity) {
+            $product = $allProducts->get((int) $productId);
+            if (! $product) {
+                continue;
+            }
 
-                // Ambil gambar pertama dari folder produk
-                $files = $disk->files('products/'.$product->id);
-                $image = ! empty($files) ? basename($files[0]) : 'default.png';
+            $files = $disk->files('products/'.$product->id);
+            $image = ! empty($files) ? basename($files[0]) : 'default.png';
 
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'price' => $product->price,
-                    'quantity' => $quantity,
-                    'subtotal' => $product->price * $quantity,
-                    'image' => asset('storage/products/'.$product->id.'/'.$image),
-                ];
-            })
-            ->filter()
-            ->values()
-            ->all();
+            $item = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => $quantity,
+                'subtotal' => $product->price * $quantity,
+                'image' => asset('storage/products/'.$product->id.'/'.$image),
+                'is_active' => $product->is_active,
+            ];
+
+            if ($product->is_active) {
+                $activeItems[] = $item;
+            } else {
+                $inactiveItems[] = $item;
+            }
+        }
+
+        $this->cartItems = $activeItems;
+        $this->inactiveItems = $inactiveItems;
 
         $this->subtotal = array_sum(array_column($this->cartItems, 'subtotal'));
         $this->discountAmount = (int) round($this->subtotal * ($this->discountPercent / 100));
         $this->total = $this->subtotal - $this->discountAmount;
     }
 
+    private function resetTotals(): void
+    {
+        $this->subtotal = 0;
+        $this->discountAmount = 0;
+        $this->total = 0;
+        $this->promoCode = '';
+        $this->discountPercent = 0;
+        $this->promoMessage = null;
+    }
+
     public function increment(int $productId): void
     {
         $cart = session()->get('cart', []);
-
         $cart[$productId] = ($cart[$productId] ?? 0) + 1;
         session()->put('cart', $cart);
-
         $this->loadCart();
-        $this->dispatch('cart-updated', array_sum($cart));
+        $this->dispatch('cart-updated', $this->getActiveCartCount());
     }
 
     public function decrement(int $productId): void
     {
         $cart = session()->get('cart', []);
-
         if (! isset($cart[$productId])) {
             return;
         }
-
         if ($cart[$productId] <= 1) {
             unset($cart[$productId]);
         } else {
             $cart[$productId] = $cart[$productId] - 1;
         }
-
         session()->put('cart', $cart);
         $this->loadCart();
-        $this->dispatch('cart-updated', array_sum($cart));
+        $this->dispatch('cart-updated', $this->getActiveCartCount());
     }
 
     public function removeItem(int $productId): void
     {
         $cart = session()->get('cart', []);
-
-        if (! isset($cart[$productId])) {
-            return;
-        }
-
         unset($cart[$productId]);
         session()->put('cart', $cart);
-
         $this->loadCart();
-        $this->dispatch('cart-updated', array_sum($cart));
+        $this->dispatch('cart-updated', $this->getActiveCartCount());
     }
 
-    protected function recalculateTotals(): void
+    public function removeInactiveItem(int $productId): void
     {
-        $this->discountAmount = (int) round($this->subtotal * ($this->discountPercent / 100));
-        $this->total = $this->subtotal - $this->discountAmount;
+        $cart = session()->get('cart', []);
+        unset($cart[$productId]);
+        session()->put('cart', $cart);
+        $this->loadCart();
+        $this->dispatch('cart-updated', $this->getActiveCartCount());
     }
 
-    public function getSubtotalProperty(): int
+    private function getActiveCartCount(): int
     {
-        return array_sum(array_column($this->cartItems, 'subtotal'));
-    }
+        $cart = session()->get('cart', []);
+        if (empty($cart)) {
+            return 0;
+        }
 
-    public function getDiscountAmountProperty(): int
-    {
-        return (int) round($this->subtotal * ($this->discountPercent / 100));
-    }
+        $activeIds = Product::whereIn('id', array_keys($cart))->where('is_active', true)->pluck('id')->toArray();
+        $count = 0;
+        foreach ($cart as $id => $qty) {
+            if (in_array((int) $id, $activeIds)) {
+                $count += $qty;
+            }
+        }
 
-    public function getTotalProperty(): int
-    {
-        return $this->subtotal - $this->discountAmount;
+        return $count;
     }
 
     public function render()

@@ -17,6 +17,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'user.active'])->group(function () {
     Route::post('/logout', function () {
         Auth::logout();
+
         return redirect('/');
     })->name('logout');
 
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'user.active'])->group(function () {
         if ($order->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('orders.pay', compact('order'));
     })->name('orders.pay');
 });
@@ -48,5 +50,9 @@ Route::get('/shop', function () {
 })->name('shop');
 
 Route::get('/product/{product}', function (Product $product) {
+    if (! $product->is_active) {
+        abort(404);
+    }
+
     return view('shop.product-detail', compact('product'));
 })->name('product.detail');
