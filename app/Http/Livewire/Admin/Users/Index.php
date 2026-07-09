@@ -23,16 +23,28 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function viewUser(int $userId): void
+   public function viewUser(int $userId): void
     {
         $this->viewingUserId = $userId;
-        $this->viewingUser = User::with(['addresses', 'orders' => fn ($q) => $q->latest()->limit(5)])->find($userId);
+        $this->viewingUser = User::with([
+            'addresses',
+            'orders' => fn ($q) => $q->latest()->limit(6)
+        ])->find($userId);
     }
 
     public function closeDetail(): void
     {
         $this->viewingUserId = null;
         $this->viewingUser = null;
+    }
+
+    public function toggleStatus(int $userId): void
+    {
+        $user = User::findOrFail($userId);
+        $user->status = $user->status === 'active' ? 'inactive' : 'active';
+        $user->save();
+
+        session()->flash('success', 'Status pengguna berhasil diubah.');
     }
 
     public function deleteUser(int $userId): void

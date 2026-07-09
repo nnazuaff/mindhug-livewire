@@ -45,20 +45,23 @@ class Security extends Component
 
     public function deleteAccount()
     {
-        $this->validate([
-            'delete_password' => ['required', 'string'],
-        ]);
+        $this->validate(['delete_password' => ['required', 'string']]);
 
         if (! Hash::check($this->delete_password, $this->user->password)) {
             $this->addError('delete_password', 'Password tidak cocok.');
             return;
         }
 
+        $this->user->update([
+            'status' => 'inactive',
+            'deleted_at' => now(),
+            'deleted_reason' => 'Dihapus oleh user',
+        ]);
+
         Auth::logout();
-        User::query()->whereKey($this->user->getKey())->delete();
 
 
-        return redirect('/');
+        return redirect('/')->with('message', 'Akun berhasil dinonaktifkan. Jika ingin mengaktifkan kembali, hubungi tim MindHug.');
     }
 
     public function render()

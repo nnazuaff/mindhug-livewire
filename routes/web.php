@@ -14,7 +14,7 @@ Route::middleware('guest')->group(function () {
     Route::view('/register', 'auth.register')->name('register');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'user.active'])->group(function () {
     Route::post('/logout', function () {
         Auth::logout();
         return redirect('/');
@@ -39,7 +39,6 @@ Route::middleware('auth')->group(function () {
         if ($order->user_id !== Auth::id()) {
             abort(403);
         }
-
         return view('orders.pay', compact('order'));
     })->name('orders.pay');
 });

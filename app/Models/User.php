@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
     'email',
     'phone',
     'role',
+    'status',
     'avatar',
     'trial_started_at',
     'is_trial_active',
@@ -44,6 +45,7 @@ class User extends Authenticatable
             'birth_date' => 'date',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 

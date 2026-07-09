@@ -171,7 +171,7 @@
                                 @foreach ($viewingOrder->trackingEvents as $event)
                                     <div class="flex gap-3 text-sm">
                                         <span
-                                            class="text-stone-300 text-xs w-20 shrink-0">{{ $event->occurred_at->format('d/m H:i') }}</span>
+                                            class="text-stone-300 text-xs w-20 shrink-0">{{ $event->occurred_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
                                         <div>
                                             <p class="font-medium text-stone-700">{{ $event->title }}</p>
                                             @if ($event->description)

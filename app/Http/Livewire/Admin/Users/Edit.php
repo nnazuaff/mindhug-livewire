@@ -21,6 +21,10 @@ class Edit extends Component
 
     protected $listeners = ['openEditUser' => 'openModal'];
 
+    public string $editRole = 'free';
+
+    public string $editStatus = 'active';
+
     public function openModal(int $userId): void
     {
         $user = User::findOrFail($userId);
@@ -29,6 +33,8 @@ class Edit extends Component
         $this->email = $user->email;
         $this->username = $user->username;
         $this->phone = $user->phone ?? '';
+        $this->editRole = $user->role;
+        $this->editStatus = $user->status;
         $this->showModal = true;
     }
 
@@ -41,24 +47,38 @@ class Edit extends Component
     public function updateUser(): void
     {
         $this->validate([
-            'fullName' => 'required|string|min:3|max:150',
-            'email' => 'required|email|unique:users,email,'.$this->userId,
-            'username' => 'required|string|min:3|max:50|unique:users,username,'.$this->userId,
-            'phone' => 'required|numeric|min_digits:10',
+            'fullName'   => 'required|string|min:3|max:150',
+            'email'      => 'required|email|unique:users,email,' . $this->userId,
+            'username'   => 'required|string|min:3|max:50|unique:users,username,' . $this->userId,
+            'phone'      => 'required|numeric|min_digits:10',
+            'editRole'   => 'required|in:free,plus',
+            'editStatus' => 'required|in:active,inactive',
         ]);
 
-        User::findOrFail($this->userId)->update([
-            'full_name' => $this->fullName,
-            'email' => $this->email,
-            'username' => $this->username,
-            'phone' => $this->phone,
-        ]);
+            $user = User::findOrFail($this->userId);
+            $oldStatus = $user->status;
 
-        $this->closeModal();
-        $this->dispatch('userUpdated');
-        session()->flash('success', 'Pengguna berhasil diperbarui.');
-    }
+            $user->update([
+                'full_name' => $this->fullName,
+                'email'     => $this->email,
+                'username'  => $this->username,
+                'phone'     => $this->phone,
+                'role'      => $this->editRole,
+                'status'    => $this->editStatus,
+            ]);
 
+            // Jika status berubah dari active ke inactive, logout user
+            if ($oldStatus === 'active' && $this->editStatus === 'inactive') {
+                // Hapus session user
+                \Illuminate\Support\Facades\DB::table('sessions')
+                    ->where('user_id', $this->userId)
+                    ->delete();
+            }
+
+            $this->closeModal();
+            $this->dispatch('userUpdated');
+            session()->flash('success', 'Pengguna berhasil diperbarui.');
+        }
     public function render()
     {
         return view('livewire.admin.users.edit');

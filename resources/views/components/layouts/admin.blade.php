@@ -65,7 +65,11 @@
                     </span>
                     <livewire:layouts.admin-curhat-badge />
                 </a>
-
+                {{-- Garis pemisah --}}
+                <div class="pt-3 mt-1">
+                    <p class="px-3 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-stone-400 mb-2">Manage
+                    </p>
+                </div>
                 {{-- Pengguna --}}
                 <a href="{{ route('admin.users') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
@@ -177,6 +181,11 @@
                             <span>Curhat</span>
                             <livewire:layouts.admin-curhat-badge />
                         </a>
+                        {{-- Garis pemisah --}}
+                        <div class="pt-3 mt-1">
+                            <p class="px-3 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-stone-400 mb-2">
+                                Manage</p>
+                        </div>
                         <a href="{{ route('admin.users') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Pengguna</span></a>
                         <a href="{{ route('admin.products') }}" @click="open = false"

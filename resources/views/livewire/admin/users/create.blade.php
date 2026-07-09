@@ -40,6 +40,17 @@
                         @enderror
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Role</label>
+                        <select wire:model="createRole"
+                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+                            <option value="free">Free</option>
+                            <option value="plus">Plus</option>
+                        </select>
+                        @error('createRole')
+                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-stone-700 mb-1.5">Password</label>
                         <input wire:model="password" type="password"
                             class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">

@@ -12,12 +12,7 @@
             <div
                 class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <svg class="h-5 w-5 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </svg>
+
                     <div>
                         <p class="text-sm font-semibold text-amber-700">Anda memiliki pesanan yang belum diselesaikan
                         </p>
@@ -152,8 +147,8 @@
         <div class="rounded-[1.75rem] border border-stone-200/60 bg-white p-6 sm:p-7 shadow-sm">
             <div class="flex items-center gap-3 mb-6">
                 <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f5e9df] text-[#a47551]">
-                    <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 6h15l-1.5 9h-12z" />
                         <path d="M6 6 4 3H1" />
                         <circle cx="9" cy="20" r="1" />
@@ -277,7 +272,8 @@
                 @foreach ($cartItems as $item)
                     <div class="flex items-center justify-between">
                         <span class="text-stone-600 truncate max-w-[70%]">{{ $item['name'] }}
-                            (x{{ $item['quantity'] }})</span>
+                            (x{{ $item['quantity'] }})
+                        </span>
                         <span class="text-stone-700">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
                     </div>
                 @endforeach

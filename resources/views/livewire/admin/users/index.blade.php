@@ -33,6 +33,7 @@
                         <th class="px-5 py-3 font-medium hidden sm:table-cell">Email</th>
                         <th class="px-5 py-3 font-medium">Nomor HP</th>
                         <th class="px-5 py-3 font-medium">Orders</th>
+                        <th class="px-5 py-3 font-medium">Status</th>
                         <th class="px-5 py-3 font-medium hidden lg:table-cell">Terdaftar</th>
                         <th class="px-5 py-3 font-medium w-24">Aksi</th>
                     </tr>
@@ -51,6 +52,13 @@
                             <td class="px-5 py-3 text-stone-600 hidden sm:table-cell">{{ $user->email }}</td>
                             <td class="px-5 py-3 text-stone-600">{{ $user->phone ?? '-' }}</td>
                             <td class="px-5 py-3 text-stone-600">{{ $user->orders_count }}</td>
+                            <td class="px-5 py-3">
+                                <span
+                                    class="text-xs px-2.5 py-1 rounded-full font-medium {{ $user->status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                                    {{ $user->status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+
+                            </td>
                             <td class="px-5 py-3 text-stone-400 text-xs hidden lg:table-cell">
                                 {{ $user->created_at->format('d/m/Y') }}</td>
                             <td class="px-5 py-3">
@@ -144,6 +152,14 @@
                             <p class="text-stone-400 text-xs">Role</p>
                             <p class="font-medium text-stone-700">{{ ucfirst($viewingUser->role) }}</p>
                         </div>
+                        {{-- Status --}}
+                        <div>
+                            <p class="text-stone-400 text-xs">Status</p>
+                            <span
+                                class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $viewingUser->status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                                {{ $viewingUser->status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                            </span>
+                        </div>
                         <div>
                             <p class="text-stone-400 text-xs">Terdaftar</p>
                             <p class="font-medium text-stone-700">{{ $viewingUser->created_at->format('d M Y') }}</p>
@@ -168,8 +184,8 @@
                         <div>
                             <p class="text-sm font-medium text-stone-700 mb-2">Pesanan Terakhir</p>
                             @foreach ($viewingUser->orders as $order)
-                                <div
-                                    class="bg-stone-50 rounded-xl px-4 py-3 text-sm flex justify-between items-center">
+                                <a href="{{ route('admin.orders') }}" wire:navigate
+                                    class="bg-stone-50 rounded-xl px-4 py-3 text-sm flex justify-between items-center hover:bg-stone-100 transition-colors mb-2">
                                     <div>
                                         <p class="font-medium text-stone-700">{{ $order->invoice_number }}</p>
                                         <p class="text-xs text-stone-400">{{ $order->status }} -
@@ -177,7 +193,7 @@
                                     </div>
                                     <p class="text-[#a47551]">Rp
                                         {{ number_format($order->total_amount, 0, ',', '.') }}</p>
-                                </div>
+                                </a>
                             @endforeach
                         </div>
                     @endif

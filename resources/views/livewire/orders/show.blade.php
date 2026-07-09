@@ -168,7 +168,7 @@
         </div>
     </div>
 </div>
-
+<br>
 {{-- Tracking --}}
 @if ($order->trackingEvents->isNotEmpty())
     <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
@@ -212,6 +212,7 @@
         </div>
     </div>
 @endif
+<br>
 
 {{-- Rincian --}}
 <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm" x-data="{ open: true }">
@@ -247,7 +248,7 @@
         </div>
     </div>
 </div>
-
+<br>
 {{-- Shipping Info --}}
 @if ($order->shipping_address)
     <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"

@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin.role' => AdminRole::class,
             'admin.session' => \App\Http\Middleware\AdminSession::class,
+            'user.active'   => \App\Http\Middleware\CheckUserStatus::class,
         ]);
     })
 

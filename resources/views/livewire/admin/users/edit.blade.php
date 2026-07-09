@@ -39,6 +39,28 @@
                             <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Role</label>
+                        <select wire:model="editRole"
+                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+                            <option value="free">Free</option>
+                            <option value="plus">Plus</option>
+                        </select>
+                        @error('editRole')
+                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Status</label>
+                        <select wire:model="editStatus"
+                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Nonaktif</option>
+                        </select>
+                        @error('editStatus')
+                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                     <div class="flex gap-2 pt-2">
                         <button type="button" wire:click="closeModal"
                             class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200">Batal</button>
