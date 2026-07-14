@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Checkout;
 use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
+use App\Models\Promotion;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +36,43 @@ class Index extends Component
     public int $directQuantity = 1;
 
     public bool $hasInactiveItems = false;
+
+    public string $promoCode = '';
+
+    public int $discountAmount = 0;
+
+    public ?string $promoMessage = null;
+
+    public ?int $appliedPromoId = null;
+
+    public function applyPromo(): void
+    {
+        $this->promoMessage = null;
+        $this->discountAmount = 0;
+        $this->appliedPromoId = null;
+
+        if (empty(trim($this->promoCode))) {
+            return;
+        }
+
+        $promo = Promotion::where('code', strtoupper($this->promoCode))->first();
+
+        if (! $promo || ! $promo->isValid()) {
+            $this->promoMessage = 'Kode voucher tidak valid atau sudah kadaluarsa.';
+
+            return;
+        }
+
+        if ($this->subtotal < $promo->min_order) {
+            $this->promoMessage = 'Minimal order Rp '.number_format($promo->min_order).'.';
+
+            return;
+        }
+
+        $this->discountAmount = $promo->calculateDiscount($this->subtotal);
+        $this->appliedPromoId = $promo->id;
+        $this->promoMessage = 'Voucher berhasil diterapkan!';
+    }
 
     public function mount(): void
     {
@@ -173,7 +211,7 @@ class Index extends Component
 
     public function getTotalProperty(): int
     {
-        return $this->subtotal + $this->shippingCost;
+        return $this->subtotal + $this->shippingCost - $this->discountAmount;
     }
 
     public function getCanCheckoutProperty(): bool

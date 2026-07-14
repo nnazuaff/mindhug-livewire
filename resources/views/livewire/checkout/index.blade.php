@@ -12,7 +12,12 @@
             <div
                 class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-
+                    <svg class="h-5 w-5 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
                     <div>
                         <p class="text-sm font-semibold text-amber-700">Anda memiliki pesanan yang belum diselesaikan
                         </p>
@@ -99,19 +104,16 @@
                     <button type="button" wire:click="selectPayment({{ $method['id'] }})"
                         class="group relative flex flex-col justify-between rounded-2xl border bg-white p-5 text-left transition-all duration-200 focus:outline-none
                             {{ $selectedPayment === $method['id'] ? 'border-[#a47551] bg-[#fdf8f3] shadow-sm' : 'border-stone-200 hover:border-[#c19a6b]/50 hover:bg-[#fefbf8]' }}">
-
                         @if ($selectedPayment === $method['id'])
                             <div class="absolute top-3 right-3">
-                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-[#a47551]">
-                                    <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"
+                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-[#a47551]"><svg
+                                        class="h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="3" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                </div>
+                                    </svg></div>
                             </div>
                         @endif
-
                         <div class="flex items-center gap-3 mb-4">
                             <div
                                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $selectedPayment === $method['id'] ? 'bg-[#a47551]/10' : 'bg-[#f7ede0]' }}">
@@ -129,7 +131,6 @@
                                 <p class="text-xs text-[#6a5a4f] mt-0.5">{{ $method['subtitle'] }}</p>
                             </div>
                         </div>
-
                         <div
                             class="flex items-center gap-2 text-xs font-medium {{ $selectedPayment === $method['id'] ? 'text-[#a47551]' : 'text-[#aaa]' }}">
                             <span
@@ -143,12 +144,12 @@
     </div>
 
     {{-- RIGHT COLUMN --}}
-    <aside class="lg:sticky lg:top-28 self-start hidden lg:block">
+    <aside class="hidden lg:block lg:sticky lg:top-28 self-start">
         <div class="rounded-[1.75rem] border border-stone-200/60 bg-white p-6 sm:p-7 shadow-sm">
             <div class="flex items-center gap-3 mb-6">
                 <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f5e9df] text-[#a47551]">
-                    <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 6h15l-1.5 9h-12z" />
                         <path d="M6 6 4 3H1" />
                         <circle cx="9" cy="20" r="1" />
@@ -175,6 +176,21 @@
             </div>
 
             <div class="rounded-2xl bg-[#faf5ef] p-4 space-y-3 text-sm">
+                {{-- Voucher --}}
+                <div>
+                    <label class="block text-xs font-medium text-stone-500 mb-1.5">Kode Voucher</label>
+                    <div class="flex gap-2">
+                        <input wire:model="promoCode" type="text" placeholder="Masukkan kode"
+                            class="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
+                        <button type="button" wire:click="applyPromo"
+                            class="rounded-xl bg-[#a47551] px-4 py-2 text-xs font-semibold text-white hover:bg-[#8f6243] transition-colors">Pakai</button>
+                    </div>
+                    @if ($promoMessage)
+                        <p class="text-xs mt-1.5 {{ $discountAmount > 0 ? 'text-emerald-600' : 'text-rose-500' }}">
+                            {{ $promoMessage }}</p>
+                    @endif
+                </div>
+
                 <div class="flex items-center justify-between">
                     <span class="text-[#6a5a4f]">Subtotal ({{ array_sum(array_column($cartItems, 'quantity')) }}
                         produk)</span>
@@ -202,20 +218,16 @@
                 <button type="button" wire:click="placeOrder" wire:loading.attr="disabled"
                     class="mt-6 w-full rounded-2xl px-5 py-4 text-sm font-semibold transition-colors duration-200 bg-[#a47551] text-white shadow-sm hover:bg-[#8f6243]">
                     <span wire:loading.remove>Buka Halaman Pembayaran</span>
-                    <span wire:loading class="flex items-center justify-center gap-2">
-                        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <span wire:loading class="flex items-center justify-center gap-2"><svg
+                            class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                 stroke-width="4" />
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                        </svg>
-                        Memproses...
-                    </span>
+                        </svg>Memproses...</span>
                 </button>
             @else
                 <button type="button" disabled
-                    class="mt-6 w-full rounded-2xl px-5 py-4 text-sm font-semibold bg-stone-200 text-stone-400 cursor-not-allowed">
-                    {{ $this->checkoutDisabledReason }}
-                </button>
+                    class="mt-6 w-full rounded-2xl px-5 py-4 text-sm font-semibold bg-stone-200 text-stone-400 cursor-not-allowed">{{ $this->checkoutDisabledReason }}</button>
             @endif
 
             @if ($paymentNotice)
@@ -262,18 +274,32 @@
                 </button>
             @else
                 <button type="button" disabled
-                    class="w-full rounded-2xl px-5 py-3 text-sm font-semibold bg-stone-200 text-stone-400 cursor-not-allowed">
-                    {{ $this->checkoutDisabledReason }}
-                </button>
+                    class="w-full rounded-2xl px-5 py-3 text-sm font-semibold bg-stone-200 text-stone-400 cursor-not-allowed">{{ $this->checkoutDisabledReason }}</button>
             @endif
         </div>
+
+        {{-- Expanded --}}
         <div x-show="expanded" x-collapse class="px-4 pb-3 border-t border-stone-100">
-            <div class="space-y-2 pt-3 text-sm">
+            <div class="space-y-3 pt-3 text-sm">
+                {{-- Voucher Mobile --}}
+                <div>
+                    <label class="block text-xs font-medium text-stone-500 mb-1">Kode Voucher</label>
+                    <div class="flex gap-2">
+                        <input wire:model="promoCode" type="text" placeholder="Masukkan kode"
+                            class="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs focus:outline-none focus:border-[#a47551]">
+                        <button type="button" wire:click="applyPromo"
+                            class="rounded-xl bg-[#a47551] px-3 py-2 text-xs font-semibold text-white hover:bg-[#8f6243]">Pakai</button>
+                    </div>
+                    @if ($promoMessage)
+                        <p class="text-xs mt-1 {{ $discountAmount > 0 ? 'text-emerald-600' : 'text-rose-500' }}">
+                            {{ $promoMessage }}</p>
+                    @endif
+                </div>
+
                 @foreach ($cartItems as $item)
                     <div class="flex items-center justify-between">
                         <span class="text-stone-600 truncate max-w-[70%]">{{ $item['name'] }}
-                            (x{{ $item['quantity'] }})
-                        </span>
+                            (x{{ $item['quantity'] }})</span>
                         <span class="text-stone-700">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
                     </div>
                 @endforeach

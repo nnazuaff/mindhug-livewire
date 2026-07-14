@@ -111,6 +111,10 @@
                     </svg>
                     <span>Pembayaran</span>
                 </a>
+                <a href="{{ route('admin.promotions') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.promotions*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                    <span>Voucher</span>
+                </a>
             </nav>
             <div class="p-4 border-t border-stone-200">
                 <form method="POST" action="{{ route('admin.logout') }}">

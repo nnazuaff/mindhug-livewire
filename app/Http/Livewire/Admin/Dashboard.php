@@ -25,6 +25,7 @@ class Dashboard extends Component
             'delivered' => Order::where('status', 'delivered')->count(),
             'openConversations' => Conversation::where('status', 'open')->count(),
             'recentOrders' => Order::with('user')->latest()->take(5)->get(),
+           
         ])->layout('components.layouts.admin');
     }
 }

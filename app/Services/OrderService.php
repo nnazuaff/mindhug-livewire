@@ -6,13 +6,14 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderTrackingEvent;
 use App\Models\Product;
+use App\Models\Promotion;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    public function createOrder(int $userId, array $cartItems, array $address, int $shippingCost, int $discountAmount, ?string $paymentMethod = null): Order
+    public function createOrder(int $userId, int $promoId, array $cartItems, array $address, int $shippingCost, int $discountAmount, ?string $paymentMethod = null): Order
     {
-        return DB::transaction(function () use ($userId, $cartItems, $address, $shippingCost, $discountAmount, $paymentMethod) {
+        return DB::transaction(function () use ($userId, $cartItems, $address, $shippingCost, $discountAmount, $paymentMethod, $promoId) {
             $subtotal = array_sum(array_column($cartItems, 'subtotal'));
             $totalAmount = $subtotal + $shippingCost - $discountAmount;
 
@@ -22,6 +23,10 @@ class OrderService
                 ->lockForUpdate()
                 ->get()
                 ->keyBy('id');
+
+            if ($promoId) {
+                Promotion::find($promoId)?->increment('used_count');
+            }
 
             // Cek apakah ada item yang tidak valid
             foreach ($cartItems as $item) {
