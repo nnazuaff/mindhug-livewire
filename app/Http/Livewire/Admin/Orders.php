@@ -19,29 +19,33 @@ class Orders extends Component
     public ?int $viewingOrderId = null;
 
     public ?Order $viewingOrder = null;
+
     public string $rejectReason = '';
 
     public function rejectCancelRequest(int $orderId): void
     {
         if (empty(trim($this->rejectReason))) {
             session()->flash('error', 'Alasan penolakan harus diisi.');
+
             return;
         }
 
         $order = Order::findOrFail($orderId);
 
-        if ($order->status !== 'cancel_requested') return;
+        if ($order->status !== 'cancel_requested') {
+            return;
+        }
 
         $order->update([
-            'status'                  => 'awaiting_payment',
-            'cancel_rejected_reason'  => $this->rejectReason,
-            'cancel_requested_at'     => null,
+            'status' => 'awaiting_payment',
+            'cancel_rejected_reason' => $this->rejectReason,
+            'cancel_requested_at' => null,
         ]);
 
         $order->trackingEvents()->create([
             'occurred_at' => now(),
-            'title'       => 'Pembatalan Ditolak',
-            'description' => 'Admin menolak permintaan pembatalan: ' . $this->rejectReason,
+            'title' => 'Pembatalan Ditolak',
+            'description' => 'Admin menolak permintaan pembatalan: '.$this->rejectReason,
         ]);
 
         $this->rejectReason = '';
