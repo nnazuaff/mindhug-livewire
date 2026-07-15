@@ -16,6 +16,7 @@
                             <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+                    {{-- Tipe + Nilai --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-stone-700 mb-1.5">Tipe</label>
@@ -26,7 +27,25 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-stone-700 mb-1.5">Nilai</label>
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <label class="text-sm font-medium text-stone-700">Nilai</label>
+                                <div x-data="{ open: false }" class="relative inline-flex items-center"
+                                    @mouseenter="open = true" @mouseleave="open = false">
+                                    <span
+                                        class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-200 text-stone-500 text-[0.6rem] font-bold cursor-help hover:bg-stone-300 hover:text-stone-700 transition-colors leading-none">?</span>
+                                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150"
+                                        x-transition:enter-start="opacity-0 translate-y-1"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white rounded-xl border border-stone-200 shadow-lg p-3 text-xs text-stone-600 z-50 pointer-events-none">
+                                        <p class="font-semibold text-stone-800 mb-1">Nilai Diskon</p>
+                                        <p><strong>Rp:</strong> Jumlah potongan langsung. Contoh: <em>10000</em> =
+                                            potong Rp 10.000</p>
+                                        <p class="mt-1"><strong>%:</strong> Persentase dari subtotal. Contoh:
+                                            <em>10</em> = diskon 10%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             <input wire:model="value" type="number" min="1"
                                 class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
                             @error('value')
@@ -34,18 +53,70 @@
                             @enderror
                         </div>
                     </div>
+                    {{-- Min. Order + Max. Diskon --}}
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium text-stone-700 mb-1.5">Min. Order
-                                (Rp)</label><input wire:model="minOrder" type="number" min="0"
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <label class="text-sm font-medium text-stone-700">Min. Order</label>
+                                <div x-data="{ open: false }" class="relative inline-flex items-center"
+                                    @mouseenter="open = true" @mouseleave="open = false">
+                                    <span
+                                        class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-200 text-stone-500 text-[0.6rem] font-bold cursor-help hover:bg-stone-300 hover:text-stone-700 transition-colors leading-none">?</span>
+                                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150"
+                                        x-transition:enter-start="opacity-0 translate-y-1"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white rounded-xl border border-stone-200 shadow-lg p-3 text-xs text-stone-600 z-50 pointer-events-none">
+                                        <p class="font-semibold text-stone-800 mb-1">Minimal Order</p>
+                                        <p>Total belanja minimal agar voucher bisa digunakan. Contoh: <em>50000</em> =
+                                            minimal belanja Rp 50.000</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <input wire:model="minOrder" type="number" min="0"
                                 class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
                         </div>
-                        <div><label class="block text-sm font-medium text-stone-700 mb-1.5">Max. Diskon
-                                (Rp)</label><input wire:model="maxDiscount" type="number" min="0"
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <label class="text-sm font-medium text-stone-700">Max. Diskon</label>
+                                <div x-data="{ open: false }" class="relative inline-flex items-center"
+                                    @mouseenter="open = true" @mouseleave="open = false">
+                                    <span
+                                        class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-200 text-stone-500 text-[0.6rem] font-bold cursor-help hover:bg-stone-300 hover:text-stone-700 transition-colors leading-none">?</span>
+                                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150"
+                                        x-transition:enter-start="opacity-0 translate-y-1"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white rounded-xl border border-stone-200 shadow-lg p-3 text-xs text-stone-600 z-50 pointer-events-none">
+                                        <p class="font-semibold text-stone-800 mb-1">Maksimal Diskon</p>
+                                        <p>Batas atas potongan untuk tipe <strong>%</strong>. Contoh: diskon 50%, max Rp
+                                            25.000 → user hanya dapat max 25rb.</p>
+                                        <p class="mt-1">Kosongkan untuk tipe <strong>Rp</strong>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <input wire:model="maxDiscount" type="number" min="0"
                                 class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
                         </div>
                     </div>
-                    <div><label class="block text-sm font-medium text-stone-700 mb-1.5">Max. Penggunaan</label><input
-                            wire:model="maxUses" type="number" min="1"
+
+                    {{-- Max. Penggunaan --}}
+                    <div>
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <label class="text-sm font-medium text-stone-700">Max. Penggunaan</label>
+                            <div x-data="{ open: false }" class="relative inline-flex items-center"
+                                @mouseenter="open = true" @mouseleave="open = false">
+                                <span
+                                    class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-200 text-stone-500 text-[0.6rem] font-bold cursor-help hover:bg-stone-300 hover:text-stone-700 transition-colors leading-none">?</span>
+                                <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150"
+                                    x-transition:enter-start="opacity-0 translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white rounded-xl border border-stone-200 shadow-lg p-3 text-xs text-stone-600 z-50 pointer-events-none">
+                                    <p class="font-semibold text-stone-800 mb-1">Maksimal Penggunaan</p>
+                                    <p>Berapa kali voucher ini bisa dipakai (oleh semua user). Kosongkan = unlimited.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <input wire:model="maxUses" type="number" min="1"
                             class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
                     </div>
                     <div class="grid grid-cols-2 gap-4">

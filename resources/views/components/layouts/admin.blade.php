@@ -111,8 +111,17 @@
                     </svg>
                     <span>Pembayaran</span>
                 </a>
+                {{-- Voucher / Promo --}}
                 <a href="{{ route('admin.promotions') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.promotions*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                    <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path
+                            d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+                        <path d="M13 5v2" />
+                        <path d="M13 17v2" />
+                        <path d="M13 11v2" />
+                    </svg>
                     <span>Voucher</span>
                 </a>
             </nav>
@@ -201,6 +210,12 @@
                         <a href="{{ route('admin.payment-methods') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.payment-methods*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
                             <span>Pembayaran</span>
+                        </a>
+                        {{-- Voucher Mobile --}}
+                        <a href="{{ route('admin.promotions') }}" @click="open = false"
+                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.promotions*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+
+                            <span>Voucher</span>
                         </a>
                     </nav>
 

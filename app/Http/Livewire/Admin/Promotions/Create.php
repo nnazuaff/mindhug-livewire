@@ -61,10 +61,10 @@ class Create extends Component
             'min_order' => $this->minOrder,
             'max_discount' => $this->maxDiscount,
             'max_uses' => $this->maxUses,
-            'starts_date' => $this->startsDate,
-            'starts_time' => $this->startsTime,
-            'ends_date' => $this->endsDate,
-            'ends_time' => $this->endsTime,
+            'starts_date' => blank($this->startsDate) ? null : $this->startsDate,
+            'starts_time' => blank($this->startsTime) ? null : $this->startsTime,
+            'ends_date' => blank($this->endsDate) ? null : $this->endsDate,
+            'ends_time' => blank($this->endsTime) ? null : $this->endsTime,
             'is_active' => $this->isActive,
         ]);
 

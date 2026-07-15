@@ -31,15 +31,15 @@ class Promotion extends Model
         $now = now();
 
         if ($this->starts_date) {
-            $start = Carbon::parse($this->starts_date->format('Y-m-d').' '.($this->starts_time ?? '00:00:00'));
-            if ($now->lt($start)) {
+            $start = $this->getStartDateTime();
+            if ($start && $now->lt($start)) {
                 return false;
             }
         }
 
         if ($this->ends_date) {
-            $end = Carbon::parse($this->ends_date->format('Y-m-d').' '.($this->ends_time ?? '23:59:59'));
-            if ($now->gt($end)) {
+            $end = $this->getEndDateTime();
+            if ($end && $now->greaterThan($end)) {
                 return false;
             }
         }
@@ -49,6 +49,68 @@ class Promotion extends Model
         }
 
         return true;
+    }
+
+    protected function getStartDateTime(): ?Carbon
+    {
+        if (! $this->starts_date) {
+            return null;
+        }
+
+        $time = $this->normalizeStartTime($this->starts_time);
+        $dateString = $this->starts_date->format('Y-m-d').' '.$time;
+
+        return Carbon::parse($dateString, 'Asia/Jakarta');
+    }
+
+    protected function getEndDateTime(): ?Carbon
+    {
+        if (! $this->ends_date) {
+            return null;
+        }
+
+        $time = $this->normalizeEndTime($this->ends_time);
+        $dateString = $this->ends_date->format('Y-m-d').' '.$time;
+
+        return Carbon::parse($dateString, 'Asia/Jakarta');
+    }
+
+    protected function normalizeStartTime(?string $time): string
+    {
+        if (blank($time)) {
+            return '00:00:00';
+        }
+
+        $time = trim($time);
+
+        // Jika format HH:MM, tambahkan :00
+        if (preg_match('/^\d{1,2}:\d{2}$/', $time)) {
+            return $time.':00';
+        }
+
+        // Jika sudah HH:MM:SS
+        return $time;
+    }
+
+    protected function normalizeEndTime(?string $time): string
+    {
+        if (blank($time)) {
+            return '23:59:59';
+        }
+
+        $time = trim($time);
+
+        // Jika format HH:MM, tambahkan :00
+        if (preg_match('/^\d{1,2}:\d{2}$/', $time)) {
+            return $time.':00';
+        }
+
+        // Jika 00:00:00, artinya akhir hari
+        if ($time === '00:00:00') {
+            return '23:59:59';
+        }
+
+        return $time;
     }
 
     public function calculateDiscount(int $subtotal): int
