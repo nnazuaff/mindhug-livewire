@@ -55,7 +55,7 @@ class Index extends Component
             return;
         }
 
-        $promo = Promotion::where('code', strtoupper($this->promoCode))->first();
+        $promo = Promotion::query()->where('code', strtoupper($this->promoCode))->first();
 
         if (! $promo || ! $promo->isValid()) {
             $this->promoMessage = 'Kode voucher tidak valid atau sudah kadaluarsa.';
@@ -99,7 +99,7 @@ class Index extends Component
         $cart = session()->get('cart', []);
         if (! empty($cart)) {
             $allIds = array_keys($cart);
-            $existingIds = Product::whereIn('id', $allIds)->pluck('id')->toArray();
+            $existingIds = Product::query()->whereIn('id', $allIds)->pluck('id')->toArray();
             foreach ($cart as $pid => $qty) {
                 if (! in_array((int) $pid, $existingIds)) {
                     unset($cart[$pid]);
@@ -110,7 +110,7 @@ class Index extends Component
 
         // Direct buy
         if ($this->directProductId !== null) {
-            $product = Product::find($this->directProductId);
+            $product = Product::query()->find($this->directProductId);
             if (! $product || ! $product->is_active) {
                 $this->cartItems = [];
                 $this->hasInactiveItems = ! $product || ! $product->is_active;
@@ -135,7 +135,7 @@ class Index extends Component
         }
 
         $productIds = array_map('intval', array_keys($cart));
-        $allProducts = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $allProducts = Product::query()->whereIn('id', $productIds)->get()->keyBy('id');
 
         $activeItems = [];
         foreach ($cart as $productId => $quantity) {
@@ -273,7 +273,7 @@ class Index extends Component
             return;
         }
 
-        $pendingOrder = Order::where('user_id', Auth::id())->whereIn('status', ['awaiting_payment', 'awaiting_confirmation'])->exists();
+        $pendingOrder = Order::query()->where('user_id', Auth::id())->whereIn('status', ['awaiting_payment', 'awaiting_confirmation'])->exists();
         if ($pendingOrder) {
             $this->paymentNotice = 'Selesaikan pesanan sebelumnya terlebih dahulu.';
 
@@ -282,7 +282,7 @@ class Index extends Component
 
         // ✅ Validasi fatal: cek ulang semua item aktif
         $itemIds = array_column($this->cartItems, 'id');
-        $validCount = Product::whereIn('id', $itemIds)->where('is_active', true)->count();
+        $validCount = Product::query()->whereIn('id', $itemIds)->where('is_active', true)->count();
         if ($validCount !== count($this->cartItems)) {
             $this->paymentNotice = 'Maaf, beberapa produk sudah tidak tersedia. Pesanan gagal diproses.';
             $this->loadCart();
@@ -295,7 +295,15 @@ class Index extends Component
         try {
             $orderService = app(OrderService::class);
             $paymentMethod = collect($this->paymentMethods)->firstWhere('id', $this->selectedPayment);
-            $order = $orderService->createOrder(Auth::id(), $this->cartItems, $this->selectedAddress, $this->shippingCost, 0, $paymentMethod['label'] ?? 'Unknown');
+            $order = $orderService->createOrder(
+                Auth::id(),
+                $this->appliedPromoId ?? 0,
+                $this->cartItems,
+                $this->selectedAddress,
+                $this->shippingCost,
+                $this->discountAmount,
+                $paymentMethod['label'] ?? 'Unknown'
+            );
             if ($this->directProductId === null) {
                 session()->forget('cart');
             }
