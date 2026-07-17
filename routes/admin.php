@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Livewire\Admin\Admins\Index;
 use App\Http\Livewire\Admin\Categories;
 use App\Http\Livewire\Admin\Curhats\Index as CurhatsIndex;
 use App\Http\Livewire\Admin\Dashboard;
@@ -20,6 +21,10 @@ Route::middleware(['web', 'admin.session'])->group(function () {
 
     Route::middleware('auth:admin')->group(function () {
         Route::get('/', Dashboard::class)->name('dashboard');
+
+        Route::middleware('admin.role:dev')->group(function () {
+            Route::get('/admins', Index::class)->name('admins');
+        });
 
         Route::middleware('admin.role:dev,admin')->group(function () {
             Route::get('/users', UsersIndex::class)->name('users');

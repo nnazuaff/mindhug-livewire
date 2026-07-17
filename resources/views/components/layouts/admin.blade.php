@@ -81,7 +81,20 @@
                     </svg>
                     <span>Pengguna</span>
                 </a>
-
+                {{-- Admin (hanya dev) --}}
+                @if (auth('admin')->user()?->role === 'dev')
+                    <a href="{{ route('admin.admins') }}"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.admins*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        <span>Admin</span>
+                    </a>
+                @endif
                 {{-- Produk --}}
                 <a href="{{ route('admin.products') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.products*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
@@ -124,6 +137,7 @@
                     </svg>
                     <span>Voucher</span>
                 </a>
+
             </nav>
             <div class="p-4 border-t border-stone-200">
                 <form method="POST" action="{{ route('admin.logout') }}">
@@ -201,6 +215,13 @@
                         </div>
                         <a href="{{ route('admin.users') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Pengguna</span></a>
+                        {{-- Admin Mobile (hanya dev) --}}
+                        @if (auth('admin')->user()?->role === 'dev')
+                            <a href="{{ route('admin.admins') }}" @click="open = false"
+                                class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.admins*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                                <span>Admin</span>
+                            </a>
+                        @endif
                         <a href="{{ route('admin.products') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.products*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Produk</span></a>
                         <a href="{{ route('admin.categories') }}" @click="open = false"
