@@ -70,7 +70,7 @@ class Create extends Component
 
         $this->closeModal();
         $this->dispatch('promotionCreated');
-        session()->flash('success', 'Voucher berhasil ditambahkan.');
+        $this->dispatch('notify', type: 'success', message: 'Voucher berhasil ditambahkan.');
     }
 
     public function render()

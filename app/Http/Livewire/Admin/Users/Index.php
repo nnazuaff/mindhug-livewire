@@ -23,12 +23,12 @@ class Index extends Component
         $this->resetPage();
     }
 
-   public function viewUser(int $userId): void
+    public function viewUser(int $userId): void
     {
         $this->viewingUserId = $userId;
         $this->viewingUser = User::with([
             'addresses',
-            'orders' => fn ($q) => $q->latest()->limit(6)
+            'orders' => fn ($q) => $q->latest()->limit(6),
         ])->find($userId);
     }
 
@@ -55,7 +55,7 @@ class Index extends Component
             $this->closeDetail();
         }
 
-        session()->flash('success', 'Pengguna berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Pengguna berhasil dihapus.');
     }
 
     public function render()

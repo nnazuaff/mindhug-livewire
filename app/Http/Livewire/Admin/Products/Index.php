@@ -48,7 +48,7 @@ class Index extends Component
         if ($this->viewingProductId === $productId) {
             $this->closeDetail();
         }
-        session()->flash('success', 'Produk berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Produk berhasil dihapus.');
     }
 
     public function render()

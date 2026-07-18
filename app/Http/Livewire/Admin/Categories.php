@@ -60,10 +60,10 @@ class Categories extends Component
 
         if ($this->editingId) {
             Category::findOrFail($this->editingId)->update($data);
-            session()->flash('success', 'Kategori berhasil diperbarui.');
+            $this->dispatch('notify', type: 'success', message: 'Produk berhasil diperbarui.');
         } else {
             Category::create($data);
-            session()->flash('success', 'Kategori berhasil ditambahkan.');
+            $this->dispatch('notify', type: 'success', message: 'Produk berhasil ditambahkan.');
         }
 
         $this->closeForm();
@@ -72,7 +72,7 @@ class Categories extends Component
     public function delete(int $id): void
     {
         Category::findOrFail($id)->delete();
-        session()->flash('success', 'Kategori berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Produk berhasil dihapus.');
     }
 
     public function render()

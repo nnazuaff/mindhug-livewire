@@ -167,12 +167,12 @@
                     {{-- Tracking --}}
                     @if ($viewingOrder->trackingEvents->isNotEmpty())
                         <div>
-                            <p class="text-sm font-medium text-stone-700 mb-2">Riwayat</p>
+                            <p class="text-sm font-medium text-stone-700 mb-2">Tracking</p>
                             <div class="space-y-2">
                                 @foreach ($viewingOrder->trackingEvents as $event)
                                     <div class="flex gap-3 text-sm">
                                         <span
-                                            class="text-stone-300 text-xs w-20 shrink-0">{{ $event->occurred_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}
+                                            class="text-xs w-20 shrink-0">{{ $event->occurred_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}
                                             WIB</span>
                                         <div>
                                             <p class="font-medium text-stone-700">{{ $event->title }}</p>

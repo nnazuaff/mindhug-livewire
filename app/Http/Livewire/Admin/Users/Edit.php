@@ -78,7 +78,10 @@ class Edit extends Component
 
         $this->closeModal();
         $this->dispatch('userUpdated');
-        session()->flash('success', 'Pengguna berhasil diperbarui.');
+        $this->dispatch('notify', type: 'success', message: 'Pengguna berhasil diperbarui.');
+
+        $this->closeModal();
+        $this->dispatch('userUpdated');
     }
 
     public function render()

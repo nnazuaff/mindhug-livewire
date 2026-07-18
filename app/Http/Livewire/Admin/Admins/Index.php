@@ -50,7 +50,8 @@ class Index extends Component
             $this->closeDetail();
         }
 
-        session()->flash('success', 'Admin berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Admin berhasil dihapus.');
+
     }
 
     public function render()

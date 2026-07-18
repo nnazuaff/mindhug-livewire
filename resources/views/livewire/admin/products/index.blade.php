@@ -247,10 +247,10 @@
                     {{-- Info Tambahan --}}
                     <div class="grid grid-cols-2 gap-3 text-xs text-stone-500 border-t border-stone-100 pt-4">
                         <div>Dibuat: <span
-                                class="text-stone-700">{{ $viewingProduct->created_at?->format('d M Y, H:i') ?? '-' }}</span>
+                                class="text-stone-700">{{ $viewingProduct->created_at?->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}</span>
                         </div>
                         <div>Diperbarui: <span
-                                class="text-stone-700">{{ $viewingProduct->updated_at?->format('d M Y, H:i') ?? '-' }}</span>
+                                class="text-stone-700">{{ $viewingProduct->updated_at?->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}</span>
                         </div>
                     </div>
                 </div>

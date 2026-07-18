@@ -118,10 +118,10 @@ class PaymentMethods extends Component
 
         if ($this->editingId) {
             PaymentMethod::findOrFail($this->editingId)->update($data);
-            session()->flash('success', 'Metode pembayaran berhasil diperbarui.');
+            $this->dispatch('notify', type: 'success', message: 'Metode berhasil diperbarui.');
         } else {
             PaymentMethod::create($data);
-            session()->flash('success', 'Metode pembayaran berhasil ditambahkan.');
+            $this->dispatch('notify', type: 'success', message: 'Metode berhasil dibuat.');
         }
 
         $this->closeForm();
@@ -134,7 +134,7 @@ class PaymentMethods extends Component
             Storage::disk('public')->delete($method->icon);
         }
         $method->delete();
-        session()->flash('success', 'Metode pembayaran berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Metode berhasil dihapus.');
     }
 
     public function render()

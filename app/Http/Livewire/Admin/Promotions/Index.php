@@ -22,7 +22,7 @@ class Index extends Component
     public function delete(int $id): void
     {
         Promotion::findOrFail($id)->delete();
-        session()->flash('success', 'Voucher berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Voucher berhasil dihapus.');
     }
 
     public function render()

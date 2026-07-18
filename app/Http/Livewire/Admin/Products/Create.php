@@ -31,13 +31,13 @@ class Create extends Component
 
     public array $photos = [];
 
-    public array $croppedPhotos = []; // base64 hasil crop
+    public array $croppedPhotos = [];
 
     public bool $isDropship = false;
 
-    public int $shopeePrice = 0;
+    public string $shopeePrice = '';
 
-    public int $markup = 0;
+    public string $markup = '';
 
     public string $shopeeLink = '';
 
@@ -45,22 +45,22 @@ class Create extends Component
 
     public function updatedIsDropship(): void
     {
-        if ($this->isDropship && $this->shopeePrice > 0) {
-            $this->price = $this->shopeePrice + $this->markup;
+        if ($this->isDropship && is_numeric($this->shopeePrice) && (int) $this->shopeePrice > 0) {
+            $this->price = (int) $this->shopeePrice + (int) $this->markup;
         }
     }
 
     public function updatedShopeePrice(): void
     {
-        if ($this->isDropship) {
-            $this->price = $this->shopeePrice + $this->markup;
+        if ($this->isDropship && is_numeric($this->shopeePrice)) {
+            $this->price = (int) $this->shopeePrice + (int) $this->markup;
         }
     }
 
     public function updatedMarkup(): void
     {
-        if ($this->isDropship && $this->shopeePrice > 0) {
-            $this->price = $this->shopeePrice + $this->markup;
+        if ($this->isDropship && is_numeric($this->shopeePrice) && (int) $this->shopeePrice > 0) {
+            $this->price = (int) $this->shopeePrice + (int) $this->markup;
         }
     }
 
@@ -69,6 +69,10 @@ class Create extends Component
         $this->showModal = true;
         $this->reset(['name', 'categoryId', 'description', 'badge', 'price', 'stock', 'photos', 'croppedPhotos', 'isDropship', 'shopeePrice', 'markup', 'shopeeLink']);
         $this->isActive = true;
+        $this->price = 0;
+        $this->stock = 0;
+        $this->shopeePrice = '';
+        $this->markup = '';
     }
 
     public function closeModal(): void
@@ -91,19 +95,30 @@ class Create extends Component
 
     public function createProduct(): void
     {
-        $this->validate([
+        $rules = [
             'name' => 'required|string|max:150|unique:products,name',
             'categoryId' => 'nullable|exists:categories,id',
             'price' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
             'croppedPhotos' => 'required|array|min:1|max:8',
             'shopeeLink' => 'nullable|url|max:255',
-            'shopeePrice' => 'nullable|integer|min:0',
-            'markup' => 'nullable|integer|min:0',
-        ], [
+        ];
+
+        if ($this->isDropship) {
+            $rules['shopeePrice'] = 'required|integer|min:1';
+            $rules['markup'] = 'required|integer|min:0';
+        } else {
+            $rules['shopeePrice'] = 'nullable|string';
+            $rules['markup'] = 'nullable|string';
+        }
+
+        $this->validate($rules, [
             'croppedPhotos.required' => 'Minimal 1 foto produk wajib diunggah.',
             'croppedPhotos.max' => 'Maksimal 8 foto per produk.',
             'name.unique' => 'Nama produk sudah digunakan.',
+            'shopeePrice.required' => 'Harga Shopee wajib diisi untuk produk dropship.',
+            'shopeePrice.min' => 'Harga Shopee minimal Rp 1.',
+            'markup.required' => 'Markup wajib diisi untuk produk dropship.',
         ]);
 
         $product = Product::create([
@@ -113,8 +128,8 @@ class Create extends Component
             'badge' => $this->badge,
             'price' => $this->price,
             'stock' => $this->stock,
-            'shopee_price' => $this->isDropship ? $this->shopeePrice : 0,
-            'markup' => $this->isDropship ? $this->markup : 0,
+            'shopee_price' => $this->isDropship ? (int) $this->shopeePrice : 0,
+            'markup' => $this->isDropship ? (int) $this->markup : 0,
             'shopee_link' => $this->isDropship ? $this->shopeeLink : null,
             'is_active' => $this->isActive,
         ]);
@@ -130,9 +145,10 @@ class Create extends Component
             Storage::disk('public')->put('products/'.$product->id.'/'.$filename, $img);
         }
 
+        $this->dispatch('notify', type: 'success', message: 'Produk berhasil ditambahkan.');
+
         $this->closeModal();
         $this->dispatch('productCreated');
-        session()->flash('success', 'Produk berhasil ditambahkan.');
     }
 
     public function render()

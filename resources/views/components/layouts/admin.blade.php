@@ -13,6 +13,44 @@
 </head>
 
 <body class="bg-stone-50 text-stone-800 min-h-screen font-sans antialiased">
+    {{-- Toast Notifikasi --}}
+    <div x-data="{
+        toasts: [],
+        add(e) {
+            this.toasts.push({
+                id: Date.now(),
+                type: e.detail?.type || 'success',
+                message: e.detail?.message || 'Berhasil',
+            });
+            setTimeout(() => {
+                this.toasts.shift();
+            }, 3500);
+        }
+    }" @notify.window="add($event)"
+        class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm w-full">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="toast" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="translate-x-full opacity-0" x-transition:enter-end="translate-x-0 opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="translate-x-0 opacity-100" x-transition:leave-end="translate-x-full opacity-0"
+                :class="toast.type === 'success' ? 'bg-emerald-500 text-white' : (toast.type === 'error' ?
+                    'bg-rose-500 text-white' : 'bg-stone-800 text-white')"
+                class="rounded-2xl px-5 py-3.5 shadow-2xl flex items-center gap-3 text-sm font-medium">
+                <svg x-show="toast.type === 'success'" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <svg x-show="toast.type === 'error'" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span x-text="toast.message"></span>
+            </div>
+        </template>
+    </div>
     <div class="flex min-h-screen">
         {{-- Sidebar Desktop --}}
         <aside class="hidden lg:flex w-60 bg-white border-r border-stone-200 flex-col shrink-0">

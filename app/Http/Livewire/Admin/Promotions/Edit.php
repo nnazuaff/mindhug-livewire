@@ -85,7 +85,7 @@ class Edit extends Component
 
         $this->closeModal();
         $this->dispatch('promotionUpdated');
-        session()->flash('success', 'Voucher berhasil diperbarui.');
+        $this->dispatch('notify', type: 'success', message: 'Voucher berhasil diperbarui.');
     }
 
     public function render()

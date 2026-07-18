@@ -37,9 +37,9 @@ class Edit extends Component
 
     public bool $isDropship = false;
 
-    public int $shopeePrice = 0;
+    public string $shopeePrice = '';
 
-    public int $markup = 0;
+    public string $markup = '';
 
     public string $shopeeLink = '';
 
@@ -49,22 +49,22 @@ class Edit extends Component
 
     public function updatedIsDropship(): void
     {
-        if ($this->isDropship && $this->shopeePrice > 0) {
-            $this->price = $this->shopeePrice + $this->markup;
+        if ($this->isDropship && is_numeric($this->shopeePrice) && (int) $this->shopeePrice > 0) {
+            $this->price = (int) $this->shopeePrice + (int) $this->markup;
         }
     }
 
     public function updatedShopeePrice(): void
     {
-        if ($this->isDropship) {
-            $this->price = $this->shopeePrice + $this->markup;
+        if ($this->isDropship && is_numeric($this->shopeePrice)) {
+            $this->price = (int) $this->shopeePrice + (int) $this->markup;
         }
     }
 
     public function updatedMarkup(): void
     {
-        if ($this->isDropship && $this->shopeePrice > 0) {
-            $this->price = $this->shopeePrice + $this->markup;
+        if ($this->isDropship && is_numeric($this->shopeePrice) && (int) $this->shopeePrice > 0) {
+            $this->price = (int) $this->shopeePrice + (int) $this->markup;
         }
     }
 
@@ -80,8 +80,8 @@ class Edit extends Component
         $this->stock = $product->stock;
         $this->isActive = $product->is_active;
         $this->isDropship = $product->shopee_price > 0 || $product->shopee_link;
-        $this->shopeePrice = $product->shopee_price;
-        $this->markup = $product->markup;
+        $this->shopeePrice = (string) $product->shopee_price;
+        $this->markup = (string) $product->markup;
         $this->shopeeLink = $product->shopee_link ?? '';
         $this->existingPhotos = Storage::disk('public')->files('products/'.$productId);
         $this->croppedPhotos = [];
@@ -97,14 +97,12 @@ class Edit extends Component
 
     public function deleteExistingPhoto(string $filename): void
     {
-        // Tandai untuk dihapus nanti, jangan hapus sekarang
         $this->deletedPhotos[] = $filename;
         $this->existingPhotos = array_values(array_diff($this->existingPhotos, ['products/'.$this->productId.'/'.$filename]));
     }
 
     public function restoreDeletedPhoto(string $filename): void
     {
-        // Kembalikan ke existing photos
         $this->deletedPhotos = array_values(array_diff($this->deletedPhotos, [$filename]));
         $this->existingPhotos[] = 'products/'.$this->productId.'/'.$filename;
     }
@@ -126,14 +124,27 @@ class Edit extends Component
     {
         $totalPhotos = count($this->existingPhotos) + count($this->croppedPhotos);
 
-        $this->validate([
+        $rules = [
             'name' => 'required|string|max:150|unique:products,name,'.$this->productId,
             'categoryId' => 'nullable|exists:categories,id',
             'price' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
             'shopeeLink' => 'nullable|url|max:255',
-        ], [
+        ];
+
+        if ($this->isDropship) {
+            $rules['shopeePrice'] = 'required|integer|min:1';
+            $rules['markup'] = 'required|integer|min:0';
+        } else {
+            $rules['shopeePrice'] = 'nullable|string';
+            $rules['markup'] = 'nullable|string';
+        }
+
+        $this->validate($rules, [
             'name.unique' => 'Nama produk sudah digunakan.',
+            'shopeePrice.required' => 'Harga Shopee wajib diisi untuk produk dropship.',
+            'shopeePrice.min' => 'Harga Shopee minimal Rp 1.',
+            'markup.required' => 'Markup wajib diisi untuk produk dropship.',
         ]);
 
         if ($totalPhotos < 1) {
@@ -150,18 +161,16 @@ class Edit extends Component
             'badge' => $this->badge,
             'price' => $this->price,
             'stock' => $this->stock,
-            'shopee_price' => $this->isDropship ? $this->shopeePrice : 0,
-            'markup' => $this->isDropship ? $this->markup : 0,
+            'shopee_price' => $this->isDropship ? (int) $this->shopeePrice : 0,
+            'markup' => $this->isDropship ? (int) $this->markup : 0,
             'shopee_link' => $this->isDropship ? $this->shopeeLink : null,
             'is_active' => $this->isActive,
         ]);
 
-        // Hapus foto yang ditandai
         foreach ($this->deletedPhotos as $filename) {
             Storage::disk('public')->delete('products/'.$this->productId.'/'.$filename);
         }
 
-        // Upload foto baru
         if (! empty($this->croppedPhotos)) {
             foreach ($this->croppedPhotos as $base64) {
                 $img = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
@@ -171,9 +180,10 @@ class Edit extends Component
             }
         }
 
+        $this->dispatch('notify', type: 'success', message: 'Produk berhasil diperbarui.');
+
         $this->closeModal();
         $this->dispatch('productUpdated');
-        session()->flash('success', 'Produk berhasil diperbarui.');
     }
 
     public function render()

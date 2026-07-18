@@ -8,17 +8,15 @@
                     <button wire:click="closeModal" class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
                 </div>
                 <form wire:submit.prevent="updateProduct" class="p-6 space-y-4">
-                    {{-- Nama --}}
                     <div>
                         <label class="block text-sm font-medium text-stone-700 mb-1.5">Nama Produk</label>
                         <input wire:model="name" type="text"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
+                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 @error('name') border-rose-300 bg-rose-50/50 @enderror">
                         @error('name')
                             <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    {{-- Kategori + Badge --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-stone-700 mb-1.5">Kategori</label>
@@ -37,7 +35,6 @@
                         </div>
                     </div>
 
-                    {{-- Dropship Toggle --}}
                     <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
                         <label class="flex items-center justify-between cursor-pointer">
                             <div>
@@ -50,24 +47,33 @@
                                 class="relative w-10 h-6 rounded-full bg-stone-200 peer-checked:bg-[#a47551] transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4">
                             </div>
                         </label>
-
                         @if ($isDropship)
                             <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-amber-100">
                                 <div>
-                                    <label class="block text-xs font-medium text-stone-600 mb-1">Harga Shopee
-                                        (Rp)</label>
-                                    <input wire:model.live="shopeePrice" type="number" min="0"
-                                        class="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-[#a47551]">
+                                    <label class="block text-xs font-medium text-stone-600 mb-1">Harga Shopee (Rp) <span
+                                            class="text-rose-400">*</span></label>
+                                    <input wire:model.live="shopeePrice" type="number" min="0" placeholder="0"
+                                        onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '.' && event.key !== '+'"
+                                        class="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-[#a47551] @error('shopeePrice') border-rose-300 bg-rose-50/50 @enderror">
+                                    @error('shopeePrice')
+                                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium text-stone-600 mb-1">Markup (Rp)</label>
-                                    <input wire:model.live="markup" type="number" min="0"
-                                        class="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-[#a47551]">
+                                    <label class="block text-xs font-medium text-stone-600 mb-1">Markup (Rp) <span
+                                            class="text-rose-400">*</span></label>
+                                    <input wire:model.live="markup" type="number" min="0" placeholder="0"
+                                        onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '.' && event.key !== '+'"
+                                        class="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-[#a47551] @error('markup') border-rose-300 bg-rose-50/50 @enderror">
+                                    @error('markup')
+                                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block text-xs font-medium text-stone-600 mb-1">Link Shopee</label>
+                                    <label class="block text-xs font-medium text-stone-600 mb-1">Link Shopee <span
+                                            class="text-stone-400">(opsional)</span></label>
                                     <input wire:model="shopeeLink" type="url" placeholder="https://shopee.co.id/..."
-                                        class="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-[#a47551]">
+                                        class="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-[#a47551] @error('shopeeLink') border-rose-300 bg-rose-50/50 @enderror">
                                     @error('shopeeLink')
                                         <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
@@ -76,25 +82,31 @@
                         @endif
                     </div>
 
-                    {{-- Harga + Stok --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-stone-700 mb-1.5">Harga Jual (Rp)</label>
-                            <input wire:model="price" type="number" min="0"
-                                class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 {{ $isDropship ? 'bg-stone-50 text-stone-500' : '' }}"
+                            <input wire:model="price" type="number" min="0" placeholder="0"
+                                onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '.' && event.key !== '+'"
+                                class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 {{ $isDropship ? 'bg-stone-50 text-stone-500' : '' }} @error('price') border-rose-300 bg-rose-50/50 @enderror"
                                 {{ $isDropship ? 'readonly' : '' }}>
+                            @error('price')
+                                <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                            @enderror
                             @if ($isDropship)
                                 <p class="text-[0.65rem] text-stone-400 mt-1">Dihitung otomatis</p>
                             @endif
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-stone-700 mb-1.5">Stok</label>
-                            <input wire:model="stock" type="number" min="0"
-                                class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
+                            <input wire:model="stock" type="number" min="0" placeholder="0"
+                                onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '-' && event.key !== '.' && event.key !== '+'"
+                                class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 @error('stock') border-rose-300 bg-rose-50/50 @enderror">
+                            @error('stock')
+                                <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
-                    {{-- Deskripsi --}}
                     <div>
                         <label class="block text-sm font-medium text-stone-700 mb-1.5">Deskripsi</label>
                         <textarea wire:model="description" rows="3"
@@ -107,7 +119,6 @@
                         <span class="text-sm text-stone-700">Produk Aktif</span>
                     </label>
 
-                    {{-- Existing Photos --}}
                     @if (!empty($existingPhotos))
                         <div>
                             <label class="block text-sm font-medium text-stone-700 mb-1.5">Foto Saat Ini</label>
@@ -116,7 +127,8 @@
                                     <div class="relative group">
                                         <img src="{{ asset('storage/' . $file) }}"
                                             class="w-full aspect-square rounded-xl object-cover border border-stone-200">
-                                        <button type="button" wire:click="deleteExistingPhoto('{{ basename($file) }}')"
+                                        <button type="button"
+                                            wire:click="deleteExistingPhoto('{{ basename($file) }}')"
                                             class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
                                     </div>
                                 @endforeach
@@ -124,7 +136,6 @@
                         </div>
                     @endif
 
-                    {{-- Deleted Photos (Pending) --}}
                     @if (!empty($deletedPhotos))
                         <div>
                             <label class="block text-sm font-medium text-amber-700 mb-1.5">Foto yang akan dihapus (klik
@@ -150,7 +161,6 @@
                         </div>
                     @endif
 
-                    {{-- New Photos Crop --}}
                     <div x-data="photoCrop()">
                         <label class="block text-sm font-medium text-stone-700 mb-1.5">
                             Tambah Foto <span class="text-stone-400 font-normal">(crop 1:1, max 5MB)</span>
@@ -161,7 +171,6 @@
                             <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
                         @enderror
 
-                        {{-- Crop Modal --}}
                         <div x-show="showCropper" x-cloak
                             class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60">
                             <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl">
@@ -246,7 +255,6 @@
                 ctx.drawImage(this.image, sx, sy, size, size, 0, 0, canvas.width, canvas.height);
             },
             cropAndSave() {
-                const canvas = this.$refs.canvas;
                 const size = 500;
                 const outCanvas = document.createElement('canvas');
                 outCanvas.width = size;

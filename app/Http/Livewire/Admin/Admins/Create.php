@@ -51,9 +51,10 @@ class Create extends Component
             'role' => $this->role,
         ]);
 
+        $this->dispatch('notify', type: 'success', message: 'Admin berhasil ditambahkan.');
+
         $this->closeModal();
         $this->dispatch('adminCreated');
-        session()->flash('success', 'Admin berhasil ditambahkan.');
     }
 
     public function render()

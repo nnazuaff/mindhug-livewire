@@ -66,10 +66,9 @@ class Edit extends Component
         }
 
         $admin->update($data);
-
+        $this->dispatch('notify', type: 'success', message: 'Admin berhasil diperbarui.');
         $this->closeModal();
         $this->dispatch('adminUpdated');
-        session()->flash('success', 'Admin berhasil diperbarui.');
     }
 
     public function render()
