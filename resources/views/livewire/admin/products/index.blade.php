@@ -10,16 +10,55 @@
         </button>
     </div>
 
-    @if (session()->has('success'))
-        <div class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">
-            {{ session('success') }}
+    {{-- Filters --}}
+    <div class="flex flex-col gap-3 mb-6">
+        <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1 max-w-xs">
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari ID atau nama produk..."
+                    class="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </svg>
+            </div>
+            <select wire:model.live="categoryFilter"
+                class="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+                <option value="">Semua Kategori</option>
+                @foreach ($categories as $cat)
+                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                @endforeach
+            </select>
+            <select wire:model.live="statusFilter"
+                class="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+                <option value="">Semua Status</option>
+                <option value="active">Aktif</option>
+                <option value="inactive">Nonaktif</option>
+            </select>
         </div>
-    @endif
-
-    {{-- Search --}}
-    <div class="mb-6">
-        <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari nama produk..."
-            class="w-full max-w-md rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
+        <div class="flex flex-col sm:flex-row gap-3">
+            <select wire:model.live="dropshipFilter"
+                class="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+                <option value="">Semua Tipe</option>
+                <option value="yes">Dropship</option>
+                <option value="no">Non-Dropship</option>
+            </select>
+            <select wire:model.live="sortBy"
+                class="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+                <option value="">Urut: Terbaru</option>
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama</option>
+                <option value="price_asc">Harga: Termurah</option>
+                <option value="price_desc">Harga: Termahal</option>
+                <option value="stock_desc">Stok: Terbanyak</option>
+                <option value="stock_asc">Stok: Tersedikit</option>
+            </select>
+            @if ($search || $categoryFilter || $statusFilter || $dropshipFilter || $sortBy)
+                <button wire:click="clearFilters"
+                    class="text-xs font-medium text-[#a47551] hover:text-[#8f6243] whitespace-nowrap">Hapus semua
+                    filter</button>
+            @endif
+        </div>
     </div>
 
     {{-- Table --}}
@@ -28,27 +67,38 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="text-left text-stone-500 bg-stone-50 border-b border-stone-200">
+                        <th class="px-5 py-3 font-medium w-12">ID</th>
                         <th class="px-5 py-3 font-medium">Produk</th>
                         <th class="px-5 py-3 font-medium hidden sm:table-cell">Kategori</th>
                         <th class="px-5 py-3 font-medium">Harga</th>
                         <th class="px-5 py-3 font-medium">Stok</th>
+                        <th class="px-5 py-3 font-medium hidden md:table-cell">Tipe</th>
                         <th class="px-5 py-3 font-medium">Status</th>
                         <th class="px-5 py-3 font-medium w-24">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-stone-100">
                     @foreach ($products as $product)
+                        @php
+                            $files = Storage::disk('public')->files('products/' . $product->id);
+                            $img = !empty($files) ? basename($files[0]) : 'default.png';
+                            $isDropship =
+                                $product->shopee_price > 0 || ($product->shopee_link && $product->shopee_link !== '');
+                        @endphp
                         <tr class="hover:bg-stone-50/50 transition-colors">
+                            <td class="px-5 py-3 text-xs text-stone-400 font-mono">#{{ $product->id }}</td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
-                                    @php
-                                        $files = Storage::disk('public')->files('products/' . $product->id);
-                                        $img = !empty($files) ? basename($files[0]) : 'default.png';
-                                    @endphp
                                     <img src="{{ asset('storage/products/' . $product->id . '/' . $img) }}"
                                         class="h-9 w-9 rounded-lg object-cover border border-stone-200">
                                     <div>
-                                        <p class="font-medium text-stone-700">{{ $product->name }}</p>
+                                        <div class="flex items-center gap-1.5">
+                                            <p class="font-medium text-stone-700">{{ $product->name }}</p>
+                                            @if ($isDropship)
+                                                <span
+                                                    class="text-[0.55rem] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">DS</span>
+                                            @endif
+                                        </div>
                                         @if ($product->badge)
                                             <span
                                                 class="text-[0.6rem] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-medium">{{ $product->badge }}</span>
@@ -61,6 +111,12 @@
                             <td class="px-5 py-3 text-stone-700">Rp {{ number_format($product->price, 0, ',', '.') }}
                             </td>
                             <td class="px-5 py-3 text-stone-600">{{ $product->stock }}</td>
+                            <td class="px-5 py-3 hidden md:table-cell">
+                                <span
+                                    class="text-xs px-2.5 py-1 rounded-full font-medium {{ $isDropship ? 'bg-amber-50 text-amber-600' : 'bg-stone-100 text-stone-400' }}">
+                                    {{ $isDropship ? 'Dropship' : 'Manual' }}
+                                </span>
+                            </td>
                             <td class="px-5 py-3">
                                 <button wire:click="toggleActive({{ $product->id }})"
                                     class="text-xs px-2.5 py-1 rounded-full font-medium {{ $product->is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-stone-100 text-stone-400' }}">
@@ -98,7 +154,8 @@
                                         </button>
                                         <div x-show="showConfirm" x-cloak
                                             class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40">
-                                            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center">
+                                            <div
+                                                class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center">
                                                 <p class="font-semibold text-stone-800">Hapus produk?</p>
                                                 <p class="text-sm text-stone-500 mt-1">Produk yang dihapus tidak bisa
                                                     dikembalikan.</p>
@@ -128,24 +185,27 @@
 
     {{-- Detail Modal --}}
     @if ($viewingProduct)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" wire:click.self="closeDetail">
+        @php
+            $pFiles = Storage::disk('public')->files('products/' . $viewingProduct->id);
+            $pIsDropship =
+                $viewingProduct->shopee_price > 0 ||
+                ($viewingProduct->shopee_link && $viewingProduct->shopee_link !== '');
+        @endphp
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+            wire:click.self="closeDetail">
             <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
                 <div
                     class="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
                     <div>
-                        <h2 class="text-lg font-semibold text-stone-800">{{ $viewingProduct->name }}</h2>
+                        <h2 class="text-lg font-semibold text-stone-800">{{ $viewingProduct->name }} <span
+                                class="text-xs text-stone-400 font-mono">#{{ $viewingProduct->id }}</span></h2>
                         <p class="text-xs text-stone-400 mt-0.5">
                             {{ $viewingProduct->category?->name ?? 'Tanpa Kategori' }}</p>
                     </div>
                     <button wire:click="closeDetail"
                         class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
                 </div>
-
                 <div class="p-6 space-y-5">
-                    {{-- Gambar --}}
-                    @php
-                        $pFiles = Storage::disk('public')->files('products/' . $viewingProduct->id);
-                    @endphp
                     @if (!empty($pFiles))
                         <div>
                             <p class="text-sm font-medium text-stone-700 mb-2">Galeri Produk</p>
@@ -161,7 +221,6 @@
                         </div>
                     @endif
 
-                    {{-- Info Utama --}}
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <p class="text-stone-400 text-xs">Harga Jual</p>
@@ -170,7 +229,8 @@
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Stok</p>
-                            <p class="text-lg font-bold text-stone-800">{{ number_format($viewingProduct->stock) }}</p>
+                            <p class="text-lg font-bold text-stone-800">{{ number_format($viewingProduct->stock) }}
+                            </p>
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Badge</p>
@@ -185,7 +245,6 @@
                         </div>
                     </div>
 
-                    {{-- Deskripsi --}}
                     @if ($viewingProduct->description)
                         <div>
                             <p class="text-sm font-medium text-stone-700 mb-1">Deskripsi</p>
@@ -193,18 +252,15 @@
                         </div>
                     @endif
 
-                    {{-- Dropship Info --}}
-                    @php $isDropship = $viewingProduct->shopee_price > 0 || $viewingProduct->shopee_link; @endphp
                     <div
-                        class="rounded-2xl border {{ $isDropship ? 'border-amber-200 bg-amber-50' : 'border-stone-200 bg-stone-50' }} p-4">
+                        class="rounded-2xl border {{ $pIsDropship ? 'border-amber-200 bg-amber-50' : 'border-stone-200 bg-stone-50' }} p-4">
                         <div class="flex items-center gap-2 mb-3">
                             <span
-                                class="text-xs font-semibold uppercase tracking-wider {{ $isDropship ? 'text-amber-600' : 'text-stone-400' }}">
-                                {{ $isDropship ? '📦 Produk Dropship (Shopee)' : 'Produk Non-Dropship' }}
+                                class="text-xs font-semibold uppercase tracking-wider {{ $pIsDropship ? 'text-amber-600' : 'text-stone-400' }}">
+                                {{ $pIsDropship ? '📦 Produk Dropship (Shopee)' : 'Produk Non-Dropship' }}
                             </span>
                         </div>
-
-                        @if ($isDropship)
+                        @if ($pIsDropship)
                             <div class="grid grid-cols-2 gap-3 text-sm">
                                 <div>
                                     <p class="text-stone-400 text-xs">Harga Shopee</p>
@@ -230,11 +286,9 @@
                                 </div>
                                 @if ($viewingProduct->shopee_link)
                                     <div class="col-span-2">
-                                        <p class="text-stone-400 text-xs mb-1">Link Shopee</p>
-                                        <a href="{{ $viewingProduct->shopee_link }}" target="_blank" rel="noopener"
-                                            class="text-sm text-[#a47551] hover:text-[#8f6243] underline break-all">
-                                            {{ $viewingProduct->shopee_link }}
-                                        </a>
+                                        <p class="text-stone-400 text-xs mb-1">Link Shopee</p><a
+                                            href="{{ $viewingProduct->shopee_link }}" target="_blank" rel="noopener"
+                                            class="text-sm text-[#a47551] hover:text-[#8f6243] underline break-all">{{ $viewingProduct->shopee_link }}</a>
                                     </div>
                                 @endif
                             </div>
@@ -244,7 +298,6 @@
                         @endif
                     </div>
 
-                    {{-- Info Tambahan --}}
                     <div class="grid grid-cols-2 gap-3 text-xs text-stone-500 border-t border-stone-100 pt-4">
                         <div>Dibuat: <span
                                 class="text-stone-700">{{ $viewingProduct->created_at?->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}</span>
