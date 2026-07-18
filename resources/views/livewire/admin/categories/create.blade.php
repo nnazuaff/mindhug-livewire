@@ -10,8 +10,10 @@
                     <div>
                         <label class="block text-sm font-medium text-stone-700 mb-1.5">Nama Kategori</label>
                         <input wire:model="name" type="text"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 @error('name') border-rose-300 bg-rose-50/50 @enderror">
-                        @error('name') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 @error('name') border-rose bg-rose-50/50 @enderror">
+                        @error('name')
+                            <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-stone-700 mb-1.5">Deskripsi</label>

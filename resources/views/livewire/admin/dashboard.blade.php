@@ -4,13 +4,11 @@
             <h1 class="text-xl font-bold text-stone-800">Dashboard</h1>
             <p class="text-sm text-stone-500 mt-1">Selamat datang, {{ auth('admin')->user()->full_name }}.</p>
         </div>
-
     </div>
 
     {{-- Stats --}}
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        <div
-            class="rounded-2xl bg-white border border-amber-200 bg-amber-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
+        <div class="rounded-2xl border border-amber-200 bg-amber-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <div class="flex items-center gap-2 mb-2">
                 <div class="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center">
                     <svg class="h-4 w-4 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -23,8 +21,7 @@
             </div>
             <p class="text-2xl sm:text-3xl font-bold text-amber-600">{{ $pendingPayments }}</p>
         </div>
-        <div
-            class="rounded-2xl bg-white border border-blue-200 bg-blue-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
+        <div class="rounded-2xl border border-blue-200 bg-blue-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <div class="flex items-center gap-2 mb-2">
                 <div class="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
                     <svg class="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -37,8 +34,7 @@
             </div>
             <p class="text-2xl sm:text-3xl font-bold text-blue-600">{{ $pendingConfirm }}</p>
         </div>
-        <div
-            class="rounded-2xl bg-white border border-indigo-200 bg-indigo-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
+        <div class="rounded-2xl border border-indigo-200 bg-indigo-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <div class="flex items-center gap-2 mb-2">
                 <div class="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
                     <svg class="h-4 w-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -50,8 +46,7 @@
             </div>
             <p class="text-2xl sm:text-3xl font-bold text-indigo-600">{{ $processing }}</p>
         </div>
-        <div
-            class="rounded-2xl bg-white border border-purple-200 bg-purple-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
+        <div class="rounded-2xl border border-purple-200 bg-purple-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <div class="flex items-center gap-2 mb-2">
                 <div class="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
                     <svg class="h-4 w-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -67,7 +62,7 @@
             <p class="text-2xl sm:text-3xl font-bold text-purple-600">{{ $shipped }}</p>
         </div>
         <div
-            class="rounded-2xl bg-white border border-emerald-200 bg-emerald-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
+            class="rounded-2xl border border-emerald-200 bg-emerald-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <div class="flex items-center gap-2 mb-2">
                 <div class="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
                     <svg class="h-4 w-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -80,8 +75,7 @@
             </div>
             <p class="text-2xl sm:text-3xl font-bold text-emerald-600">{{ $delivered }}</p>
         </div>
-        <div
-            class="rounded-2xl bg-white border border-purple-200 bg-purple-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
+        <div class="rounded-2xl border border-purple-200 bg-purple-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <div class="flex items-center gap-2 mb-2">
                 <div class="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
                     <svg class="h-4 w-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -93,25 +87,26 @@
             </div>
             <p class="text-2xl sm:text-3xl font-bold text-purple-600">{{ $openConversations }}</p>
         </div>
-
     </div>
+
     {{-- Pemasukan & Pengeluaran --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-4">
-        <div class="rounded-2xl bg-white border border-emerald-200 bg-emerald-50/30 p-4 sm:p-5">
+        <div
+            class="rounded-2xl border border-emerald-200 bg-emerald-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <p class="text-xs text-emerald-600 uppercase tracking-wider">Pemasukan</p>
-            <p class="text-xl sm:text-2xl font-bold text-emerald-600">Rp
-                {{ number_format($totalIncome, 0, ',', '.') }}</p>
+            <p class="text-xl sm:text-2xl font-bold text-emerald-600">Rp {{ number_format($totalIncome, 0, ',', '.') }}
+            </p>
         </div>
-        <div class="rounded-2xl bg-white border border-rose-200 bg-rose-50/30 p-4 sm:p-5">
+        <div class="rounded-2xl border border-rose-200 bg-rose-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <p class="text-xs text-rose-600 uppercase tracking-wider">Pengeluaran</p>
-            <p class="text-xl sm:text-2xl font-bold text-rose-600">Rp
-                {{ number_format($totalExpense, 0, ',', '.') }}</p>
+            <p class="text-xl sm:text-2xl font-bold text-rose-600">Rp {{ number_format($totalExpense, 0, ',', '.') }}
+            </p>
         </div>
-        <div class="rounded-2xl bg-white border border-amber-200 bg-amber-50/30 p-4 sm:p-5">
+        <div class="rounded-2xl border border-amber-200 bg-amber-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <p class="text-xs text-amber-600 uppercase tracking-wider">Upgrade Pending</p>
             <p class="text-xl sm:text-2xl font-bold text-amber-600">{{ $pendingUpgrades }}</p>
         </div>
-        <div class="rounded-2xl bg-white border border-purple-200 bg-purple-50/30 p-4 sm:p-5">
+        <div class="rounded-2xl border border-purple-200 bg-purple-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
             <p class="text-xs text-purple-600 uppercase tracking-wider">Saldo</p>
             <p class="text-xl sm:text-2xl font-bold text-purple-600">Rp
                 {{ number_format($totalIncome - $totalExpense, 0, ',', '.') }}</p>
@@ -149,8 +144,7 @@
                                     $statusColors = [
                                         'awaiting_payment' => 'bg-amber-100 text-amber-700',
                                         'awaiting_confirmation' => 'bg-blue-100 text-blue-700',
-                                        'cancel_requested' =>
-                                            'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400',
+                                        'cancel_requested' => 'bg-orange-100 text-orange-700',
                                         'processing' => 'bg-indigo-100 text-indigo-700',
                                         'shipped' => 'bg-purple-100 text-purple-700',
                                         'delivered' => 'bg-emerald-100 text-emerald-700',

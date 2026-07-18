@@ -4,13 +4,14 @@
                 <div class="bg-white rounded-2xl w-full max-w-md shadow-xl">
                     <div class="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
                         <h2 class="text-lg font-semibold text-stone-800">Edit Kategori</h2>
-                        <button wire:click="closeModal" class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
+                        <button wire:click="closeModal"
+                            class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
                     </div>
                     <form wire:submit.prevent="update" class="p-6 space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-stone-700 mb-1.5">Nama Kategori</label>
                             <input wire:model="name" type="text"
-                                class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 @error('name') border-rose-300 bg-rose-50/50 @enderror">
+                                class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20 @error('name') border-rose bg-rose-50/50 @enderror">
                             @error('name')
                                 <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
                             @enderror
