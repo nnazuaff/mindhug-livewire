@@ -8,17 +8,54 @@
                     @if ($conversation->assigned_to)
                         Ditangani oleh: <span
                             class="font-medium text-stone-600">{{ $conversation->assignedAdmin->full_name ?? 'Admin' }}</span>
+                        @if ($conversation->assigned_to !== auth('admin')->id())
+                            <span class="text-amber-600 font-medium">(bukan Anda)</span>
+                        @endif
                     @else
                         Belum ada yang menangani
                     @endif
                 </p>
             </div>
             <div class="flex items-center gap-2">
+                {{-- Belum ada yang menangani --}}
                 @if ($conversation->status === 'open' && !$conversation->assigned_to)
                     <button wire:click="takeConversation"
                         class="text-xs px-3 py-1.5 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors font-medium">Ambil
                         Alih</button>
                 @endif
+
+                {{-- Dipegang admin lain → tombol ambil alih paksa --}}
+                @if (
+                    $conversation->status === 'open' &&
+                        $conversation->assigned_to &&
+                        $conversation->assigned_to !== auth('admin')->id())
+                    <div x-data="{ showConfirm: false }">
+                        <button @click="showConfirm = true"
+                            class="text-xs px-3 py-1.5 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-colors font-medium">Ambil
+                            Alih Paksa</button>
+                        <div x-show="showConfirm" x-cloak
+                            class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40"
+                            @click.self="showConfirm = false">
+                            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center">
+                                <p class="font-semibold text-stone-800">Ambil alih percakapan?</p>
+                                <p class="text-sm text-stone-500 mt-1">
+                                    Percakapan sedang ditangani oleh
+                                    <strong>{{ $conversation->assignedAdmin->full_name ?? 'Admin' }}</strong>. Anda akan
+                                    mengambil alih.
+                                </p>
+                                <div class="flex gap-2 mt-4">
+                                    <button @click="showConfirm = false"
+                                        class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200">Batal</button>
+                                    <button wire:click="takeOver" @click="showConfirm = false"
+                                        class="flex-1 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-600">Ambil
+                                        Alih</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Dipegang sendiri → tombol Tutup --}}
                 @if ($conversation->status === 'open' && $conversation->assigned_to === auth('admin')->id())
                     <div x-data="{ showConfirm: false }">
                         <button @click="showConfirm = true"
@@ -39,6 +76,7 @@
                         </div>
                     </div>
                 @endif
+
                 @if ($conversation->status === 'closed')
                     <span
                         class="text-xs px-3 py-1.5 rounded-full bg-stone-100 text-stone-500 font-medium">Ditutup</span>

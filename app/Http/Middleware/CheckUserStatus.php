@@ -10,13 +10,11 @@ class CheckUserStatus
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->status !== 'active') {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        if (Auth::guard('web')->check() && Auth::guard('web')->user()->status !== 'active') {
+            Auth::guard('web')->logout();
 
             return redirect('/login')->withErrors([
-                'identifier' => 'Akun ini telah dihapus / dinonaktifkan. Hubungi tim MindHug untuk info lebih lanjut.',
+                'identifier' => 'Akun ini telah dinonaktifkan. Hubungi tim MindHug.',
             ]);
         }
 

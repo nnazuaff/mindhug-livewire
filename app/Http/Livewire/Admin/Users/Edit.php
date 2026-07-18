@@ -68,13 +68,13 @@ class Edit extends Component
             'status' => $this->editStatus,
         ]);
 
-        // Jika status berubah dari active ke inactive, logout user
-        if ($oldStatus === 'active' && $this->editStatus === 'inactive') {
-            // Hapus session user
-            DB::table('sessions')
-                ->where('user_id', $this->userId)
-                ->delete();
-        }
+        // // Jika status berubah dari active ke inactive, logout user
+        // if ($oldStatus === 'active' && $this->editStatus === 'inactive') {
+        //     // Hapus session user
+        //     DB::table('sessions')
+        //         ->where('user_id', $this->userId)
+        //         ->delete();
+        // }
 
         $this->closeModal();
         $this->dispatch('userUpdated');

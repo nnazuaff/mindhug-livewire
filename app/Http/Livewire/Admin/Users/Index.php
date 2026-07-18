@@ -38,24 +38,21 @@ class Index extends Component
         $this->viewingUser = null;
     }
 
+    public function deleteUser(int $userId): void
+    {
+        User::findOrFail($userId)->delete();
+        if ($this->viewingUserId === $userId) {
+            $this->closeDetail();
+        }
+        $this->dispatch('notify', type: 'success', message: 'Pengguna berhasil dihapus.');
+    }
+
     public function toggleStatus(int $userId): void
     {
         $user = User::findOrFail($userId);
         $user->status = $user->status === 'active' ? 'inactive' : 'active';
         $user->save();
-
-        session()->flash('success', 'Status pengguna berhasil diubah.');
-    }
-
-    public function deleteUser(int $userId): void
-    {
-        User::findOrFail($userId)->delete();
-
-        if ($this->viewingUserId === $userId) {
-            $this->closeDetail();
-        }
-
-        $this->dispatch('notify', type: 'success', message: 'Pengguna berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Status pengguna berhasil diubah.');
     }
 
     public function render()

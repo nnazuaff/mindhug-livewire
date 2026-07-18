@@ -194,7 +194,31 @@
                                 class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 transition">
                                 Konfirmasi Pembayaran
                             </button>
+
+                            {{-- Tolak Pembayaran --}}
+                            <div class="w-full space-y-2" x-data="{ showRejectPayment: false }">
+                                <button @click="showRejectPayment = !showRejectPayment"
+                                    class="rounded-xl bg-rose-100 px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-200 transition-colors">
+                                    Tolak Pembayaran
+                                </button>
+                                <div x-show="showRejectPayment" x-cloak class="space-y-2">
+                                    <textarea wire:model="rejectPaymentReason" rows="2" placeholder="Tulis alasan penolakan bukti pembayaran..."
+                                        class="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200/50"></textarea>
+                                    <div class="flex gap-2">
+                                        <button wire:click="rejectPayment({{ $viewingOrder->id }})"
+                                            class="rounded-xl bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-600 transition-colors">
+                                            Konfirmasi Penolakan
+                                        </button>
+                                        <button
+                                            @click="showRejectPayment = false; $wire.set('rejectPaymentReason', '')"
+                                            class="rounded-xl bg-stone-100 px-4 py-2 text-sm font-medium text-stone-600 hover:bg-stone-200 transition-colors">
+                                            Batal
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         @endif
+
                         {{-- Tolak Request Pembatalan --}}
                         @if ($viewingOrder->status === 'cancel_requested')
                             <div class="w-full space-y-2" x-data="{ showRejectForm: false }">
@@ -219,7 +243,7 @@
                             </div>
                         @endif
 
-                        {{-- Konfirmasi Pembayaran (user request batal, tapi admin konfirmasi) --}}
+                        {{-- Konfirmasi Pembayaran saat user request batal (abaikan) --}}
                         @if ($viewingOrder->status === 'cancel_requested' && $viewingOrder->payment_proof)
                             <button wire:click="confirmPayment({{ $viewingOrder->id }})"
                                 class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 transition">

@@ -35,6 +35,7 @@
                     </a>
                 @endif
 
+
                 {{-- Tombol Request Batal --}}
                 @if (in_array($order->status, ['awaiting_payment', 'awaiting_confirmation', 'cancel_requested']) &&
                         !$order->cancel_requested_at)
@@ -96,6 +97,36 @@
                 </div>
             @endif
         </div>
+        {{-- Notifikasi Pembayaran Ditolak --}}
+        @php
+            $rejectedEvent = $order->trackingEvents->firstWhere('title', 'Pembayaran Ditolak');
+        @endphp
+        @if ($order->status === 'awaiting_payment' && $rejectedEvent)
+            <div class="rounded-2xl sm:rounded-3xl border border-rose-200 bg-rose-50 p-4 sm:p-6 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div
+                        class="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-rose-800 text-sm sm:text-base">Pembayaran Sebelumnya Ditolak</p>
+                        <p class="text-xs sm:text-sm text-rose-700 mt-1">
+                            Alasan: {{ $rejectedEvent->description }}
+                        </p>
+                        <p class="text-xs text-rose-500 mt-2">
+                            Silakan unggah ulang bukti pembayaran yang benar.
+                            <a href="{{ route('orders.pay', $order->invoice_number) }}"
+                                class="font-semibold underline hover:text-rose-700">Unggah sekarang →</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
         {{-- Bukti Pembayaran --}}
         @if ($order->payment_proof)
             <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm"
@@ -111,7 +142,8 @@
                 </button>
 
                 {{-- Modal --}}
-                <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+                <div x-show="open" x-cloak
+                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
                     @click.self="open = false">
                     <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl">
                         <div

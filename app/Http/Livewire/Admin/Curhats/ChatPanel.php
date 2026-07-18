@@ -44,12 +44,30 @@ class ChatPanel extends Component
 
     public function takeConversation(): void
     {
-        if (! $this->conversation) {
+        if (! $this->conversation || $this->conversation->status !== 'open') {
+            return;
+        }
+        // Hanya ambil jika belum ada yang menangani
+        if ($this->conversation->assigned_to) {
             return;
         }
         $this->conversation->update(['assigned_to' => auth('admin')->id()]);
         $this->loadConversation();
         $this->dispatch('refreshList');
+    }
+
+    public function takeOver(): void
+    {
+        if (! $this->conversation || $this->conversation->status !== 'open') {
+            return;
+        }
+
+        $previousAdminName = $this->conversation->assignedAdmin->full_name ?? 'Admin lain';
+
+        $this->conversation->update(['assigned_to' => auth('admin')->id()]);
+        $this->loadConversation();
+        $this->dispatch('refreshList');
+        $this->dispatch('notify', type: 'info', message: "Percakapan diambil alih dari {$previousAdminName}.");
     }
 
     public function closeConversation(): void
@@ -61,6 +79,7 @@ class ChatPanel extends Component
         $this->conversation = null;
         $this->conversationId = null;
         $this->dispatch('refreshList');
+        $this->dispatch('notify', type: 'success', message: 'Percakapan berhasil ditutup.');
     }
 
     public function sendReply(): void

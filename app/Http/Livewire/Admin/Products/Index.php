@@ -35,13 +35,6 @@ class Index extends Component
         $this->viewingProduct = null;
     }
 
-    public function toggleActive(int $productId): void
-    {
-        $product = Product::findOrFail($productId);
-        $product->update(['is_active' => ! $product->is_active]);
-        session()->flash('success', 'Status produk berhasil diubah.');
-    }
-
     public function deleteProduct(int $productId): void
     {
         Product::findOrFail($productId)->delete();
@@ -49,6 +42,13 @@ class Index extends Component
             $this->closeDetail();
         }
         $this->dispatch('notify', type: 'success', message: 'Produk berhasil dihapus.');
+    }
+
+    public function toggleActive(int $productId): void
+    {
+        $product = Product::findOrFail($productId);
+        $product->update(['is_active' => ! $product->is_active]);
+        $this->dispatch('notify', type: 'success', message: 'Status produk berhasil diubah.');
     }
 
     public function render()
