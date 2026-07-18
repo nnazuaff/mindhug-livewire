@@ -9,7 +9,6 @@
     <div>
         <p class="text-xs uppercase tracking-[0.32em] text-[#8b6f5c]/70">Akun</p>
         <h2 class="mt-3 text-2xl font-semibold text-[#1f1f1f]">Pengaturan</h2>
-
     </div>
 
     <nav class="grid gap-2">
@@ -28,7 +27,24 @@
     </nav>
 
     <div class="space-y-4">
-
+        <div
+            class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
+            <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Status Akun</p>
+            <div class="mt-2 flex items-center justify-between">
+                <span
+                    class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $role === 'plus' ? 'role-plus' : 'role-free' }}">
+                    {{ $role === 'plus' ? 'Plus' : 'Free' }}
+                </span>
+                @if ($role === 'free')
+                    <a href="{{ route('upgrade') }}"
+                        class="text-xs font-semibold text-amber-600 hover:text-amber-700">Upgrade →</a>
+                @endif
+            </div>
+            @if ($role === 'plus' && $accountUser?->plus_expires_at)
+                <p class="mt-2 text-xs text-stone-400">Berlaku sampai
+                    {{ $accountUser->plus_expires_at->setTimezone('Asia/Jakarta')->format('d M Y') }}</p>
+            @endif
+        </div>
         <div
             class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
             <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Trial aktif</p>

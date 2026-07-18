@@ -3,7 +3,9 @@
 namespace App\Http\Livewire\Admin;
 
 use App\Models\Conversation;
+use App\Models\IncomeExpense;
 use App\Models\Order;
+use App\Models\SubscriptionOrder;
 use App\Models\User;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -25,7 +27,10 @@ class Dashboard extends Component
             'delivered' => Order::where('status', 'delivered')->count(),
             'openConversations' => Conversation::where('status', 'open')->count(),
             'recentOrders' => Order::with('user')->latest()->take(5)->get(),
-           
+            'totalIncome' => IncomeExpense::where('type', 'income')->sum('amount'),
+            'totalExpense' => IncomeExpense::where('type', 'expense')->sum('amount'),
+            'pendingUpgrades' => SubscriptionOrder::where('status', 'awaiting_confirmation')->count(),
+
         ])->layout('components.layouts.admin');
     }
 }

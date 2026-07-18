@@ -4,7 +4,7 @@
             <h1 class="text-xl font-bold text-stone-800">Dashboard</h1>
             <p class="text-sm text-stone-500 mt-1">Selamat datang, {{ auth('admin')->user()->full_name }}.</p>
         </div>
-      
+
     </div>
 
     {{-- Stats --}}
@@ -92,6 +92,29 @@
                 <p class="text-xs text-purple-600 uppercase tracking-wider">Curhat Aktif</p>
             </div>
             <p class="text-2xl sm:text-3xl font-bold text-purple-600">{{ $openConversations }}</p>
+        </div>
+
+    </div>
+    {{-- Pemasukan & Pengeluaran --}}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-4">
+        <div class="rounded-2xl bg-white border border-emerald-200 bg-emerald-50/30 p-4 sm:p-5">
+            <p class="text-xs text-emerald-600 uppercase tracking-wider">Pemasukan</p>
+            <p class="text-xl sm:text-2xl font-bold text-emerald-600">Rp
+                {{ number_format($totalIncome, 0, ',', '.') }}</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-rose-200 bg-rose-50/30 p-4 sm:p-5">
+            <p class="text-xs text-rose-600 uppercase tracking-wider">Pengeluaran</p>
+            <p class="text-xl sm:text-2xl font-bold text-rose-600">Rp
+                {{ number_format($totalExpense, 0, ',', '.') }}</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-amber-200 bg-amber-50/30 p-4 sm:p-5">
+            <p class="text-xs text-amber-600 uppercase tracking-wider">Upgrade Pending</p>
+            <p class="text-xl sm:text-2xl font-bold text-amber-600">{{ $pendingUpgrades }}</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-purple-200 bg-purple-50/30 p-4 sm:p-5">
+            <p class="text-xs text-purple-600 uppercase tracking-wider">Saldo</p>
+            <p class="text-xl sm:text-2xl font-bold text-purple-600">Rp
+                {{ number_format($totalIncome - $totalExpense, 0, ',', '.') }}</p>
         </div>
     </div>
 

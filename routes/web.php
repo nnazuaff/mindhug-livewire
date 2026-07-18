@@ -2,6 +2,7 @@
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\SubscriptionPlan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'user.active'])->group(function () {
+
+    Route::get('/upgrade/checkout/{plan:slug}', function (SubscriptionPlan $plan) {
+        return view('upgrade.checkout', compact('plan'));
+    })->name('upgrade.checkout');
+    Route::view('/upgrade', 'upgrade.index')->name('upgrade');
     Route::post('/logout', function () {
         Auth::logout();
 

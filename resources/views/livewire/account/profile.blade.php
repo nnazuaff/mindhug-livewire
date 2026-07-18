@@ -45,9 +45,24 @@
                 </div>
             </div>
 
-            <span
-                class="inline-flex items-center rounded-2xl border border-[#f0d6bb] bg-[#fff1e3] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#7a5d45]">Status:
-                {{ ucfirst($role) }}</span>
+            {{-- <div
+                class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
+                <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Status Akun</p>
+                <div class="mt-2 flex items-center justify-between">
+                    <span
+                        class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $role === 'plus' ? 'role-plus' : 'role-free' }}">
+                        {{ $role === 'plus' ? 'Plus' : 'Free' }}
+                    </span>
+                    @if ($role === 'free')
+                        <a href="{{ route('upgrade') }}"
+                            class="text-xs font-semibold text-amber-600 hover:text-amber-700">Upgrade →</a>
+                    @endif
+                </div>
+                @if ($role === 'plus' && $user->plus_expires_at)
+                    <p class="mt-2 text-xs text-stone-400">Berlaku sampai
+                        {{ $user->plus_expires_at->setTimezone('Asia/Jakarta')->format('d M Y') }}</p>
+                @endif
+            </div> --}}
         </div>
 
         @error('avatar')
