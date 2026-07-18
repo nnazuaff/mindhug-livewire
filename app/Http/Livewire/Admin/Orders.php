@@ -17,6 +17,12 @@ class Orders extends Component
 
     public string $statusFilter = '';
 
+    public string $customerSearch = '';
+
+    public ?string $dateFrom = null;
+
+    public ?string $dateTo = null;
+
     public ?int $viewingOrderId = null;
 
     public ?Order $viewingOrder = null;
@@ -30,9 +36,11 @@ class Orders extends Component
     protected $queryString = [
         'search' => ['except' => ''],
         'statusFilter' => ['except' => ''],
+        'customerSearch' => ['except' => ''],
+        'dateFrom' => ['except' => ''],
+        'dateTo' => ['except' => ''],
     ];
 
-    // ─── Reset halaman saat filter berubah ───
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -43,10 +51,30 @@ class Orders extends Component
         $this->resetPage();
     }
 
+    public function updatingCustomerSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateFrom(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateTo(): void
+    {
+        $this->resetPage();
+    }
+
+    public function clearFilters(): void
+    {
+        $this->reset(['search', 'statusFilter', 'customerSearch', 'dateFrom', 'dateTo']);
+        $this->resetPage();
+    }
+
     #[On('order-updated')]
     public function refreshOrders(): void {}
 
-    // ─── View & Close Detail ───
     public function viewOrder(int $orderId): void
     {
         $this->viewingOrderId = $orderId;
@@ -59,26 +87,17 @@ class Orders extends Component
         $this->viewingOrder = null;
     }
 
-    // ─── Konfirmasi Pembayaran ───
     public function confirmPayment(int $orderId): void
     {
         $order = Order::findOrFail($orderId);
-
         if ($order->status === 'awaiting_confirmation') {
-            app(OrderService::class)->updateStatus(
-                $order,
-                'processing',
-                'Pembayaran Dikonfirmasi',
-                'Pembayaran telah dikonfirmasi oleh admin. Pesanan sedang diproses.'
-            );
-
+            app(OrderService::class)->updateStatus($order, 'processing', 'Pembayaran Dikonfirmasi', 'Pembayaran telah dikonfirmasi oleh admin. Pesanan sedang diproses.');
             $this->viewingOrder->refresh();
             $this->dispatch('order-updated');
             $this->dispatch('notify', type: 'success', message: 'Pembayaran berhasil dikonfirmasi.');
         }
     }
 
-    // ─── Tolak Konfirmasi Pembayaran (BARU) ───
     public function rejectPayment(int $orderId): void
     {
         if (empty(trim($this->rejectPaymentReason))) {
@@ -86,36 +105,22 @@ class Orders extends Component
 
             return;
         }
-
         $order = Order::findOrFail($orderId);
-
         if ($order->status !== 'awaiting_confirmation') {
             return;
         }
 
-        // Hapus bukti pembayaran agar user upload ulang
         if ($order->payment_proof) {
             Storage::disk('public')->delete($order->payment_proof);
         }
-
-        $order->update([
-            'status' => 'awaiting_payment',
-            'payment_proof' => null,
-        ]);
-
-        $order->trackingEvents()->create([
-            'occurred_at' => now(),
-            'title' => 'Pembayaran Ditolak',
-            'description' => 'Admin menolak bukti pembayaran: '.$this->rejectPaymentReason,
-        ]);
-
+        $order->update(['status' => 'awaiting_payment', 'payment_proof' => null]);
+        $order->trackingEvents()->create(['occurred_at' => now(), 'title' => 'Pembayaran Ditolak', 'description' => 'Admin menolak bukti pembayaran: '.$this->rejectPaymentReason]);
         $this->rejectPaymentReason = '';
         $this->viewingOrder->refresh();
         $this->dispatch('order-updated');
         $this->dispatch('notify', type: 'success', message: 'Pembayaran ditolak. Pesanan kembali ke status menunggu pembayaran.');
     }
 
-    // ─── Tolak Permintaan Pembatalan ───
     public function rejectCancelRequest(int $orderId): void
     {
         if (empty(trim($this->rejectReason))) {
@@ -123,32 +128,19 @@ class Orders extends Component
 
             return;
         }
-
         $order = Order::findOrFail($orderId);
-
         if ($order->status !== 'cancel_requested') {
             return;
         }
 
-        $order->update([
-            'status' => 'awaiting_payment',
-            'cancel_rejected_reason' => $this->rejectReason,
-            'cancel_requested_at' => null,
-        ]);
-
-        $order->trackingEvents()->create([
-            'occurred_at' => now(),
-            'title' => 'Pembatalan Ditolak',
-            'description' => 'Admin menolak permintaan pembatalan: '.$this->rejectReason,
-        ]);
-
+        $order->update(['status' => 'awaiting_payment', 'cancel_rejected_reason' => $this->rejectReason, 'cancel_requested_at' => null]);
+        $order->trackingEvents()->create(['occurred_at' => now(), 'title' => 'Pembatalan Ditolak', 'description' => 'Admin menolak permintaan pembatalan: '.$this->rejectReason]);
         $this->rejectReason = '';
         $this->viewingOrder->refresh();
         $this->dispatch('order-updated');
         $this->dispatch('notify', type: 'success', message: 'Permintaan pembatalan ditolak. Pesanan kembali ke status pembayaran.');
     }
 
-    // ─── Batalkan Pesanan oleh Admin ───
     public function cancelOrder(int $orderId): void
     {
         if (empty(trim($this->cancelReason))) {
@@ -156,18 +148,9 @@ class Orders extends Component
 
             return;
         }
-
         $order = Order::findOrFail($orderId);
-
         if (! in_array($order->status, ['delivered', 'cancelled'])) {
-            app(OrderService::class)->updateStatus(
-                $order,
-                'cancelled',
-                'Pesanan Dibatalkan',
-                'Alasan: '.$this->cancelReason,
-                $this->cancelReason
-            );
-
+            app(OrderService::class)->updateStatus($order, 'cancelled', 'Pesanan Dibatalkan', 'Alasan: '.$this->cancelReason, $this->cancelReason);
             $this->viewingOrder->refresh();
             $this->cancelReason = '';
             $this->dispatch('order-updated');
@@ -175,26 +158,17 @@ class Orders extends Component
         }
     }
 
-    // ─── Update Status Manual ───
     public function updateStatus(int $orderId, string $newStatus): void
     {
         $order = Order::findOrFail($orderId);
-
         $statusMap = [
             'processing' => ['title' => 'Pesanan Diproses', 'desc' => 'Pesanan sedang disiapkan.'],
             'shipped' => ['title' => 'Pesanan Dikirim', 'desc' => 'Pesanan telah dikirim ke alamat tujuan.'],
             'delivered' => ['title' => 'Pesanan Selesai', 'desc' => 'Pesanan telah diterima.'],
             'cancelled' => ['title' => 'Pesanan Dibatalkan', 'desc' => 'Pesanan dibatalkan.'],
         ];
-
         if (isset($statusMap[$newStatus])) {
-            app(OrderService::class)->updateStatus(
-                $order,
-                $newStatus,
-                $statusMap[$newStatus]['title'],
-                $statusMap[$newStatus]['desc']
-            );
-
+            app(OrderService::class)->updateStatus($order, $newStatus, $statusMap[$newStatus]['title'], $statusMap[$newStatus]['desc']);
             $this->viewingOrder->refresh();
             $this->dispatch('order-updated');
             $this->dispatch('notify', type: 'success', message: 'Status pesanan berhasil diperbarui.');
@@ -207,13 +181,14 @@ class Orders extends Component
             ->with('user')
             ->withCount('items')
             ->when($this->search, fn ($q) => $q->where('invoice_number', 'like', '%'.$this->search.'%'))
+            ->when($this->customerSearch, fn ($q) => $q->whereHas('user', fn ($uq) => $uq->where('full_name', 'like', '%'.$this->customerSearch.'%')->orWhere('email', 'like', '%'.$this->customerSearch.'%')))
             ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->orderByDesc('created_at')
             ->paginate(15);
 
-        return view('livewire.admin.orders', [
-            'orders' => $orders,
-        ])->layout('components.layouts.admin');
+        return view('livewire.admin.orders', ['orders' => $orders])->layout('components.layouts.admin');
     }
 
     public function getStatusLabel(string $status): string

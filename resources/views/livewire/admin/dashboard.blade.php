@@ -4,10 +4,7 @@
             <h1 class="text-xl font-bold text-stone-800">Dashboard</h1>
             <p class="text-sm text-stone-500 mt-1">Selamat datang, {{ auth('admin')->user()->full_name }}.</p>
         </div>
-        <a href="{{ route('admin.orders') }}"
-            class="text-sm font-medium text-[#a47551] hover:text-[#8f6243] transition-colors">
-            Lihat semua pesanan →
-        </a>
+      
     </div>
 
     {{-- Stats --}}
@@ -140,7 +137,7 @@
                                         'awaiting_payment' => 'Menunggu Bayar',
                                         'awaiting_confirmation' => 'Konfirmasi',
                                         'processing' => 'Diproses',
-                                        'cancel_requested' => 'Request Batal', 
+                                        'cancel_requested' => 'Request Batal',
                                         'shipped' => 'Dikirim',
                                         'delivered' => 'Selesai',
                                         'cancelled' => 'Dibatalkan',

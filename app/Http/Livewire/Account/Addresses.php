@@ -14,6 +14,9 @@ class Addresses extends Component
 
     public array $addresses = [];
 
+    // Form properties
+    public bool $showForm = false;
+
     public $address_label = 'home';
 
     public $address_recipient_name = '';
@@ -26,8 +29,11 @@ class Addresses extends Component
 
     public $address_detail = '';
 
+    public string $address_postal_code = '';
+
     public $address_is_primary = false;
 
+    // Region data
     public bool $regionDataReady = false;
 
     public array $provinces = [];
@@ -85,12 +91,11 @@ class Addresses extends Component
         $this->selectedCityCode = null;
         $this->selectedDistrictCode = null;
         $this->selectedVillageCode = null;
+        $this->cities = [];
         $this->districts = [];
         $this->villages = [];
 
         if (! $value || ! $this->regionDataReady) {
-            $this->cities = [];
-
             return;
         }
 
@@ -99,10 +104,7 @@ class Addresses extends Component
             ->where('province_code', $value)
             ->orderBy('name')
             ->get()
-            ->map(fn ($city) => [
-                'code' => (string) $city->code,
-                'name' => (string) $city->name,
-            ])
+            ->map(fn ($city) => ['code' => (string) $city->code, 'name' => (string) $city->name])
             ->all();
     }
 
@@ -110,11 +112,10 @@ class Addresses extends Component
     {
         $this->selectedDistrictCode = null;
         $this->selectedVillageCode = null;
+        $this->districts = [];
         $this->villages = [];
 
         if (! $value || ! $this->regionDataReady) {
-            $this->districts = [];
-
             return;
         }
 
@@ -123,10 +124,7 @@ class Addresses extends Component
             ->where('city_code', $value)
             ->orderBy('name')
             ->get()
-            ->map(fn ($district) => [
-                'code' => (string) $district->code,
-                'name' => (string) $district->name,
-            ])
+            ->map(fn ($district) => ['code' => (string) $district->code, 'name' => (string) $district->name])
             ->all();
     }
 
@@ -145,10 +143,7 @@ class Addresses extends Component
             ->where('district_code', $value)
             ->orderBy('name')
             ->get()
-            ->map(fn ($village) => [
-                'code' => (string) $village->code,
-                'name' => (string) $village->name,
-            ])
+            ->map(fn ($village) => ['code' => (string) $village->code, 'name' => (string) $village->name])
             ->all();
     }
 
@@ -160,6 +155,18 @@ class Addresses extends Component
             ->toArray();
     }
 
+    public function openForm(): void
+    {
+        $this->resetForm();
+        $this->showForm = true;
+    }
+
+    public function closeForm(): void
+    {
+        $this->showForm = false;
+        $this->resetForm();
+    }
+
     public function saveAddress(): void
     {
         $rules = [
@@ -167,7 +174,8 @@ class Addresses extends Component
             'address_recipient_name' => ['required', 'string', 'max:150'],
             'address_phone' => ['required', 'string', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'address_street' => ['required', 'string', 'max:255'],
-            'address_detail' => ['nullable', 'string', 'max:255'],
+            'address_detail' => ['required', 'string', 'max:255'],
+            'address_postal_code' => ['required', 'string', 'max:10'],
         ];
 
         if ($this->regionDataReady) {
@@ -180,18 +188,22 @@ class Addresses extends Component
         }
 
         $this->validate($rules, [
-            'address_phone.regex' => 'The phone number may only contain numbers, spaces, +, or -.',
-            'selectedProvinceCode.required' => 'Please select a province.',
-            'selectedCityCode.required' => 'Please select a city or regency.',
-            'selectedDistrictCode.required' => 'Please select a district.',
-            'selectedVillageCode.required' => 'Please select a village or sub-district.',
+            'address_phone.regex' => 'Format nomor HP tidak valid.',
+            'selectedProvinceCode.required' => 'Pilih provinsi.',
+            'selectedCityCode.required' => 'Pilih kota/kabupaten.',
+            'selectedDistrictCode.required' => 'Pilih kecamatan.',
+            'selectedVillageCode.required' => 'Pilih kelurahan/desa.',
         ]);
 
         if ($this->regionDataReady) {
             $this->address_region = $this->buildRegionLabelFromSelection();
         }
 
-        if ($this->address_is_primary) {
+        // Cek apakah ini alamat pertama → otomatis utama
+        $existingCount = $this->user->addresses()->count();
+        $isPrimary = $existingCount === 0 ? true : $this->address_is_primary;
+
+        if ($isPrimary) {
             $this->user->addresses()->update(['is_primary' => false]);
         }
 
@@ -202,18 +214,18 @@ class Addresses extends Component
             'region' => $this->address_region,
             'street' => $this->address_street,
             'detail' => $this->address_detail,
-            'is_primary' => $this->address_is_primary,
+            'postal_code' => $this->address_postal_code,
+            'is_primary' => $isPrimary,
         ]);
 
-        $this->resetAddressForm();
+        $this->closeForm();
         $this->loadAddresses();
-        session()->flash('success', 'Alamat berhasil disimpan.');
+        $this->dispatch('notify', type: 'success', message: 'Alamat berhasil disimpan.');
     }
 
     public function setPrimaryAddress(int $addressId): void
     {
         $address = $this->user->addresses()->whereKey($addressId)->first();
-
         if (! $address) {
             return;
         }
@@ -222,23 +234,22 @@ class Addresses extends Component
         $address->update(['is_primary' => true]);
 
         $this->loadAddresses();
-        session()->flash('success', 'Alamat utama berhasil diperbarui.');
+        $this->dispatch('notify', type: 'success', message: 'Alamat utama berhasil diperbarui.');
     }
 
     public function deleteAddress(int $addressId): void
     {
         $address = $this->user->addresses()->whereKey($addressId)->first();
-
         if (! $address) {
             return;
         }
 
         $address->delete();
         $this->loadAddresses();
-        session()->flash('success', 'Alamat berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Alamat berhasil dihapus.');
     }
 
-    protected function resetAddressForm(): void
+    protected function resetForm(): void
     {
         $this->address_label = 'home';
         $this->address_recipient_name = '';
@@ -246,13 +257,12 @@ class Addresses extends Component
         $this->address_region = '';
         $this->address_street = '';
         $this->address_detail = '';
+        $this->address_postal_code = '';
         $this->address_is_primary = false;
-
         $this->selectedProvinceCode = null;
         $this->selectedCityCode = null;
         $this->selectedDistrictCode = null;
         $this->selectedVillageCode = null;
-
         $this->cities = [];
         $this->districts = [];
         $this->villages = [];
@@ -260,21 +270,10 @@ class Addresses extends Component
 
     protected function buildRegionLabelFromSelection(): string
     {
-        $provinceName = DB::table('indonesia_provinces')
-            ->where('code', $this->selectedProvinceCode)
-            ->value('name');
-
-        $cityName = DB::table('indonesia_cities')
-            ->where('code', $this->selectedCityCode)
-            ->value('name');
-
-        $districtName = DB::table('indonesia_districts')
-            ->where('code', $this->selectedDistrictCode)
-            ->value('name');
-
-        $villageName = DB::table('indonesia_villages')
-            ->where('code', $this->selectedVillageCode)
-            ->value('name');
+        $provinceName = DB::table('indonesia_provinces')->where('code', $this->selectedProvinceCode)->value('name');
+        $cityName = DB::table('indonesia_cities')->where('code', $this->selectedCityCode)->value('name');
+        $districtName = DB::table('indonesia_districts')->where('code', $this->selectedDistrictCode)->value('name');
+        $villageName = DB::table('indonesia_villages')->where('code', $this->selectedVillageCode)->value('name');
 
         return collect([$villageName, $districtName, $cityName, $provinceName])
             ->filter(fn ($value) => filled($value))
