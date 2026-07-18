@@ -60,7 +60,7 @@
 
                             </td>
                             <td class="px-5 py-3 text-stone-400 text-xs hidden lg:table-cell">
-                                {{ $user->created_at->format('d/m/Y') }}</td>
+                                {{ $user->created_at->setTimezone('Asia/Jakarta')->format('d/m/Y') }}</td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
                                     <button wire:click="viewUser({{ $user->id }})"

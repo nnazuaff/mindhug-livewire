@@ -63,7 +63,7 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-stone-400 text-xs hidden lg:table-cell">
-                                {{ $admin->created_at->format('d/m/Y') }}
+                                {{ $admin->created_at->setTimezone('Asia/Jakarta')->format('d/m/Y') }}
                             </td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
@@ -163,12 +163,14 @@
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Terdaftar</p>
-                            <p class="font-medium text-stone-700">{{ $viewingAdmin->created_at->format('d M Y, H:i') }}
+                            <p class="font-medium text-stone-700">
+                                {{ $viewingAdmin->created_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}
                             </p>
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Diperbarui</p>
-                            <p class="font-medium text-stone-700">{{ $viewingAdmin->updated_at->format('d M Y, H:i') }}
+                            <p class="font-medium text-stone-700">
+                                {{ $viewingAdmin->updated_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}
                             </p>
                         </div>
                     </div>

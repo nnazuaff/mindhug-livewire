@@ -65,6 +65,7 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-stone-500 text-xs">{{ $order->created_at->format('d/m/Y H:i') }}
+                                WIB
                             </td>
                             <td class="px-5 py-3">
                                 <button wire:click="viewOrder({{ $order->id }})"
@@ -171,7 +172,8 @@
                                 @foreach ($viewingOrder->trackingEvents as $event)
                                     <div class="flex gap-3 text-sm">
                                         <span
-                                            class="text-stone-300 text-xs w-20 shrink-0">{{ $event->occurred_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
+                                            class="text-stone-300 text-xs w-20 shrink-0">{{ $event->occurred_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}
+                                            WIB</span>
                                         <div>
                                             <p class="font-medium text-stone-700">{{ $event->title }}</p>
                                             @if ($event->description)
