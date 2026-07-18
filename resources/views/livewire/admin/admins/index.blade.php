@@ -16,16 +16,24 @@
         </div>
     @endif
 
-    @if (session()->has('error'))
-        <div class="mb-4 rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
-            {{ session('error') }}
+    {{-- Filters --}}
+    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+        <div class="relative flex-1 max-w-xs">
+            <input wire:model.live.debounce.300ms="search" type="text"
+                placeholder="Cari ID, nama, email, atau username..."
+                class="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
+            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+            </svg>
         </div>
-    @endif
-
-    {{-- Search --}}
-    <div class="mb-6">
-        <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari nama, email, atau username..."
-            class="w-full max-w-md rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
+        <select wire:model.live="roleFilter"
+            class="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
+            <option value="">Semua Role</option>
+            <option value="dev">Dev</option>
+            <option value="admin">Admin</option>
+        </select>
     </div>
 
     {{-- Table --}}
@@ -34,6 +42,7 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="text-left text-stone-500 bg-stone-50 border-b border-stone-200">
+                        <th class="px-5 py-3 font-medium w-12">ID</th>
                         <th class="px-5 py-3 font-medium">Nama</th>
                         <th class="px-5 py-3 font-medium hidden md:table-cell">Username</th>
                         <th class="px-5 py-3 font-medium hidden sm:table-cell">Email</th>
@@ -45,6 +54,7 @@
                 <tbody class="divide-y divide-stone-100">
                     @foreach ($admins as $admin)
                         <tr class="hover:bg-stone-50/50 transition-colors">
+                            <td class="px-5 py-3 text-xs text-stone-400 font-mono">#{{ $admin->id }}</td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-3">
                                     <div
@@ -58,12 +68,12 @@
                             <td class="px-5 py-3 text-stone-600 hidden sm:table-cell">{{ $admin->email }}</td>
                             <td class="px-5 py-3">
                                 <span
-                                    class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $admin->role === 'dev' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }}">
+                                    class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $admin->role === 'dev' ? 'role-dev' : 'role-admin' }}">
                                     {{ $admin->role === 'dev' ? 'Dev' : 'Admin' }}
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-stone-400 text-xs hidden lg:table-cell">
-                                {{ $admin->created_at->setTimezone('Asia/Jakarta')->format('d/m/Y') }}
+                                {{ $admin->created_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}
                             </td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
@@ -84,7 +94,6 @@
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                         </svg>
                                     </button>
-
                                     @if ($admin->id !== auth('admin')->id())
                                         <div x-data="{ showConfirm: false }">
                                             <button @click="showConfirm = true"
@@ -134,7 +143,8 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" wire:click.self="closeDetail">
             <div class="bg-white rounded-2xl w-full max-w-md shadow-xl">
                 <div class="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-stone-800">Detail Admin</h2>
+                    <h2 class="text-lg font-semibold text-stone-800">Detail Admin <span
+                            class="text-xs text-stone-400 font-mono">#{{ $viewingAdmin->id }}</span></h2>
                     <button wire:click="closeDetail"
                         class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
                 </div>
@@ -157,21 +167,19 @@
                         <div>
                             <p class="text-stone-400 text-xs">Role</p>
                             <span
-                                class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $viewingAdmin->role === 'dev' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }}">
+                                class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $viewingAdmin->role === 'dev' ? 'role-dev' : 'role-admin' }}">
                                 {{ $viewingAdmin->role === 'dev' ? 'Dev' : 'Admin' }}
                             </span>
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Terdaftar</p>
                             <p class="font-medium text-stone-700">
-                                {{ $viewingAdmin->created_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}
-                            </p>
+                                {{ $viewingAdmin->created_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}</p>
                         </div>
                         <div>
                             <p class="text-stone-400 text-xs">Diperbarui</p>
                             <p class="font-medium text-stone-700">
-                                {{ $viewingAdmin->updated_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}
-                            </p>
+                                {{ $viewingAdmin->updated_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i') }}</p>
                         </div>
                     </div>
                 </div>

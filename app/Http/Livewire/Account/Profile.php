@@ -14,29 +14,42 @@ class Profile extends Component
     use WithFileUploads;
 
     public User $user;
+
     public $full_name = '';
+
     public $username = '';
+
     public $email = '';
+
     public $phone = '';
+
     public $birth_date = '';
+
     public $role = '';
+
     public $trial_started_at;
+
     public $is_trial_active = false;
+
     public $last_login_at;
+
     public $created_at;
+
     public $updated_at;
+
     public $avatar;
+
     public ?string $croppedAvatar = null; // base64 hasil crop
 
     protected function rules(): array
     {
         return [
             'full_name' => ['required', 'string', 'min:3', 'max:150'],
-            'username'  => ['required', 'string', 'min:3', 'max:50', Rule::unique('users', 'username')->ignore($this->user->id)],
-            'email'     => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($this->user->id)],
-            'phone'     => ['required', 'string', 'min:8', 'max:30'],
+            'username' => ['required', 'string', 'min:3', 'max:50', Rule::unique('users', 'username')->ignore($this->user->id)],
+            'email' => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($this->user->id)],
+            'phone' => ['required', 'string', 'min:8', 'max:30'],
             'birth_date' => ['required', 'date'],
-            'avatar'     => ['nullable', 'image', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'max:2048'],
         ];
     }
 
@@ -66,7 +79,7 @@ class Profile extends Component
         // Simpan langsung
         $img = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
         $img = base64_decode($img);
-        $filename = 'avatars/' . uniqid() . '.webp';
+        $filename = 'avatars/'.uniqid().'.webp';
         Storage::disk('public')->put($filename, $img);
 
         $this->user->avatar = $filename;
@@ -88,24 +101,24 @@ class Profile extends Component
             }
             $img = preg_replace('/^data:image\/\w+;base64,/', '', $this->croppedAvatar);
             $img = base64_decode($img);
-            $filename = 'avatars/' . uniqid() . '.webp';
+            $filename = 'avatars/'.uniqid().'.webp';
             Storage::disk('public')->put($filename, $img);
             $this->user->avatar = $filename;
             $this->user->save();
         }
 
         $this->user->fill([
-            'full_name'  => $this->full_name,
-            'username'   => $this->username,
-            'email'      => $this->email,
-            'phone'      => $this->phone,
+            'full_name' => $this->full_name,
+            'username' => $this->username,
+            'email' => $this->email,
+            'phone' => $this->phone,
             'birth_date' => $this->birth_date,
         ])->save();
 
         $this->user->refresh();
         $this->updated_at = $this->user->updated_at?->format('d M Y H:i');
         $this->reset(['avatar', 'croppedAvatar']);
-        session()->flash('success', 'Profil berhasil diperbarui.');
+        $this->dispatch('notify', type: 'success', message: 'Profile berhasil diperbarui.');
     }
 
     public function removeAvatar()

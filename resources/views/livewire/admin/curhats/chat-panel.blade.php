@@ -8,9 +8,12 @@
                     @if ($conversation->assigned_to)
                         Ditangani oleh: <span
                             class="font-medium text-stone-600">{{ $conversation->assignedAdmin->full_name ?? 'Admin' }}</span>
-                        @if ($conversation->assigned_to !== auth('admin')->id())
-                            <span class="text-amber-600 font-medium">(bukan Anda)</span>
-                        @endif
+                        @php $assignedRole = $conversation->assignedAdmin->role ?? 'admin'; @endphp
+                        <span
+                            class="inline-flex text-[0.55rem] px-1.5 py-0.5 rounded-full font-medium ml-1
+    {{ $assignedRole === 'dev' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                            {{ $assignedRole === 'dev' ? 'Dev' : 'Admin' }}
+                        </span>
                     @else
                         Belum ada yang menangani
                     @endif
@@ -122,8 +125,15 @@
                             <div
                                 class="group relative rounded-2xl px-4 py-2.5 text-sm {{ $msg->sender_role === 'admin' ? 'bg-[#a47551] text-white rounded-br-md' : 'bg-stone-100 text-stone-800 rounded-bl-md' }}">
                                 @if ($msg->sender_role === 'admin')
-                                    <p class="text-[0.6rem] text-white/60 mb-0.5">
-                                        {{ $conversation->assignedAdmin->full_name ?? 'Admin' }}</p>
+                                    <p class="text-[0.6rem] text-white/60 mb-0.5 inline-flex items-center gap-1">
+                                        {{ $conversation->assignedAdmin->full_name ?? 'Admin' }}
+                                        @php $bubbleRole = $conversation->assignedAdmin->role ?? 'admin'; @endphp
+                                        <span
+                                            class="inline-flex text-[0.5rem] px-1 py-0.5 rounded-full font-medium
+                                            {{ $bubbleRole === 'dev' ? 'bg-purple-300/40 text-purple-200' : 'bg-blue-300/40 text-blue-200' }}">
+                                            {{ $bubbleRole === 'dev' ? 'Dev' : 'Admin' }}
+                                        </span>
+                                    </p>
                                 @endif
                                 <p>{{ $msg->message }}</p>
                                 <div class="flex items-center gap-2 mt-1">

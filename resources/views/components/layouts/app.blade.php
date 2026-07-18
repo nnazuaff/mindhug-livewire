@@ -26,6 +26,7 @@
 </head>
 
 <body class="bg-[#fffafc] text-[#2b2b2b] min-h-screen flex flex-col font-sans">
+    @include('components.notification-toast')
 
     <!-- Render Header Navigasi -->
     <livewire:layouts.header />

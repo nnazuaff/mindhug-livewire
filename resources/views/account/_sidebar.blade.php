@@ -28,11 +28,7 @@
     </nav>
 
     <div class="space-y-4">
-        <div
-            class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
-            <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Status Akun</p>
-            <p class="mt-2 font-semibold text-[#2b1d12]">{{ ucfirst($role ?: 'pelanggan') }}</p>
-        </div>
+
         <div
             class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
             <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Trial aktif</p>

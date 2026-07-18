@@ -52,3 +52,36 @@
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+
+/* ─── Role Badge Colors ─────────────────────────────── */
+.role-dev {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+    border: 1px solid #e9d5ff;
+}
+.role-admin {
+    background-color: #dbeafe;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+.role-free {
+    background-color: #f5f5f4;
+    color: #57534e;
+    border: 1px solid #e7e5e4;
+}
+.role-plus {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+/* Role badge untuk dark background (bubble chat) */
+.role-dev-dark {
+    background-color: rgba(196, 167, 255, 0.3);
+    color: #e9d5ff;
+}
+.role-admin-dark {
+    background-color: rgba(147, 197, 253, 0.3);
+    color: #bfdbfe;
+}

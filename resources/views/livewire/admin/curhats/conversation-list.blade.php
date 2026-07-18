@@ -62,14 +62,17 @@
 
                 <div class="mt-2 flex items-center gap-2">
                     @if ($conv->assigned_to)
+                        @php $listRole = $conv->assignedAdmin->role ?? 'admin'; @endphp
                         <span
-                            class="text-[0.6rem] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium flex items-center gap-1">
+                            class="text-[0.6rem] px-2 py-0.5 rounded-full font-medium flex items-center gap-1
+                            {{ $listRole === 'dev' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }}">
                             <svg class="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.5">
                                 <path d="M20 21a8 8 0 1 0-16 0" />
                                 <circle cx="12" cy="7" r="4" />
                             </svg>
                             {{ $conv->assignedAdmin->full_name ?? 'Admin #' . $conv->assigned_to }}
+                            <span class="text-[0.5rem] opacity-70">({{ $listRole === 'dev' ? 'Dev' : 'Admin' }})</span>
                         </span>
                     @else
                         <span class="text-[0.6rem] text-stone-400 flex items-center gap-1">

@@ -12,13 +12,33 @@ class Index extends Component
 
     public string $search = '';
 
+    public string $statusFilter = '';
+
+    public string $orderFilter = '';
+
     public ?int $viewingUserId = null;
 
     public ?User $viewingUser = null;
 
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'statusFilter' => ['except' => ''],
+        'orderFilter' => ['except' => ''],
+    ];
+
     protected $listeners = ['userCreated' => '$refresh', 'userUpdated' => '$refresh'];
 
     public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingOrderFilter(): void
     {
         $this->resetPage();
     }
@@ -60,11 +80,17 @@ class Index extends Component
         $users = User::query()
             ->withCount('orders')
             ->when($this->search, fn ($q) => $q->where(function ($q) {
-                $q->where('full_name', 'like', '%'.$this->search.'%')
+                $q->where('id', 'like', '%'.$this->search.'%')
+                    ->orWhere('full_name', 'like', '%'.$this->search.'%')
                     ->orWhere('email', 'like', '%'.$this->search.'%')
-                    ->orWhere('username', 'like', '%'.$this->search.'%');
+                    ->orWhere('username', 'like', '%'.$this->search.'%')
+                    ->orWhere('phone', 'like', '%'.$this->search.'%');
             }))
-            ->orderByDesc('created_at')
+            ->when($this->statusFilter === 'active', fn ($q) => $q->where('status', 'active'))
+            ->when($this->statusFilter === 'inactive', fn ($q) => $q->where('status', 'inactive'))
+            ->when($this->orderFilter === 'most', fn ($q) => $q->orderByDesc('orders_count'))
+            ->when($this->orderFilter === 'least', fn ($q) => $q->orderBy('orders_count'))
+            ->when(empty($this->orderFilter), fn ($q) => $q->orderByDesc('created_at'))
             ->paginate(15);
 
         return view('livewire.admin.users.index', [
