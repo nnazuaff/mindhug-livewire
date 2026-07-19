@@ -107,7 +107,7 @@
             <p class="text-xl sm:text-2xl font-bold text-amber-600">{{ $pendingUpgrades }}</p>
         </div>
         <div class="rounded-2xl border border-purple-200 bg-purple-50/30 p-4 sm:p-5 hover:shadow-sm transition-shadow">
-            <p class="text-xs text-purple-600 uppercase tracking-wider">Saldo</p>
+            <p class="text-xs text-purple-600 uppercase tracking-wider">Pemasukan</p>
             <p class="text-xl sm:text-2xl font-bold text-purple-600">Rp
                 {{ number_format($totalIncome - $totalExpense, 0, ',', '.') }}</p>
         </div>

@@ -19,8 +19,8 @@
                         <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                     <div>
-                        <p class="text-sm font-semibold text-amber-700">Anda memiliki pesanan yang belum diselesaikan
-                        </p>
+                        <p class="text-sm font-semibold text-amber-700">Anda memiliki pesanan yang belum
+                            diselesaikan</p>
                         <p class="text-xs text-amber-600 mt-0.5">{{ $pendingOrder->invoice_number }} - Rp
                             {{ number_format($pendingOrder->total_amount, 0, ',', '.') }}</p>
                     </div>
@@ -106,12 +106,13 @@
                             {{ $selectedPayment === $method['id'] ? 'border-[#a47551] bg-[#fdf8f3] shadow-sm' : 'border-stone-200 hover:border-[#c19a6b]/50 hover:bg-[#fefbf8]' }}">
                         @if ($selectedPayment === $method['id'])
                             <div class="absolute top-3 right-3">
-                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-[#a47551]"><svg
-                                        class="h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"
+                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-[#a47551]">
+                                    <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="3" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <polyline points="20 6 9 17 4 12" />
-                                    </svg></div>
+                                    </svg>
+                                </div>
                             </div>
                         @endif
                         <div class="flex items-center gap-3 mb-4">
@@ -198,8 +199,9 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-[#6a5a4f]">Ongkos Kirim</span>
-                    <span class="font-semibold text-[#2b1d12]">Rp
-                        {{ number_format($shippingCost, 0, ',', '.') }}</span>
+                    <span class="font-semibold text-[#2b1d12]">
+                        Rp {{ number_format($shippingCost, 0, ',', '.') }}
+                    </span>
                 </div>
                 @if ($discountAmount > 0)
                     <div class="flex items-center justify-between text-emerald-600">
@@ -278,7 +280,6 @@
             @endif
         </div>
 
-        {{-- Expanded --}}
         <div x-show="expanded" x-collapse class="px-4 pb-3 border-t border-stone-100">
             <div class="space-y-3 pt-3 text-sm">
                 {{-- Voucher Mobile --}}
@@ -299,15 +300,18 @@
                 @foreach ($cartItems as $item)
                     <div class="flex items-center justify-between">
                         <span class="text-stone-600 truncate max-w-[70%]">{{ $item['name'] }}
-                            (x{{ $item['quantity'] }})</span>
+                            (x{{ $item['quantity'] }})
+                        </span>
                         <span class="text-stone-700">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
                     </div>
                 @endforeach
                 <div class="h-px bg-stone-100"></div>
                 <div class="flex justify-between"><span>Subtotal</span><span>Rp
                         {{ number_format($subtotal, 0, ',', '.') }}</span></div>
-                <div class="flex justify-between"><span>Ongkir</span><span>Rp
-                        {{ number_format($shippingCost, 0, ',', '.') }}</span></div>
+                <div class="flex justify-between">
+                    <span>Ongkir</span>
+                    <span>Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
+                </div>
                 @if ($discountAmount > 0)
                     <div class="flex justify-between text-emerald-600"><span>Diskon</span><span>- Rp
                             {{ number_format($discountAmount, 0, ',', '.') }}</span></div>

@@ -64,9 +64,10 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-xs text-stone-400 hidden sm:table-cell">
-                                {{ $order->created_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
+                                {{ $order->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-5 py-3">
-                                <button wire:click="viewOrder({{ $order->id }})"
+                                <button
+                                    onclick="Livewire.dispatch('openSubscriptionDetail', { orderId: {{ $order->id }} })"
                                     class="text-xs text-stone-400 hover:text-[#a47551] transition-colors"
                                     title="Lihat Detail">
                                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -87,52 +88,5 @@
     </div>
     <div class="mt-4">{{ $orders->links() }}</div>
 
-    {{-- Detail Modal --}}
-    @if ($viewingOrder)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" wire:click.self="closeDetail">
-            <div class="bg-white rounded-2xl w-full max-w-md shadow-xl">
-                <div class="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-stone-800">{{ $viewingOrder->invoice_number }}</h2>
-                    <button wire:click="closeDetail"
-                        class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-stone-400 text-xs">User</p>
-                            <p class="font-medium">{{ $viewingOrder->user?->full_name ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-stone-400 text-xs">Paket</p>
-                            <p class="font-medium">{{ $viewingOrder->plan?->name ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <p class="text-stone-400 text-xs">Jumlah</p>
-                            <p class="font-semibold text-[#a47551]">Rp
-                                {{ number_format($viewingOrder->amount, 0, ',', '.') }}</p>
-                        </div>
-                        <div>
-                            <p class="text-stone-400 text-xs">Status</p>
-                            <p class="font-medium">{{ $viewingOrder->status }}</p>
-                        </div>
-                    </div>
-                    @if ($viewingOrder->payment_proof)
-                        <div>
-                            <p class="text-sm font-medium text-stone-700 mb-2">Bukti Pembayaran</p>
-                            <img src="{{ Storage::url($viewingOrder->payment_proof) }}"
-                                class="w-full rounded-xl border border-stone-200">
-                        </div>
-                    @endif
-                    @if ($viewingOrder->status === 'awaiting_confirmation')
-                        <div class="flex gap-2 pt-2 border-t border-stone-200">
-                            <button wire:click="confirmOrder({{ $viewingOrder->id }})"
-                                class="flex-1 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-600 transition-colors">Konfirmasi</button>
-                            <button wire:click="rejectOrder({{ $viewingOrder->id }})"
-                                class="flex-1 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-600 transition-colors">Tolak</button>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    @endif
+    <livewire:admin.subscription-orders.detail />
 </div>

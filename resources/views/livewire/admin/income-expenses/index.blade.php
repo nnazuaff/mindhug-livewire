@@ -4,7 +4,7 @@
             <h1 class="text-xl font-bold text-stone-800">Pemasukan & Pengeluaran</h1>
             <p class="text-sm text-stone-500 mt-1">Kelola keuangan MindHug</p>
         </div>
-        <button wire:click="openCreate"
+        <button onclick="Livewire.dispatch('openCreateIncomeExpense')"
             class="rounded-xl bg-[#a47551] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#8f6243] transition-colors">
             + Tambah Data
         </button>
@@ -12,12 +12,11 @@
 
     {{-- Summary --}}
     <div class="grid grid-cols-2 gap-4 mb-6">
-        <div
-            class="rounded-2xl bg-white border border-emerald-200 bg-emerald-50/30 p-5 hover:shadow-sm transition-shadow">
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50/30 p-5 hover:shadow-sm transition-shadow">
             <p class="text-xs text-emerald-600 uppercase tracking-wider">Total Pemasukan</p>
             <p class="text-2xl font-bold text-emerald-700 mt-1">Rp {{ number_format($totalIncome, 0, ',', '.') }}</p>
         </div>
-        <div class="rounded-2xl bg-white border border-rose-200 bg-rose-50/30 p-5 hover:shadow-sm transition-shadow">
+        <div class="rounded-2xl border border-rose-200 bg-rose-50/30 p-5 hover:shadow-sm transition-shadow">
             <p class="text-xs text-rose-600 uppercase tracking-wider">Total Pengeluaran</p>
             <p class="text-2xl font-bold text-rose-700 mt-1">Rp {{ number_format($totalExpense, 0, ',', '.') }}</p>
         </div>
@@ -31,7 +30,7 @@
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.3-4.3" />
             </svg>
-            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari..."
+            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari deskripsi..."
                 class="w-full rounded-xl border border-stone-200 bg-white pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/20">
         </div>
         <select wire:model.live="typeFilter"
@@ -60,7 +59,7 @@
                     @foreach ($items as $item)
                         <tr class="hover:bg-stone-50/50 transition-colors">
                             <td class="px-5 py-3 text-xs text-stone-500">{{ $item->transaction_date->format('d/m/Y') }}
-                            </td>
+                                {{ $item->created_at?->setTimezone('Asia/Jakarta')->format('H:i') }}</td>
                             <td class="px-5 py-3">
                                 <span
                                     class="text-xs px-2.5 py-1 rounded-full font-medium {{ $item->type === 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
@@ -74,7 +73,8 @@
                             </td>
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
-                                    <button wire:click="edit({{ $item->id }})"
+                                    <button
+                                        onclick="Livewire.dispatch('openEditIncomeExpense', { itemId: {{ $item->id }} })"
                                         class="text-xs text-stone-400 hover:text-blue-500 transition-colors"
                                         title="Edit">
                                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -123,51 +123,6 @@
     </div>
     <div class="mt-4">{{ $items->links() }}</div>
 
-    {{-- Modal --}}
-    @if ($showForm)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" wire:click.self="closeForm">
-            <div class="bg-white rounded-2xl w-full max-w-md shadow-xl">
-                <div class="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-stone-800">{{ $editingId ? 'Edit' : 'Tambah' }} Data</h2>
-                    <button wire:click="closeForm" class="text-stone-400 hover:text-stone-600 text-xl">&times;</button>
-                </div>
-                <form wire:submit.prevent="save" class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Tipe</label>
-                        <select wire:model="type"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
-                            <option value="income">Pemasukan</option>
-                            <option value="expense">Pengeluaran</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Sumber</label>
-                        <input wire:model="source" type="text"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Deskripsi</label>
-                        <input wire:model="description" type="text"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Jumlah (Rp)</label>
-                        <input wire:model="amount" type="number"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Tanggal</label>
-                        <input wire:model="transactionDate" type="date"
-                            class="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#a47551]">
-                    </div>
-                    <div class="flex gap-2 pt-2">
-                        <button type="button" wire:click="closeForm"
-                            class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200 transition-colors">Batal</button>
-                        <button type="submit"
-                            class="flex-1 rounded-xl bg-[#a47551] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#8f6243] transition-colors">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endif
+    <livewire:admin.income-expenses.create />
+    <livewire:admin.income-expenses.edit />
 </div>

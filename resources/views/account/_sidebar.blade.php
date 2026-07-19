@@ -36,7 +36,7 @@
                     {{ $role === 'plus' ? 'Plus' : 'Free' }}
                 </span>
                 @if ($role === 'free')
-                    <a href="{{ route('upgrade') }}"
+                    <a href="{{ route('plus') }}" wire:navigate
                         class="text-xs font-semibold text-amber-600 hover:text-amber-700">Upgrade →</a>
                 @endif
             </div>
