@@ -29,12 +29,6 @@ class Index extends Component
 
     public int $shippingCost = 15000;
 
-    public int $discountPercent = 0;
-
-    public ?int $directProductId = null;
-
-    public int $directQuantity = 1;
-
     public bool $hasInactiveItems = false;
 
     public string $promoCode = '';
@@ -76,8 +70,6 @@ class Index extends Component
 
     public function mount(): void
     {
-        $this->directProductId = request()->query('product') ? (int) request()->query('product') : null;
-        $this->directQuantity = max(1, (int) request()->query('quantity', 1));
         $this->loadCart();
 
         if (empty($this->cartItems) && ! $this->hasInactiveItems) {
@@ -95,7 +87,6 @@ class Index extends Component
         $disk = Storage::disk('public');
         $this->hasInactiveItems = false;
 
-        // Cleanup
         $cart = session()->get('cart', []);
         if (! empty($cart)) {
             $allIds = array_keys($cart);
@@ -106,26 +97,6 @@ class Index extends Component
                 }
             }
             session()->put('cart', $cart);
-        }
-
-        // Direct buy
-        if ($this->directProductId !== null) {
-            $product = Product::query()->find($this->directProductId);
-            if (! $product || ! $product->is_active) {
-                $this->cartItems = [];
-                $this->hasInactiveItems = ! $product || ! $product->is_active;
-
-                return;
-            }
-            $files = $disk->files('products/'.$product->id);
-            $image = ! empty($files) ? basename($files[0]) : 'default.png';
-            $this->cartItems = [[
-                'id' => $product->id, 'name' => $product->name, 'price' => $product->price,
-                'quantity' => $this->directQuantity, 'subtotal' => $product->price * $this->directQuantity,
-                'image' => asset('storage/products/'.$product->id.'/'.$image),
-            ]];
-
-            return;
         }
 
         if (empty($cart)) {
@@ -143,18 +114,19 @@ class Index extends Component
             if (! $product) {
                 continue;
             }
-
             if (! $product->is_active) {
                 $this->hasInactiveItems = true;
 
                 continue;
             }
-
             $files = $disk->files('products/'.$product->id);
             $image = ! empty($files) ? basename($files[0]) : 'default.png';
             $activeItems[] = [
-                'id' => $product->id, 'name' => $product->name, 'price' => $product->price,
-                'quantity' => $quantity, 'subtotal' => $product->price * $quantity,
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => $quantity,
+                'subtotal' => $product->price * $quantity,
                 'image' => asset('storage/products/'.$product->id.'/'.$image),
             ];
         }
@@ -177,9 +149,13 @@ class Index extends Component
             return;
         }
         $this->selectedAddress = [
-            'id' => $address->id, 'label' => $address->label,
-            'recipient_name' => $address->recipient_name, 'phone' => $address->phone,
-            'region' => $address->region, 'street' => $address->street, 'detail' => $address->detail,
+            'id' => $address->id,
+            'label' => $address->label,
+            'recipient_name' => $address->recipient_name,
+            'phone' => $address->phone,
+            'region' => $address->region,
+            'street' => $address->street,
+            'detail' => $address->detail,
         ];
     }
 
@@ -200,7 +176,13 @@ class Index extends Component
             return;
         }
         $this->paymentMethods = PaymentMethod::query()->where('is_active', true)->orderBy('sort_order')->get()
-            ->map(fn ($m) => ['id' => $m->id, 'code' => $m->code, 'label' => $m->name, 'subtitle' => $m->subtitle, 'icon' => $m->icon ? Storage::url($m->icon) : null])
+            ->map(fn ($m) => [
+                'id' => $m->id,
+                'code' => $m->code,
+                'label' => $m->name,
+                'subtitle' => $m->subtitle,
+                'icon' => $m->icon ? Storage::url($m->icon) : null,
+            ])
             ->all();
     }
 
@@ -273,14 +255,17 @@ class Index extends Component
             return;
         }
 
-        $pendingOrder = Order::query()->where('user_id', Auth::id())->whereIn('status', ['awaiting_payment', 'awaiting_confirmation'])->exists();
+        $pendingOrder = Order::query()
+            ->where('user_id', Auth::id())
+            ->whereIn('status', ['awaiting_payment', 'awaiting_confirmation'])
+            ->exists();
+
         if ($pendingOrder) {
             $this->paymentNotice = 'Selesaikan pesanan sebelumnya terlebih dahulu.';
 
             return;
         }
 
-        // ✅ Validasi fatal: cek ulang semua item aktif
         $itemIds = array_column($this->cartItems, 'id');
         $validCount = Product::query()->whereIn('id', $itemIds)->where('is_active', true)->count();
         if ($validCount !== count($this->cartItems)) {
@@ -292,9 +277,11 @@ class Index extends Component
 
         $this->paymentNotice = '';
         $this->isSubmitting = true;
+
         try {
-            $orderService = app(OrderService::class);
             $paymentMethod = collect($this->paymentMethods)->firstWhere('id', $this->selectedPayment);
+
+            $orderService = app(OrderService::class);
             $order = $orderService->createOrder(
                 Auth::id(),
                 $this->appliedPromoId ?? 0,
@@ -304,9 +291,8 @@ class Index extends Component
                 $this->discountAmount,
                 $paymentMethod['label'] ?? 'Unknown'
             );
-            if ($this->directProductId === null) {
-                session()->forget('cart');
-            }
+
+            session()->forget('cart');
             $this->dispatch('cart-updated', 0);
             $this->isSubmitting = false;
 
@@ -322,7 +308,6 @@ class Index extends Component
     {
         return view('livewire.checkout.index', [
             'subtotal' => $this->subtotal,
-            'discountAmount' => 0,
             'total' => $this->total,
         ]);
     }

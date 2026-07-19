@@ -3,33 +3,32 @@
 namespace App\Http\Livewire\Upgrade;
 
 use App\Models\PaymentMethod;
-use App\Models\SubscriptionPlan;
 use App\Services\SubscriptionService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class Checkout extends Component
 {
-    use WithFileUploads;
-
-    public SubscriptionPlan $plan;
-
-    public $paymentProof;
-
-    public bool $uploaded = false;
-
-    public ?int $selectedPayment = null;
+    public ?array $upgradePlan = null;
 
     public array $paymentMethods = [];
 
-    public function mount(SubscriptionPlan $plan): void
+    public ?int $selectedPayment = null;
+
+    public string $paymentNotice = '';
+
+    public function mount(): void
     {
-        if ($plan->slug !== 'plus-bulanan' || ! $plan->is_active) {
-            abort(404);
+        $this->upgradePlan = session()->get('upgrade_plan');
+
+        if (empty($this->upgradePlan)) {
+            $this->redirectRoute('plus');
+
+            return;
         }
-        $this->plan = $plan;
+
         $this->loadPaymentMethods();
     }
 
@@ -62,41 +61,42 @@ class Checkout extends Component
     public function selectPayment(int $methodId): void
     {
         $this->selectedPayment = $methodId;
+        $this->paymentNotice = '';
     }
 
-    public function uploadProof(): void
+    public function placeOrder(): void
     {
-        $this->validate([
-            'paymentProof' => 'required|file|mimes:jpg,png|max:5120',
-            'selectedPayment' => 'required|integer',
-        ], [
-            'paymentProof.required' => 'Silakan pilih file bukti pembayaran.',
-            'paymentProof.mimes' => 'Format yang didukung: JPG dan PNG.',
-            'paymentProof.max' => 'Ukuran file maksimal 5MB.',
-            'selectedPayment.required' => 'Pilih metode pembayaran.',
-        ]);
+        if (! $this->upgradePlan) {
+            return;
+        }
 
-        $method = collect($this->paymentMethods)->firstWhere('id', $this->selectedPayment);
+        if (! $this->selectedPayment) {
+            $this->paymentNotice = 'Pilih metode pembayaran terlebih dahulu.';
 
-        $path = $this->paymentProof->store('payment-proofs', 'public');
+            return;
+        }
+
+        $paymentMethod = collect($this->paymentMethods)->firstWhere('id', $this->selectedPayment);
 
         $order = app(SubscriptionService::class)->createOrder(
-            auth()->id(),
-            $this->plan->id,
-            $this->plan->price
+            Auth::id(),
+            $this->upgradePlan['id'],
+            $this->upgradePlan['price']
         );
 
-        $order->update([
-            'payment_proof' => $path,
-            'payment_method' => $method['label'] ?? 'Unknown',
-            'status' => 'awaiting_confirmation',
-        ]);
+        // Update payment method setelah create (karena service belum support)
+        $order->update(['payment_method' => $paymentMethod['label'] ?? 'Unknown']);
 
-        $this->uploaded = true;
+        session()->forget('upgrade_plan');
+
+        $this->redirect(route('plus.orders.pay', $order->invoice_number), navigate: true);
     }
 
     public function render()
     {
-        return view('livewire.upgrade.checkout');
+
+        return view('livewire.upgrade.checkout', [
+            'plan' => $this->upgradePlan,
+        ])->layout('components.layouts.app', ['title' => 'Checkout Plus - MindHug']);
     }
 }

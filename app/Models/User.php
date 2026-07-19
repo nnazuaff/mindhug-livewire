@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Storage;
     'birth_date',
     'password',
     'last_login_at',
+    'plus_expires_at',
 ])]
 
 #[Hidden(['password'])]
@@ -46,6 +47,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'last_login_at' => 'datetime',
             'deleted_at' => 'datetime',
+            'plus_expires_at' => 'datetime',
         ];
     }
 
