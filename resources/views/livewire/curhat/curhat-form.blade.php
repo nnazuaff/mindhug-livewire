@@ -37,7 +37,7 @@
                 <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-xs text-[#888] hidden sm:inline">Tim siap mendengar</span>
                 @if (auth()->user()->role === 'free')
-                    <a href="{{ route('upgrade') }}" wire:navigate
+                    <a href="{{ route('plus') }}" wire:navigate
                         class="text-[0.6rem] px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-semibold hover:bg-amber-200 transition-colors ml-2">
                         Upgrade ✨
                     </a>

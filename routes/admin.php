@@ -5,12 +5,12 @@ use App\Http\Livewire\Admin\Admins\Index as AdminsIndex;
 use App\Http\Livewire\Admin\Categories\Index as CategoriesIndex;
 use App\Http\Livewire\Admin\Curhats\Index as CurhatsIndex;
 use App\Http\Livewire\Admin\Dashboard;
-use App\Http\Livewire\Admin\IncomeExpenses;
+use App\Http\Livewire\Admin\IncomeExpenses\Index as IncomeExpensesIndex;
 use App\Http\Livewire\Admin\Orders;
 use App\Http\Livewire\Admin\PaymentMethods\Index as PaymentMethodsIndex;
 use App\Http\Livewire\Admin\Products\Index as ProductsIndex;
 use App\Http\Livewire\Admin\Promotions\Index as PromotionsIndex;
-use App\Http\Livewire\Admin\SubscriptionOrders;
+use App\Http\Livewire\Admin\SubscriptionOrders\Index as SubscriptionOrdersIndex;
 use App\Http\Livewire\Admin\Users\Index as UsersIndex;
 use Illuminate\Support\Facades\Route;
 
@@ -33,12 +33,11 @@ Route::middleware(['web', 'admin.session'])->group(function () {
             Route::get('/orders', Orders::class)->name('orders');
             Route::get('/curhats', CurhatsIndex::class)->name('curhats');
             Route::get('/products', ProductsIndex::class)->name('products');
-
+            Route::get('/income-expenses', IncomeExpensesIndex::class)->name('income-expenses');
             Route::get('/payment-methods', PaymentMethodsIndex::class)->name('payment-methods');
             Route::get('/categories', CategoriesIndex::class)->name('categories');
             Route::get('/promotions', PromotionsIndex::class)->name('promotions');
-            Route::get('/subscription-orders', SubscriptionOrders::class)->name('subscription-orders');
-            Route::get('/income-expenses', IncomeExpenses::class)->name('income-expenses');
+            Route::get('/subscription-orders', SubscriptionOrdersIndex::class)->name('subscription-orders');
         });
 
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

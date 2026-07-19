@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Livewire\Upgrade\Checkout;
+use App\Http\Livewire\Upgrade\Index;
+use App\Http\Livewire\Upgrade\OrderDetail;
+use App\Http\Livewire\Upgrade\OrderPay;
+use App\Http\Livewire\Upgrade\Orders;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SubscriptionPlan;
@@ -17,20 +22,47 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'user.active'])->group(function () {
 
-    Route::get('/upgrade/checkout/{plan:slug}', function (SubscriptionPlan $plan) {
-        return view('upgrade.checkout', compact('plan'));
-    })->name('upgrade.checkout');
-    Route::view('/upgrade', 'upgrade.index')->name('upgrade');
+    // ── Upgrade / Plus ────────────────────────────
+    Route::get('/plus', Index::class)->name('plus');
+
+    Route::post('/plus/start', function () {
+        $plan = SubscriptionPlan::where('slug', 'plus-bulanan')->firstOrFail();
+
+        session()->put('upgrade_plan', [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'price' => $plan->price,
+            'duration_days' => $plan->duration_days,
+        ]);
+
+        return redirect()->route('plus.checkout');
+    })->name('plus.start');
+
+    Route::get('/plus/checkout', Checkout::class)->name('plus.checkout');
+    Route::get('/plus/orders', Orders::class)->name('plus.orders');
+
+    Route::get('/plus/orders/{order:invoice_number}', OrderDetail::class)
+        ->name('plus.orders.show');
+
+    Route::get('/plus/orders/{order:invoice_number}/pay', OrderPay::class)
+        ->name('plus.orders.pay');
+
+    // ── Logout ────────────────────────────────────
     Route::post('/logout', function () {
         Auth::logout();
 
         return redirect('/');
     })->name('logout');
 
+    // ── Curhat ────────────────────────────────────
     Route::view('/curhat', 'curhat.index')->name('curhat');
+
+    // ── Account ───────────────────────────────────
     Route::view('/account/profile', 'account.profile')->name('account.profile');
     Route::view('/account/security', 'account.security')->name('account.security');
     Route::view('/account/addresses', 'account.addresses')->name('account.addresses');
+
+    // ── Transactions ──────────────────────────────
     Route::view('/transactions/cart', 'cart')->name('cart');
     Route::view('/checkout', 'checkout.index')->name('checkout');
 
@@ -51,6 +83,7 @@ Route::middleware(['auth', 'user.active'])->group(function () {
     })->name('orders.pay');
 });
 
+// ── Shop (public) ────────────────────────────────
 Route::get('/shop', function () {
     return view('shop.index');
 })->name('shop');
