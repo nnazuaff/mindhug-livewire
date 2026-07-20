@@ -1,5 +1,5 @@
 <x-layouts.app title="Checkout - Mindhug">
-    <div class="max-w-6xl mx-auto px-4 py-10">
+    <div class="max-w-5xl mx-auto px-4 py-10">
         <div class="space-y-6">
             <div class="rounded-3xl border border-stone-200 bg-[#fff8f0] p-8 shadow-[0_32px_60px_rgba(34,25,17,0.08)]">
                 <span

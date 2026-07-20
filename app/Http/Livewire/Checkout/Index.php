@@ -39,6 +39,10 @@ class Index extends Component
 
     public ?int $appliedPromoId = null;
 
+    public ?int $directProductId = null;
+
+    public int $directQuantity = 1;
+
     public function applyPromo(): void
     {
         $this->promoMessage = null;
@@ -70,9 +74,12 @@ class Index extends Component
 
     public function mount(): void
     {
+        $this->directProductId = request()->query('product') ? (int) request()->query('product') : null;
+        $this->directQuantity = max(1, (int) request()->query('quantity', 1));
+
         $this->loadCart();
 
-        if (empty($this->cartItems) && ! $this->hasInactiveItems) {
+        if (empty($this->cartItems) && ! $this->hasInactiveItems && ! $this->directProductId) {
             $this->redirectRoute('cart');
 
             return;
@@ -86,6 +93,29 @@ class Index extends Component
     {
         $disk = Storage::disk('public');
         $this->hasInactiveItems = false;
+
+        // Direct product (Beli Sekarang)
+        if ($this->directProductId !== null) {
+            $product = Product::query()->find($this->directProductId);
+            if (! $product || ! $product->is_active) {
+                $this->cartItems = [];
+                $this->hasInactiveItems = ! $product || ! $product->is_active;
+
+                return;
+            }
+            $files = $disk->files('products/'.$product->id);
+            $image = ! empty($files) ? basename($files[0]) : 'default.png';
+            $this->cartItems = [[
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => $this->directQuantity,
+                'subtotal' => $product->price * $this->directQuantity,
+                'image' => asset('storage/products/'.$product->id.'/'.$image),
+            ]];
+
+            return;
+        }
 
         $cart = session()->get('cart', []);
         if (! empty($cart)) {
@@ -292,7 +322,9 @@ class Index extends Component
                 $paymentMethod['label'] ?? 'Unknown'
             );
 
-            session()->forget('cart');
+            if ($this->directProductId === null) {
+                session()->forget('cart');
+            }
             $this->dispatch('cart-updated', 0);
             $this->isSubmitting = false;
 

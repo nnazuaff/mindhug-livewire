@@ -14,8 +14,11 @@ class Addresses extends Component
 
     public array $addresses = [];
 
-    // Form properties
     public bool $showForm = false;
+
+    public bool $isEditing = false;
+
+    public ?int $editingAddressId = null;
 
     public $address_label = 'home';
 
@@ -33,7 +36,6 @@ class Addresses extends Component
 
     public $address_is_primary = false;
 
-    // Region data
     public bool $regionDataReady = false;
 
     public array $provinces = [];
@@ -158,6 +160,38 @@ class Addresses extends Component
     public function openForm(): void
     {
         $this->resetForm();
+        $this->isEditing = false;
+        $this->editingAddressId = null;
+        $this->showForm = true;
+    }
+
+    public function editAddress(int $addressId): void
+    {
+        $address = $this->user->addresses()->whereKey($addressId)->first();
+        if (! $address) {
+            return;
+        }
+
+        $this->isEditing = true;
+        $this->editingAddressId = $addressId;
+
+        $this->selectedProvinceCode = null;
+        $this->selectedCityCode = null;
+        $this->selectedDistrictCode = null;
+        $this->selectedVillageCode = null;
+        $this->cities = [];
+        $this->districts = [];
+        $this->villages = [];
+
+        $this->address_label = $address->label;
+        $this->address_recipient_name = $address->recipient_name;
+        $this->address_phone = $address->phone;
+        $this->address_street = $address->street;
+        $this->address_detail = $address->detail ?? '';
+        $this->address_postal_code = $address->postal_code ?? '';
+        $this->address_is_primary = $address->is_primary;
+        $this->address_region = $address->region;
+
         $this->showForm = true;
     }
 
@@ -174,8 +208,8 @@ class Addresses extends Component
             'address_recipient_name' => ['required', 'string', 'max:150'],
             'address_phone' => ['required', 'string', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'address_street' => ['required', 'string', 'max:255'],
-            'address_detail' => ['required', 'string', 'max:255'],
-            'address_postal_code' => ['required', 'string', 'max:10'],
+            'address_detail' => ['nullable', 'string', 'max:255'],
+            'address_postal_code' => ['nullable', 'string', 'max:10'],
         ];
 
         if ($this->regionDataReady) {
@@ -199,28 +233,50 @@ class Addresses extends Component
             $this->address_region = $this->buildRegionLabelFromSelection();
         }
 
-        // Cek apakah ini alamat pertama → otomatis utama
-        $existingCount = $this->user->addresses()->count();
-        $isPrimary = $existingCount === 0 ? true : $this->address_is_primary;
+        if ($this->isEditing && $this->editingAddressId) {
+            $address = $this->user->addresses()->whereKey($this->editingAddressId)->first();
+            if ($address) {
+                if ($this->address_is_primary && ! $address->is_primary) {
+                    $this->user->addresses()->update(['is_primary' => false]);
+                }
 
-        if ($isPrimary) {
-            $this->user->addresses()->update(['is_primary' => false]);
+                $address->update([
+                    'label' => $this->address_label,
+                    'recipient_name' => $this->address_recipient_name,
+                    'phone' => $this->address_phone,
+                    'region' => $this->address_region,
+                    'street' => $this->address_street,
+                    'detail' => $this->address_detail,
+                    'postal_code' => $this->address_postal_code,
+                    'is_primary' => $this->address_is_primary,
+                ]);
+
+                $this->dispatch('notify', type: 'success', message: 'Alamat berhasil diperbarui.');
+            }
+        } else {
+            $existingCount = $this->user->addresses()->count();
+            $isPrimary = $existingCount === 0 ? true : $this->address_is_primary;
+
+            if ($isPrimary) {
+                $this->user->addresses()->update(['is_primary' => false]);
+            }
+
+            $this->user->addresses()->create([
+                'label' => $this->address_label,
+                'recipient_name' => $this->address_recipient_name,
+                'phone' => $this->address_phone,
+                'region' => $this->address_region,
+                'street' => $this->address_street,
+                'detail' => $this->address_detail,
+                'postal_code' => $this->address_postal_code,
+                'is_primary' => $isPrimary,
+            ]);
+
+            $this->dispatch('notify', type: 'success', message: 'Alamat berhasil disimpan.');
         }
-
-        $this->user->addresses()->create([
-            'label' => $this->address_label,
-            'recipient_name' => $this->address_recipient_name,
-            'phone' => $this->address_phone,
-            'region' => $this->address_region,
-            'street' => $this->address_street,
-            'detail' => $this->address_detail,
-            'postal_code' => $this->address_postal_code,
-            'is_primary' => $isPrimary,
-        ]);
 
         $this->closeForm();
         $this->loadAddresses();
-        $this->dispatch('notify', type: 'success', message: 'Alamat berhasil disimpan.');
     }
 
     public function setPrimaryAddress(int $addressId): void
@@ -251,6 +307,8 @@ class Addresses extends Component
 
     protected function resetForm(): void
     {
+        $this->isEditing = false;
+        $this->editingAddressId = null;
         $this->address_label = 'home';
         $this->address_recipient_name = '';
         $this->address_phone = '';

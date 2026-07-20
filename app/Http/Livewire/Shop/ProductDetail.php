@@ -58,10 +58,13 @@ class ProductDetail extends Component
             return;
         }
 
-        redirect()->route('checkout', [
-            'product' => $this->product->id,
-            'quantity' => $this->quantity,
-        ]);
+        if ($this->product->stock < $this->quantity) {
+            $this->successMessage = 'Stok tidak mencukupi.';
+
+            return;
+        }
+
+        $this->redirect(route('checkout', ['product' => $this->product->id, 'quantity' => $this->quantity]), navigate: true);
     }
 
     /**

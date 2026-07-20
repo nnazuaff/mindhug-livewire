@@ -1,16 +1,16 @@
 <div class="space-y-6">
-    <section class="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[0_32px_60px_rgba(34,25,17,0.08)]">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div class="flex items-center gap-4">
+    {{-- Avatar Section --}}
+    <section class="rounded-[1.75rem] border border-[#e8d5c4] bg-white p-6 sm:p-8">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-5">
                 {{-- Avatar --}}
                 <div x-data="avatarCropper()" class="group relative shrink-0">
-                    <div class="h-24 w-24 rounded-[1.75rem] overflow-hidden border-2 border-stone-200 bg-[#f5e9df]">
+                    <div class="h-24 w-24 rounded-2xl overflow-hidden border-2 border-[#e8d5c4] bg-[#f5e9df]">
                         <img src="{{ $croppedAvatar ?? $user->avatar_url }}" alt="{{ $user->full_name }}"
                             class="h-full w-full object-cover">
                     </div>
-
                     <label for="avatar-upload"
-                        class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-[1.75rem] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                         <svg class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path
@@ -23,121 +23,121 @@
 
                     {{-- Cropper Modal --}}
                     <div x-show="showCropper" x-cloak
-                        class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60"
+                        class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                         @click.self="showCropper = false; if(cropper) cropper.destroy()">
                         <div class="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl">
-                            <h3 class="text-sm font-semibold text-stone-800 mb-4">Crop Foto Profil (1:1)</h3>
+                            <h3 class="text-sm font-semibold text-[#2b1d12] mb-4">Sesuaikan Foto Profil</h3>
                             <div class="flex justify-center mb-4">
                                 <img x-ref="cropperImage" class="max-w-full max-h-[350px] rounded-xl">
                             </div>
-                            <div class="flex gap-2">
+                            <div class="flex gap-3">
                                 <button type="button" @click="showCropper = false; cropper.destroy()"
-                                    class="flex-1 rounded-xl bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-200">Batal</button>
+                                    class="flex-1 rounded-xl border border-[#e0d0c0] bg-white px-4 py-2.5 text-sm font-medium text-[#6a5a4f] hover:bg-stone-50 transition-colors">Batal</button>
                                 <button type="button" @click="cropAndSave"
-                                    class="flex-1 rounded-xl bg-[#a47551] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#8f6243]">Simpan</button>
+                                    class="flex-1 rounded-xl bg-[#a47551] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#8f6243] transition-colors">Simpan</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h1 class="text-3xl font-semibold text-[#1f1f1f]">{{ $user->full_name }}</h1>
+                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-[#8b6f5c]/70">Profil</p>
+                    <h1 class="mt-1.5 text-2xl sm:text-3xl font-semibold text-[#1f1f1f]">{{ $user->full_name }}</h1>
+                    <p class="mt-1 text-sm text-[#6a5a4f]">{{ '@' . $user->username }}</p>
                 </div>
             </div>
-
-            {{-- <div
-                class="rounded-3xl border border-stone-200 bg-white p-4 text-sm text-[#5f4a3f] shadow-sm shadow-[#a47551]/5">
-                <p class="text-xs uppercase tracking-[0.24em] text-[#8b6f5c]/80">Status Akun</p>
-                <div class="mt-2 flex items-center justify-between">
-                    <span
-                        class="inline-flex text-xs px-2.5 py-1 rounded-full font-medium {{ $role === 'plus' ? 'role-plus' : 'role-free' }}">
-                        {{ $role === 'plus' ? 'Plus' : 'Free' }}
-                    </span>
-                    @if ($role === 'free')
-                        <a href="{{ route('upgrade') }}"
-                            class="text-xs font-semibold text-amber-600 hover:text-amber-700">Upgrade →</a>
-                    @endif
-                </div>
-                @if ($role === 'plus' && $user->plus_expires_at)
-                    <p class="mt-2 text-xs text-stone-400">Berlaku sampai
-                        {{ $user->plus_expires_at->setTimezone('Asia/Jakarta')->format('d M Y') }}</p>
-                @endif
-            </div> --}}
         </div>
 
         @error('avatar')
-            <p class="mt-2 text-xs text-rose-500">{{ $message }}</p>
+            <p class="mt-3 text-xs text-rose-500">{{ $message }}</p>
         @enderror
 
         @if ($user->avatar)
             <button wire:click="removeAvatar" wire:loading.attr="disabled"
-                class="mt-3 text-xs text-stone-400 hover:text-rose-500 transition-colors">Hapus foto profil</button>
+                class="mt-4 text-xs font-medium text-[#8b6f5c] hover:text-rose-500 transition-colors">
+                Hapus foto profil
+            </button>
         @endif
     </section>
 
+    {{-- Success Message --}}
     @if (session()->has('success'))
-        <section class="rounded-[1.75rem] border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-            {{ session('success') }}</section>
+        <section
+            class="rounded-2xl border border-emerald-200 bg-emerald-50/70 px-5 py-4 text-sm text-emerald-700 flex items-start gap-3">
+            <svg class="h-5 w-5 shrink-0 mt-0.5 text-emerald-500" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            <span>{{ session('success') }}</span>
+        </section>
     @endif
 
-    <section class="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[0_32px_60px_rgba(34,25,17,0.08)]">
+    {{-- Edit Form --}}
+    <section class="rounded-[1.75rem] border border-[#e8d5c4] bg-white p-6 sm:p-8">
         <div class="mb-6">
-            <p class="text-sm font-semibold uppercase tracking-[0.32em] text-[#8b6f5c]/80">Edit Profil</p>
-            <h2 class="mt-2 text-2xl font-bold text-[#1f1f1f]">Ubah informasi dasar</h2>
+            <p class="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-[#8b6f5c]/70">Edit Profil</p>
+            <h2 class="mt-2 text-xl font-semibold text-[#1f1f1f]">Informasi dasar</h2>
+            <p class="mt-1 text-sm text-[#6a5a4f]">Perbarui data diri yang ditampilkan di akun kamu.</p>
         </div>
 
-        <form wire:submit.prevent="updateProfile" class="space-y-6">
-            <div class="grid gap-4 lg:grid-cols-2">
-                <label class="block">
-                    <span class="mb-2 block text-sm font-medium text-[#3d2b1c]">Nama Lengkap</span>
+        <form wire:submit.prevent="updateProfile" class="space-y-5">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-semibold text-[#3d2b1c] mb-2">Nama Lengkap</label>
                     <input wire:model.blur="full_name" type="text" placeholder="Nama lengkap"
-                        class="w-full rounded-2xl border border-stone-200 bg-[#fbf6f1] px-4 py-3 text-sm text-[#2b1d12] outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200/70">
+                        class="w-full rounded-xl border border-[#e0d0c0] bg-[#fdfaf7] px-4 py-3 text-sm placeholder-[#b0a090] outline-none transition duration-200 focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/15 @error('full_name') border-rose-300 bg-rose-50/50 @enderror">
                     @error('full_name')
-                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
+                        <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span>
                     @enderror
-                </label>
-                <label class="block">
-                    <span class="mb-2 block text-sm font-medium text-[#3d2b1c]">Username</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-[#3d2b1c] mb-2">Username</label>
                     <input wire:model.blur="username" type="text" placeholder="Username"
-                        class="w-full rounded-2xl border border-stone-200 bg-[#fbf6f1] px-4 py-3 text-sm text-[#2b1d12] outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200/70">
+                        class="w-full rounded-xl border border-[#e0d0c0] bg-[#fdfaf7] px-4 py-3 text-sm placeholder-[#b0a090] outline-none transition duration-200 focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/15 @error('username') border-rose-300 bg-rose-50/50 @enderror">
                     @error('username')
-                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
+                        <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span>
                     @enderror
-                </label>
+                </div>
             </div>
-            <div class="grid gap-4 lg:grid-cols-2">
-                <label class="block">
-                    <span class="mb-2 block text-sm font-medium text-[#3d2b1c]">Email</span>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-semibold text-[#3d2b1c] mb-2">Email</label>
                     <input wire:model.blur="email" type="email" placeholder="email@kamu.com"
-                        class="w-full rounded-2xl border border-stone-200 bg-[#fbf6f1] px-4 py-3 text-sm text-[#2b1d12] outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200/70">
+                        class="w-full rounded-xl border border-[#e0d0c0] bg-[#fdfaf7] px-4 py-3 text-sm placeholder-[#b0a090] outline-none transition duration-200 focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/15 @error('email') border-rose-300 bg-rose-50/50 @enderror">
                     @error('email')
-                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
+                        <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span>
                     @enderror
-                </label>
-                <label class="block">
-                    <span class="mb-2 block text-sm font-medium text-[#3d2b1c]">Telepon</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-[#3d2b1c] mb-2">Telepon</label>
                     <input wire:model.blur="phone" type="tel" placeholder="0812xxxxxxx"
-                        class="w-full rounded-2xl border border-stone-200 bg-[#fbf6f1] px-4 py-3 text-sm text-[#2b1d12] outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200/70">
+                        class="w-full rounded-xl border border-[#e0d0c0] bg-[#fdfaf7] px-4 py-3 text-sm placeholder-[#b0a090] outline-none transition duration-200 focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/15 @error('phone') border-rose-300 bg-rose-50/50 @enderror">
                     @error('phone')
-                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
+                        <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span>
                     @enderror
-                </label>
+                </div>
             </div>
-            <div class="grid gap-4 lg:grid-cols-2">
-                <label class="block">
-                    <span class="mb-2 block text-sm font-medium text-[#3d2b1c]">Tanggal Lahir</span>
-                    <input wire:model.blur="birth_date" type="date"
-                        class="w-full rounded-2xl border border-stone-200 bg-[#fbf6f1] px-4 py-3 text-sm text-[#2b1d12] outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200/70">
-                    @error('birth_date')
-                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                    @enderror
-                </label>
+            <div>
+                <label class="block text-sm font-semibold text-[#3d2b1c] mb-2">Tanggal Lahir</label>
+                <input wire:model.blur="birth_date" type="date"
+                    class="w-full sm:max-w-xs rounded-xl border border-[#e0d0c0] bg-[#fdfaf7] px-4 py-3 text-sm placeholder-[#b0a090] outline-none transition duration-200 focus:border-[#a47551] focus:ring-2 focus:ring-[#a47551]/15 @error('birth_date') border-rose-300 bg-rose-50/50 @enderror">
+                @error('birth_date')
+                    <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span>
+                @enderror
             </div>
-            <div class="flex justify-end">
+            <div class="flex justify-end pt-2">
                 <button type="submit" wire:loading.attr="disabled"
-                    class="inline-flex items-center justify-center rounded-2xl bg-[#a47551] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#a47551]/20 transition hover:bg-[#8f6243] disabled:cursor-not-allowed disabled:opacity-60">
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#a47551] px-6 py-3 text-sm font-semibold text-white hover:bg-[#8f6243] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200">
                     <span wire:loading.remove>Simpan Perubahan</span>
-                    <span wire:loading>Memperbarui...</span>
+                    <span wire:loading class="inline-flex items-center gap-2">
+                        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Memperbarui...
+                    </span>
                 </button>
             </div>
         </form>
