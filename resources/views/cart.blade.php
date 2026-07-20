@@ -1,5 +1,5 @@
 <x-layouts.app title="Keranjang Belanja">
-    <div class="max-w-6xl mx-auto px-4 py-10">
+    <div class="max-w-5xl mx-auto px-4 py-10">
         <div class="flex flex-col gap-6 lg:gap-10">
             <div class="space-y-2">
                 <span
