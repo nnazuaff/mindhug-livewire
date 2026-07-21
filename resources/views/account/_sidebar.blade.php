@@ -72,7 +72,7 @@
     <div class="space-y-3">
         <div class="rounded-2xl border border-[#e8d5c4] bg-white p-4">
             <div class="flex items-center justify-between mb-2">
-                <p class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#8b6f5c]/70">Status</p>
+                <p class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#8b6f5c]/70">Akun</p>
                 <span
                     class="inline-flex text-[0.6rem] px-2.5 py-1 rounded-full font-semibold {{ $role === 'plus' ? 'role-plus' : 'role-free' }}">
                     {{ $role === 'plus' ? 'Plus' : 'Free' }}
