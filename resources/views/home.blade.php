@@ -6,10 +6,7 @@
             <div
                 class="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-20 grid lg:grid-cols-[1fr_0.95fr] gap-9 lg:gap-12 items-center">
                 <div>
-                    <p
-                        class="inline-flex items-center gap-2 rounded-full bg-[#f5e9df] text-[#a47551] px-3.5 py-1.5 text-xs font-semibold tracking-[0.08em] uppercase">
-                        anomim • cepet • gak ribet
-                    </p>
+
 
                     <h1
                         class="mt-5 text-[2.15rem] sm:text-[2.75rem] md:text-[3.25rem] leading-[1.05] font-bold text-[#2b1d12]">
