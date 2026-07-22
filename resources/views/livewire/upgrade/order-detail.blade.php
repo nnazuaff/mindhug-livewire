@@ -1,6 +1,25 @@
-<div class="max-w-2xl mx-auto px-4 py-6 sm:py-10">
+<div class="max-w-2xl mx-auto px-4 py-6 sm:py-10" x-data="{ snapToken: @entangle('snapToken') }"
+    x-on:snap-open.window="
+        if (snapToken && window.snap) {
+            window.snap.pay(snapToken, {
+                onSuccess: function() { window.location.reload(); },
+                onPending: function() { window.location.reload(); },
+                onError: function() { location.reload(); },
+                onClose: function() { window.location.reload(); }
+            });
+        }
+    "
+    x-init="$watch('snapToken', function(token) {
+        if (token && window.snap) {
+            window.snap.pay(token, {
+                onSuccess: function() { window.location.reload(); },
+                onPending: function() { window.location.reload(); },
+                onError: function() { location.reload(); },
+                onClose: function() { window.location.reload(); }
+            });
+        }
+    });">
     <div class="space-y-4 sm:space-y-6">
-        {{-- Back --}}
         <a href="{{ route('plus.orders') }}" wire:navigate
             class="inline-flex items-center gap-1.5 text-sm text-[#6a5a4f] hover:text-[#a47551] transition">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -9,8 +28,7 @@
             Kembali
         </a>
 
-        {{-- Header --}}
-        <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm">
+        <div class="rounded-2xl sm:rounded-3xl border border-[#e8d5c4] bg-white p-4 sm:p-6">
             <p class="text-xs uppercase tracking-[0.3em] text-[#8b6f5c]/70">Detail Langganan</p>
             <h1 class="mt-1 text-xl sm:text-2xl font-semibold text-[#2b1d12] break-all">{{ $order->invoice_number }}
             </h1>
@@ -23,20 +41,15 @@
                 </span>
 
                 @if ($order->status === 'awaiting_payment')
-                    <a href="{{ route('plus.orders.pay', $order->invoice_number) }}" wire:navigate
+                    <button wire:click="openSnap" type="button"
                         class="inline-flex items-center gap-1.5 rounded-xl bg-[#a47551] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#8f6243] transition-colors">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="5" width="20" height="14" rx="2" />
-                            <line x1="2" y1="10" x2="22" y2="10" />
-                        </svg>
-                        Bayar
-                    </a>
+                        Bayar Sekarang
+                    </button>
                 @endif
             </div>
         </div>
 
-        {{-- Detail Plan --}}
-        <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm">
+        <div class="rounded-2xl sm:rounded-3xl border border-[#e8d5c4] bg-white p-4 sm:p-6">
             <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12] mb-4">Paket Langganan</h2>
             <div class="flex items-center justify-between">
                 <div>
@@ -46,17 +59,9 @@
                 </div>
                 <p class="text-lg font-bold text-[#a47551]">Rp {{ number_format($order->amount, 0, ',', '.') }}</p>
             </div>
-
-            @if ($order->payment_method)
-                <div class="mt-4 pt-4 border-t border-stone-100">
-                    <p class="text-xs text-[#6a5a4f]">Metode pembayaran:</p>
-                    <p class="text-sm font-semibold text-[#2b1d12]">{{ $order->payment_method }}</p>
-                </div>
-            @endif
         </div>
 
-        {{-- Status Timeline --}}
-        <div class="rounded-2xl sm:rounded-3xl border border-stone-200 bg-white p-4 sm:p-6 shadow-sm">
+        <div class="rounded-2xl sm:rounded-3xl border border-[#e8d5c4] bg-white p-4 sm:p-6">
             <h2 class="text-base sm:text-lg font-semibold text-[#2b1d12] mb-4">Status</h2>
             <div class="space-y-0">
                 @php
@@ -77,12 +82,10 @@
                         ],
                         ['status' => 'completed', 'label' => 'Plus Aktif', 'done' => $order->status === 'completed'],
                     ];
-
                     if ($order->status === 'cancelled') {
                         $steps = [['status' => 'cancelled', 'label' => 'Dibatalkan', 'done' => true]];
                     }
                 @endphp
-
                 @foreach ($steps as $step)
                     <div class="relative flex gap-3 sm:gap-4 pb-5 sm:pb-6 last:pb-0">
                         @if (!$loop->last)
@@ -98,8 +101,7 @@
                             <p class="font-semibold text-[#2b1d12] text-xs sm:text-sm">{{ $step['label'] }}</p>
                             @if ($step['status'] === 'completed' && $order->confirmed_at)
                                 <p class="text-[0.65rem] sm:text-xs text-[#aaa] mt-1">
-                                    {{ $order->confirmed_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
-                                </p>
+                                    {{ $order->confirmed_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</p>
                             @endif
                         </div>
                     </div>
@@ -107,4 +109,8 @@
             </div>
         </div>
     </div>
+
+    <script
+        src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
 </div>
