@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Livewire\Upgrade\Checkout;
 use App\Http\Livewire\Upgrade\Index;
 use App\Http\Livewire\Upgrade\OrderDetail;
@@ -19,6 +20,8 @@ Route::middleware('guest')->group(function () {
     Route::view('/login', 'auth.login')->name('login');
     Route::view('/register', 'auth.register')->name('register');
 });
+
+Route::post('/api/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
 
 Route::middleware(['auth', 'user.active'])->group(function () {
 

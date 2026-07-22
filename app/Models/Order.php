@@ -25,6 +25,10 @@ class Order extends Model
         'handling_fee',
         'payment_proof',
         'shipping_address',
+        'snap_token',
+        'midtrans_transaction_id',
+        'payment_type',
+        'payment_channel',
     ];
 
     protected function casts(): array

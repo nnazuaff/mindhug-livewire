@@ -10,7 +10,7 @@ class SubscriptionOrder extends Model
 
     protected $fillable = [
         'invoice_number', 'user_id', 'subscription_plan_id', 'amount',
-        'status', 'payment_method', 'payment_proof', 'confirmed_at',
+        'status', 'payment_method', 'payment_proof', 'confirmed_at', 'snap_token', 'midtrans_transaction_id', 'payment_type',
     ];
 
     protected function casts(): array

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\AdminRole;
+use App\Http\Middleware\AdminSession;
+use App\Http\Middleware\CheckUserStatus;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,8 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin.role' => AdminRole::class,
-            'admin.session' => \App\Http\Middleware\AdminSession::class,
-            'user.active'   => \App\Http\Middleware\CheckUserStatus::class,
+            'admin.session' => AdminSession::class,
+            'user.active' => CheckUserStatus::class,
+        ]);
+
+        $middleware->preventRequestForgery(except: [
+            'api/midtrans/webhook',
         ]);
     })
 
