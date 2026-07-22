@@ -64,7 +64,10 @@ class ProductDetail extends Component
             return;
         }
 
-        $this->redirect(route('checkout', ['product' => $this->product->id, 'quantity' => $this->quantity]), navigate: true);
+        $this->redirect(route('checkout', [
+            'product' => $this->product->id,
+            'quantity' => $this->quantity,
+        ]), navigate: true);
     }
 
     /**

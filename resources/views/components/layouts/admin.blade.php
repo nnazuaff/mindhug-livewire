@@ -134,24 +134,23 @@
                         </svg>
                         <span>Voucher</span>
                     </a>
+                    <a href="{{ route('admin.subscription-plans') }}"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.subscription-plans*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="h-4 w-4 shrink-0">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        <span>Paket Plus</span>
+                    </a>
                 </div>
+
 
                 {{--  KEUANGAN  --}}
                 <div class="pt-2 mb-3">
                     <p class="px-3 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-stone-400 mb-2">Keuangan
                     </p>
-
-                    <a href="{{ route('admin.payment-methods') }}"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.payment-methods*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="h-4 w-4 shrink-0">
-                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                            <line x1="1" y1="10" x2="23" y2="10" />
-                        </svg>
-                        <span>Metode Bayar</span>
-                    </a>
-
                     <a href="{{ route('admin.income-expenses') }}"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.income-expenses*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -279,14 +278,12 @@
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.categories*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Kategori</span></a>
                         <a href="{{ route('admin.promotions') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.promotions*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Voucher</span></a>
+                        <a href="{{ route('admin.subscription-plans') }}" @click="open = false"
+                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.subscription-plans*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Paket
+                                Plus</span></a>
 
                         {{-- Keuangan --}}
-                        <p
-                            class="px-3 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-stone-400 mb-2 mt-4">
-                            Keuangan</p>
-                        <a href="{{ route('admin.payment-methods') }}" @click="open = false"
-                            class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.payment-methods*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Metode
-                                Bayar</span></a>
+
                         <a href="{{ route('admin.income-expenses') }}" @click="open = false"
                             class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('admin.income-expenses*') ? 'bg-[#f5e9df] text-[#a47551]' : 'text-stone-600 hover:bg-stone-100' }}"><span>Keuangan</span></a>
 

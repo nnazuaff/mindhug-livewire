@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Orders;
 
 use App\Models\Order;
+use App\Services\MidtransService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -13,17 +14,37 @@ class Show extends Component
 
     public string $cancelReason = '';
 
+    public ?string $snapToken = null;
+
+    public function mount(Order $order): void
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+        $this->order = $order->load(['items', 'trackingEvents' => fn ($q) => $q->orderByDesc('occurred_at')]);
+
+        // Auto-buka Snap sekali saja
+        if ($this->order->status === 'awaiting_payment' && $this->order->snap_token) {
+            $flag = 'snap_auto_order_'.$this->order->id;
+            if (! session()->has($flag)) {
+                $this->snapToken = $this->order->snap_token;
+                session()->put($flag, true);
+            }
+        }
+    }
+
     public function requestCancel(int $orderId): void
     {
         $order = Order::findOrFail($orderId);
-
         if ($order->user_id !== Auth::id()) {
             return;
         }
-
         if (empty(trim($this->cancelReason))) {
             return;
         }
+
+        // Cancel di Midtrans
+        app(MidtransService::class)->cancelTransaction($order);
 
         $order->update([
             'cancel_reason' => $this->cancelReason,
@@ -42,12 +63,40 @@ class Show extends Component
         $this->order->load(['items', 'trackingEvents' => fn ($q) => $q->orderByDesc('occurred_at')]);
     }
 
-    public function mount(Order $order): void
+    public function openSnap(): void
     {
-        if ($order->user_id !== Auth::id()) {
-            abort(403);
+        if ($this->order->status !== 'awaiting_payment') {
+            return;
         }
-        $this->order = $order->load(['items', 'trackingEvents' => fn ($q) => $q->orderByDesc('occurred_at')]);
+
+        if ($this->order->snap_token) {
+            $this->snapToken = $this->order->snap_token;
+        } else {
+            $token = app(MidtransService::class)->createSnapToken($this->order);
+            if ($token) {
+                $this->snapToken = $token;
+            } else {
+                $this->dispatch('notify', type: 'error', message: 'Gagal membuat sesi pembayaran.');
+
+                return;
+            }
+        }
+
+        // Reset flag agar Snap bisa muncul lagi setelah close
+        session()->forget('snap_auto_order_'.$this->order->id);
+        $this->dispatch('snap-open');
+    }
+
+    public function checkPaymentStatus(): void
+    {
+        $updated = app(MidtransService::class)->checkAndUpdateStatus($this->order);
+        if ($updated) {
+            $this->order->refresh();
+            $this->order->load(['items', 'trackingEvents' => fn ($q) => $q->orderByDesc('occurred_at')]);
+            $this->snapToken = null;
+            session()->forget('snap_auto_order_'.$this->order->id);
+            $this->dispatch('notify', type: 'success', message: 'Pembayaran berhasil dikonfirmasi.');
+        }
     }
 
     #[On('order-updated')]
