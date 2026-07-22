@@ -4,7 +4,6 @@ use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Livewire\Upgrade\Checkout;
 use App\Http\Livewire\Upgrade\Index;
 use App\Http\Livewire\Upgrade\OrderDetail;
-use App\Http\Livewire\Upgrade\OrderPay;
 use App\Http\Livewire\Upgrade\Orders;
 use App\Models\Order;
 use App\Models\Product;
@@ -47,9 +46,6 @@ Route::middleware(['auth', 'user.active'])->group(function () {
     Route::get('/plus/orders/{order:invoice_number}', OrderDetail::class)
         ->name('plus.orders.show');
 
-    Route::get('/plus/orders/{order:invoice_number}/pay', OrderPay::class)
-        ->name('plus.orders.pay');
-
     // ── Logout ────────────────────────────────────
     Route::post('/logout', function () {
         Auth::logout();
@@ -76,14 +72,6 @@ Route::middleware(['auth', 'user.active'])->group(function () {
     Route::get('/transactions/orders/{order:invoice_number}', function (Order $order) {
         return view('orders.show', compact('order'));
     })->name('orders.show');
-
-    Route::get('/transactions/orders/{order:invoice_number}/pay', function (Order $order) {
-        if ($order->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        return view('orders.pay', compact('order'));
-    })->name('orders.pay');
 });
 
 // ── Shop (public) ────────────────────────────────
