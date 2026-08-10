@@ -63,7 +63,7 @@
                             ⏳ Kamu sudah mengajukan upgrade. Status:
                             <strong>{{ $pendingUpgrade->status === 'awaiting_payment' ? 'Menunggu Pembayaran' : 'Menunggu Konfirmasi' }}</strong>.
                             @if ($pendingUpgrade->status === 'awaiting_payment')
-                                <a href="{{ route('plus.orders.pay', $pendingUpgrade->invoice_number) }}"
+                                <a href="{{ route('plus.orders.show', $pendingUpgrade->invoice_number) }}"
                                     class="underline font-semibold text-amber-800 block mt-1">Lanjutkan pembayaran →</a>
                             @else
                                 <span class="block mt-1">Tunggu konfirmasi dari admin ya.</span>
